@@ -13,5 +13,9 @@ echo "==> Clearing Laravel cache..."
 php artisan config:clear
 php artisan cache:clear
 
+echo "==> Optimizing Laravel..."
+php artisan config:cache
+php artisan route:cache
+
 echo "==> Starting supervisor (PHP-FPM, Nginx, Queue Worker)..."
-exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf
