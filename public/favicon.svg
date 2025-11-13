@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="bookGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="48" fill="url(#bookGradient)"/>
+  
+  <!-- Book icon -->
+  <g transform="translate(30, 25)">
+    <!-- Book cover -->
+    <rect x="0" y="0" width="40" height="50" rx="2" fill="#ffffff" opacity="0.95"/>
+    
+    <!-- Book spine -->
+    <rect x="0" y="0" width="4" height="50" rx="1" fill="#E0E7FF"/>
+    
+    <!-- Book pages -->
+    <line x1="10" y1="12" x2="32" y2="12" stroke="#4F46E5" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+    <line x1="10" y1="20" x2="32" y2="20" stroke="#4F46E5" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+    <line x1="10" y1="28" x2="28" y2="28" stroke="#4F46E5" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+    <line x1="10" y1="36" x2="30" y2="36" stroke="#4F46E5" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+  </g>
+</svg>

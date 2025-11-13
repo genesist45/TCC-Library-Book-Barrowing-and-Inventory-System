@@ -1,0 +1,37 @@
+{
+  "appId": "com.library.system",
+  "productName": "Library System",
+  "directories": {
+    "output": "dist-electron"
+  },
+  "files": [
+    "electron.cjs",
+    "preload.cjs",
+    "public/**/*",
+    "bootstrap/**/*",
+    "app/**/*",
+    "config/**/*",
+    "database/**/*",
+    "routes/**/*",
+    "resources/**/*",
+    "storage/**/*",
+    "vendor/**/*",
+    "artisan",
+    "composer.json",
+    "composer.lock",
+    ".env.example"
+  ],
+  "win": {
+    "target": "nsis",
+    "icon": "public/favicon.ico"
+  },
+  "mac": {
+    "target": "dmg",
+    "icon": "public/favicon.ico"
+  },
+  "linux": {
+    "target": "AppImage",
+    "icon": "public/favicon.ico"
+  }
+}
+

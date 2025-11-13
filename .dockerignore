@@ -1,0 +1,44 @@
+# Environment files
+.env
+.env.*
+
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Dependencies
+node_modules
+vendor
+
+# Testing
+tests
+phpunit.xml
+.phpunit.result.cache
+
+# Documentation
+*.md
+README.md
+
+# Docker files
+docker-compose*.yml
+Dockerfile*
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Logs
+storage/logs/*
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+.editorconfig
+.styleci.yml
