@@ -12,10 +12,15 @@ php artisan storage:link 2>/dev/null || echo "Storage link exists or failed, con
 echo "==> Clearing Laravel cache..."
 php artisan config:clear
 php artisan cache:clear
+php artisan view:clear
 
 echo "==> Optimizing Laravel..."
 php artisan config:cache
 php artisan route:cache
+php artisan view:cache
+
+echo "==> Testing database connection..."
+php artisan db:show || echo "Database info not available"
 
 echo "==> Starting supervisor (PHP-FPM, Nginx, Queue Worker)..."
 exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf
