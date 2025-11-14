@@ -1,4 +1,4 @@
-import { LayoutDashboard, Bot } from 'lucide-react';
+import { LayoutDashboard } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 
 export interface MenuItem {
@@ -9,20 +9,13 @@ export interface MenuItem {
     onClick?: () => void;
 }
 
-export const getStaffMenuItems = (currentRoute: string, onAIAssistantClick?: () => void): MenuItem[] => {
+export const getStaffMenuItems = (currentRoute: string): MenuItem[] => {
     return [
         {
             name: 'Dashboard',
             href: 'dashboard',
             icon: LayoutDashboard,
             active: currentRoute === 'dashboard',
-        },
-        {
-            name: 'AI Assistant',
-            href: '#',
-            icon: Bot,
-            active: false,
-            onClick: onAIAssistantClick,
         },
     ];
 };

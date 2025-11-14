@@ -8,7 +8,6 @@ import { getStaffMenuItems } from '@/components/menu/staff';
 import { Settings, LogOut, ChevronsUpDown } from 'lucide-react';
 import { useState } from 'react';
 import ConfirmModal from '@/components/modals/ConfirmModal';
-import AIChatModal from '@/components/modals/AIChatModal';
 
 interface SidebarProps {
     currentRoute: string;
@@ -37,12 +36,11 @@ export default function Sidebar({
     const isVisuallyExpanded = showExpanded;
     const [showAccountDropdown, setShowAccountDropdown] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
-    const [showAIChatModal, setShowAIChatModal] = useState(false);
     const [processing, setProcessing] = useState(false);
 
     const menuItems = user.role === 'admin' 
-        ? getAdminMenuItems(currentRoute, () => setShowAIChatModal(true)) 
-        : getStaffMenuItems(currentRoute, () => setShowAIChatModal(true));
+        ? getAdminMenuItems(currentRoute) 
+        : getStaffMenuItems(currentRoute);
 
     const handleLogout = () => {
         setProcessing(true);
@@ -258,13 +256,6 @@ export default function Sidebar({
             onConfirm={handleLogout}
             onCancel={() => setShowLogoutModal(false)}
             processing={processing}
-        />
-
-        {/* AI Chat Modal */}
-        <AIChatModal
-            show={showAIChatModal}
-            onClose={() => setShowAIChatModal(false)}
-            user={user}
         />
         </>
     );

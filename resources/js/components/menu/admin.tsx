@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, ScanBarcode, Mail, Bot } from 'lucide-react';
+import { LayoutDashboard, Users, ScanBarcode, Mail } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 
 export interface MenuItem {
@@ -9,7 +9,7 @@ export interface MenuItem {
     onClick?: () => void;
 }
 
-export const getAdminMenuItems = (currentRoute: string, onAIAssistantClick?: () => void): MenuItem[] => {
+export const getAdminMenuItems = (currentRoute: string): MenuItem[] => {
     return [
         {
             name: 'Dashboard',
@@ -34,13 +34,6 @@ export const getAdminMenuItems = (currentRoute: string, onAIAssistantClick?: () 
             href: 'email-reminder',
             icon: Mail,
             active: currentRoute === 'email-reminder' || currentRoute.startsWith('email-reminder.'),
-        },
-        {
-            name: 'AI Assistant',
-            href: '#',
-            icon: Bot,
-            active: false,
-            onClick: onAIAssistantClick,
         },
     ];
 };

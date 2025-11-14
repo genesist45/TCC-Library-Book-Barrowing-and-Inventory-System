@@ -122,6 +122,7 @@ export default function Authenticated({ children }: PropsWithChildren) {
                             }
                         }}
                         onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
+                        user={user}
                     />
                 </Suspense>
 

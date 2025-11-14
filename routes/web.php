@@ -32,6 +32,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // AI Chat
     Route::post('/ai/chat', [AIChatController::class, 'chat'])->name('ai.chat');
+    Route::get('/ai/conversations', [AIChatController::class, 'conversations'])->name('ai.conversations');
+    Route::get('/ai/conversations/{id}', [AIChatController::class, 'getConversation'])->name('ai.conversations.get');
+    Route::post('/ai/conversations', [AIChatController::class, 'saveConversation'])->name('ai.conversations.save');
+    Route::delete('/ai/conversations/{id}', [AIChatController::class, 'deleteConversation'])->name('ai.conversations.delete');
 });
 
 // Admin-only routes (without URL prefix, but protected by role middleware)
