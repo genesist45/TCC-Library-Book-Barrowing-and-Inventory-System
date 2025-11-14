@@ -179,7 +179,7 @@ export default function AIChatSidebar({ isOpen, onClose, user }: AIChatSidebarPr
         }
     };
 
-    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSendMessage();
@@ -211,18 +211,22 @@ export default function AIChatSidebar({ isOpen, onClose, user }: AIChatSidebarPr
             )}
 
             <div 
-                className={`fixed right-0 top-0 z-50 flex h-screen w-[420px] flex-col border-l border-gray-200 bg-white shadow-2xl transition-transform duration-300 ease-in-out dark:border-[#3a3a3a] dark:bg-[#2a2a2a] ${
-                    isOpen ? 'translate-x-0' : 'translate-x-full'
-                }`}
+                className={`fixed z-50 flex flex-col bg-white shadow-2xl transition-all duration-300 ease-in-out dark:bg-[#2a2a2a]
+                    max-md:left-1/2 max-md:top-1/2 max-md:-translate-x-1/2 max-md:-translate-y-1/2 max-md:w-[90%] max-md:max-w-[360px] max-md:h-[85vh] max-md:max-h-[600px] max-md:rounded-2xl max-md:border max-md:border-gray-200 max-md:dark:border-[#3a3a3a]
+                    md:right-0 md:top-0 md:h-screen md:w-[420px] md:border-l md:border-gray-200 md:dark:border-[#3a3a3a]
+                    ${isOpen 
+                        ? 'max-md:opacity-100 max-md:scale-100 md:translate-x-0' 
+                        : 'max-md:opacity-0 max-md:scale-95 max-md:pointer-events-none md:translate-x-full'
+                    }`}
             >
-                <div className="flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 dark:border-[#3a3a3a] dark:from-[#2a2a2a] dark:to-[#2a2a2a]">
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg">
-                            <Bot className="h-5 w-5 text-white" />
+                <div className="flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-2.5 md:px-4 md:py-3 dark:border-[#3a3a3a] dark:from-[#2a2a2a] dark:to-[#2a2a2a]">
+                    <div className="flex items-center gap-2 md:gap-3">
+                        <div className="flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg">
+                            <Bot className="h-4 w-4 md:h-5 md:w-5 text-white" />
                         </div>
                         <div>
-                            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">AI Assistant</h3>
-                            <p className="text-[10px] text-gray-500 dark:text-gray-400">
+                            <h3 className="text-sm md:text-base font-semibold text-gray-900 dark:text-gray-100">AI Assistant</h3>
+                            <p className="text-[9px] md:text-[10px] text-gray-500 dark:text-gray-400">
                                 DeepSeek R1T2 Chimera
                             </p>
                         </div>
@@ -239,7 +243,7 @@ export default function AIChatSidebar({ isOpen, onClose, user }: AIChatSidebarPr
                 <div className="relative border-b border-gray-200 bg-gray-50 dark:border-[#3a3a3a] dark:bg-[#1a1a1a]">
                     <button
                         onClick={() => setShowHistory(!showHistory)}
-                        className="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-[#2a2a2a]"
+                        className="flex w-full items-center justify-between px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-[#2a2a2a]"
                     >
                         <span className="flex items-center gap-2">
                             <Clock className="h-4 w-4" />
@@ -305,7 +309,7 @@ export default function AIChatSidebar({ isOpen, onClose, user }: AIChatSidebarPr
                     )}
                 </div>
 
-                <div className="flex-1 overflow-y-auto bg-gray-50 px-4 py-3 dark:bg-[#1a1a1a]">
+                <div className="flex-1 overflow-y-auto bg-gray-50 px-3 py-2 md:px-4 md:py-3 dark:bg-[#1a1a1a]">
                     {messages.length === 0 ? (
                         <div className="flex h-full flex-col items-center justify-center text-center">
                             <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20">
@@ -390,15 +394,15 @@ export default function AIChatSidebar({ isOpen, onClose, user }: AIChatSidebarPr
                     )}
                 </div>
 
-                <div className="border-t border-gray-200 bg-white px-4 py-3 dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">
-                    <div className="flex gap-2">
+                <div className="border-t border-gray-200 bg-white px-3 py-2 md:px-4 md:py-3 dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">
+                    <form onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} className="flex gap-2">
                         <div className="flex-1">
                             <TextInput
                                 ref={inputRef}
                                 type="text"
                                 value={inputMessage}
                                 onChange={(e) => setInputMessage(e.target.value)}
-                                onKeyPress={handleKeyPress}
+                                onKeyDown={handleKeyDown}
                                 placeholder="Type your message..."
                                 disabled={isLoading}
                                 className="w-full text-sm"
@@ -416,9 +420,9 @@ export default function AIChatSidebar({ isOpen, onClose, user }: AIChatSidebarPr
                                 <Send className="h-4 w-4" />
                             )}
                         </PrimaryButton>
-                    </div>
+                    </form>
                     <p className="mt-1.5 text-[10px] text-gray-500 dark:text-gray-400">
-                        Press Enter to send • Shift+Enter for new line
+                        Press Enter to send
                     </p>
                 </div>
             </div>
