@@ -236,7 +236,7 @@ export default function AIChatSidebar({ isOpen, onClose, user }: AIChatSidebarPr
                     </button>
                 </div>
 
-                <div className="border-b border-gray-200 bg-gray-50 dark:border-[#3a3a3a] dark:bg-[#1a1a1a]">
+                <div className="relative border-b border-gray-200 bg-gray-50 dark:border-[#3a3a3a] dark:bg-[#1a1a1a]">
                     <button
                         onClick={() => setShowHistory(!showHistory)}
                         className="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-[#2a2a2a]"
@@ -249,14 +249,17 @@ export default function AIChatSidebar({ isOpen, onClose, user }: AIChatSidebarPr
                     </button>
 
                     {showHistory && (
-                        <div className="max-h-48 overflow-y-auto border-t border-gray-200 bg-white px-2 py-2 dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">
-                            <button
-                                onClick={handleNewChat}
-                                className="mb-2 flex w-full items-center gap-2 rounded-lg border border-blue-500 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-100 dark:border-blue-600 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30"
-                            >
-                                <Plus className="h-4 w-4" />
-                                New Chat
-                            </button>
+                        <div className="absolute left-0 right-0 top-full z-10 flex max-h-48 flex-col border-b border-gray-200 bg-white shadow-lg dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">
+                            <div className="sticky top-0 z-20 bg-white px-2 pt-2 dark:bg-[#2a2a2a]">
+                                <button
+                                    onClick={handleNewChat}
+                                    className="mb-2 flex w-full items-center gap-2 rounded-lg border border-blue-500 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-100 dark:border-blue-600 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    New Chat
+                                </button>
+                            </div>
+                            <div className="overflow-y-auto px-2 pb-2 scrollbar-hide">
                             {conversations.length === 0 ? (
                                 <p className="py-3 text-center text-xs text-gray-500 dark:text-gray-400">
                                     No previous conversations
@@ -297,6 +300,7 @@ export default function AIChatSidebar({ isOpen, onClose, user }: AIChatSidebarPr
                                     ))}
                                 </div>
                             )}
+                            </div>
                         </div>
                     )}
                 </div>
