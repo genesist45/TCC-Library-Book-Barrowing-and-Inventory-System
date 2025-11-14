@@ -72,16 +72,6 @@ class AIChatController extends Controller
             'history.*.content' => 'required|string',
         ]);
 
-        $message = $request->message;
-        $lowerMessage = strtolower(trim($message));
-        
-        $simpleGreetings = ['hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening', 'hola', 'greetings'];
-        $isSimpleGreeting = in_array($lowerMessage, $simpleGreetings);
-        
-        if ($isSimpleGreeting) {
-            return $this->fallbackAI($message);
-        }
-
         $apiKey = env('OPENROUTER_API_KEY');
 
         if (!$apiKey) {
@@ -161,7 +151,6 @@ class AIChatController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            // Fallback to simple AI if exception occurs
             return $this->fallbackAI($request->message);
         }
     }
