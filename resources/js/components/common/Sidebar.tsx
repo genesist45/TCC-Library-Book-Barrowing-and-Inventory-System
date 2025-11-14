@@ -90,7 +90,7 @@ export default function Sidebar({
                 <hr className="border-gray-200 transition-colors duration-300 dark:border-[#3a3a3a]" />
 
                 {/* Menu Section */}
-                <nav className={`flex-1 space-y-1 overflow-y-auto overflow-x-hidden py-4 px-3 transition-all duration-300 ease-in-out ${
+                <nav className={`flex-1 space-y-1 overflow-y-auto overflow-x-hidden py-4 px-3 scrollbar-hide transition-all duration-300 ease-in-out ${
                     !isVisuallyExpanded ? '-translate-y-8' : 'translate-y-0'
                 }`}>
                     <p className={`mb-3 px-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500 transition-all duration-300 ease-in-out dark:text-gray-400 ${

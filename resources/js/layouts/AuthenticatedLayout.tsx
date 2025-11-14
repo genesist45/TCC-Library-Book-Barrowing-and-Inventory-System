@@ -89,7 +89,7 @@ export default function Authenticated({ children }: PropsWithChildren) {
                     onClick={handleCloseMobileSidebar}
                 >
                     <div
-                        className={`fixed left-0 top-0 h-full w-64 transform transition-transform duration-300 ease-in-out ${
+                        className={`fixed left-0 top-0 h-screen w-64 transform transition-transform duration-300 ease-in-out ${
                             isAnimating ? 'translate-x-0' : '-translate-x-full'
                         }`}
                         onClick={(e) => e.stopPropagation()}
