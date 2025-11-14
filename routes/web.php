@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\EmailReminderController;
 use App\Http\Controllers\Admin\QrScannerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\SetupController;
+use App\Http\Controllers\Shared\AIChatController;
 use App\Http\Controllers\Shared\DashboardController;
 use App\Http\Controllers\Shared\ProfileController;
 use Illuminate\Foundation\Application;
@@ -28,6 +29,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/profile/avatar', [ProfileController::class, 'uploadAvatar'])->name('profile.avatar.upload');
     Route::delete('/profile/avatar', [ProfileController::class, 'removeAvatar'])->name('profile.avatar.remove');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    // AI Chat
+    Route::post('/ai/chat', [AIChatController::class, 'chat'])->name('ai.chat');
 });
 
 // Admin-only routes (without URL prefix, but protected by role middleware)

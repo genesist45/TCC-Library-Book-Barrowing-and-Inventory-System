@@ -8,6 +8,7 @@ import { getStaffMenuItems } from '@/components/menu/staff';
 import { Settings, LogOut, ChevronsUpDown } from 'lucide-react';
 import { useState } from 'react';
 import ConfirmModal from '@/components/modals/ConfirmModal';
+import AIChatModal from '@/components/modals/AIChatModal';
 
 interface SidebarProps {
     currentRoute: string;
@@ -33,14 +34,15 @@ export default function Sidebar({
     onMouseLeave,
     user 
 }: SidebarProps) {
-    // Use showExpanded to determine visual state, but keep collapsed for layout purposes
     const isVisuallyExpanded = showExpanded;
-    const menuItems = user.role === 'admin' 
-        ? getAdminMenuItems(currentRoute) 
-        : getStaffMenuItems(currentRoute);
     const [showAccountDropdown, setShowAccountDropdown] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const [showAIChatModal, setShowAIChatModal] = useState(false);
     const [processing, setProcessing] = useState(false);
+
+    const menuItems = user.role === 'admin' 
+        ? getAdminMenuItems(currentRoute, () => setShowAIChatModal(true)) 
+        : getStaffMenuItems(currentRoute, () => setShowAIChatModal(true));
 
     const handleLogout = () => {
         setProcessing(true);
@@ -100,12 +102,23 @@ export default function Sidebar({
                     </p>
                     {menuItems.map((item) => {
                         const Icon = item.icon;
+                        const MenuComponent = item.onClick ? 'button' : Link;
+                        const menuProps = item.onClick 
+                            ? { 
+                                onClick: (e: React.MouseEvent) => {
+                                    e.preventDefault();
+                                    item.onClick?.();
+                                },
+                                type: 'button' as const,
+                              }
+                            : { href: route(item.href) };
+
                         return (
-                            <Link
+                            <MenuComponent
                                 key={item.name}
-                                href={route(item.href)}
+                                {...menuProps}
                                 className={`
-                                    group relative flex items-center rounded-lg text-sm transition-all duration-300 ease-in-out py-2.5
+                                    group relative flex items-center rounded-lg text-sm transition-all duration-300 ease-in-out py-2.5 w-full
                                     ${
                                         item.active
                                             ? 'bg-gray-100 text-black font-bold dark:bg-[#3a3a3a] dark:text-gray-100'
@@ -125,7 +138,7 @@ export default function Sidebar({
                                         ? 'opacity-100 translate-x-0 relative' 
                                         : 'opacity-0 absolute w-0 overflow-hidden pointer-events-none'
                                 }`}>{item.name}</span>
-                            </Link>
+                            </MenuComponent>
                         );
                     })}
                 </nav>
@@ -245,6 +258,13 @@ export default function Sidebar({
             onConfirm={handleLogout}
             onCancel={() => setShowLogoutModal(false)}
             processing={processing}
+        />
+
+        {/* AI Chat Modal */}
+        <AIChatModal
+            show={showAIChatModal}
+            onClose={() => setShowAIChatModal(false)}
+            user={user}
         />
         </>
     );
