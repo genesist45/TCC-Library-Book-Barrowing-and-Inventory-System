@@ -15,7 +15,7 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Albert Sans', ...defaultTheme.fontFamily.sans],
-                'jakarta': ['Plus Jakarta Sans', ...defaultTheme.fontFamily.sans],
+                'jakarta': ['Albert Sans', ...defaultTheme.fontFamily.sans],
             },
             keyframes: {
                 shimmer: {

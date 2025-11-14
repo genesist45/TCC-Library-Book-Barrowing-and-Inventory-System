@@ -27,42 +27,17 @@
     font-display: swap;
 }
 
-/* Plus Jakarta Sans Font - For Welcome Page */
 @font-face {
-    font-family: 'Plus Jakarta Sans';
-    src: url('../js/assets/fonts/PlusJakartaSans-Regular.ttf') format('truetype');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Plus Jakarta Sans';
-    src: url('../js/assets/fonts/PlusJakartaSans-Medium.ttf') format('truetype');
+    font-family: 'Albert Sans';
+    src: url('../js/assets/fonts/AlbertSans-Medium.ttf') format('truetype');
     font-weight: 500;
     font-style: normal;
     font-display: swap;
 }
 
 @font-face {
-    font-family: 'Plus Jakarta Sans';
-    src: url('../js/assets/fonts/PlusJakartaSans-SemiBold.ttf') format('truetype');
-    font-weight: 600;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Plus Jakarta Sans';
-    src: url('../js/assets/fonts/PlusJakartaSans-Bold.ttf') format('truetype');
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Plus Jakarta Sans';
-    src: url('../js/assets/fonts/PlusJakartaSans-ExtraBold.ttf') format('truetype');
+    font-family: 'Albert Sans';
+    src: url('../js/assets/fonts/AlbertSans-ExtraBold.ttf') format('truetype');
     font-weight: 800;
     font-style: normal;
     font-display: swap;
