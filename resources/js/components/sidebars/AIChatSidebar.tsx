@@ -309,7 +309,7 @@ export default function AIChatSidebar({ isOpen, onClose, user }: AIChatSidebarPr
                     )}
                 </div>
 
-                <div className="flex-1 overflow-y-auto bg-gray-50 px-3 py-2 md:px-4 md:py-3 dark:bg-[#1a1a1a]">
+                <div className="flex-1 overflow-y-auto bg-gray-50 px-3 py-2 scrollbar-hide md:px-4 md:py-3 dark:bg-[#1a1a1a]">
                     {messages.length === 0 ? (
                         <div className="flex h-full flex-col items-center justify-center text-center">
                             <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20">
