@@ -20,7 +20,7 @@
         right: var(--toast-right-position) !important;
         top: 43px !important;
         transition: right 300ms ease-in-out !important;
-        max-width: 355px !important;
+        max-width: 250px !important;
         min-width: 222px !important;
         transform: none !important;
         margin-bottom: 8px !important;

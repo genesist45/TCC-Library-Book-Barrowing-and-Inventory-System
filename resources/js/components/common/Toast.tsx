@@ -24,12 +24,14 @@ export default function Toast({ sidebarCollapsed = false }: ToastProps) {
             if (sidebarCollapsed) {
                 // When collapsed: content is full-width with px-8 (2rem) padding
                 // Toast should align with the right padding
-                rightPosition = '2rem'; // Matches the px-8 padding
+                // Adjusted by 105px to keep right edge fixed when width reduced from 355px to 250px
+                rightPosition = 'calc(2rem - 105px)'; // Matches the px-8 padding
             } else {
                 // When expanded: content uses max-w-7xl (80rem) centered
                 // Calculate centered position with sidebar offset
+                // Adjusted by 105px to keep right edge fixed when width reduced from 355px to 250px
                 const sidebarWidth = '16rem';
-                rightPosition = `calc((100vw - ${sidebarWidth} - 80rem) / 2 + 2rem)`;
+                rightPosition = `calc((100vw - ${sidebarWidth} - 80rem) / 2 + 2rem - 105px)`;
             }
             
             document.documentElement.style.setProperty('--toast-right-position', rightPosition);
