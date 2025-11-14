@@ -141,8 +141,8 @@ export default function Sidebar({
                     })}
                 </nav>
 
-                {/* Sticky Footer - Account Section */}
-                <div className="relative px-3 pb-3 pt-1 transition-all duration-300 ease-in-out">
+                {/* Sticky Footer - Account Section - Desktop Only */}
+                <div className="relative hidden px-3 pb-3 pt-1 transition-all duration-300 ease-in-out lg:block">
                     {/* Account Dropdown Menu - Opens Upward */}
                     {showAccountDropdown && (
                         <>
