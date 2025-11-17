@@ -5,7 +5,7 @@ import iconLogo from '@/assets/images/logos/tcc-icon.png';
 import defaultUserImage from '@/assets/images/avatars/default-user.png';
 import { getAdminMenuItems } from '@/components/menu/admin';
 import { getStaffMenuItems } from '@/components/menu/staff';
-import { Settings, LogOut, ChevronsUpDown } from 'lucide-react';
+import { Settings, LogOut, ChevronsUpDown, ChevronRight, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import ConfirmModal from '@/components/modals/ConfirmModal';
 
@@ -37,6 +37,7 @@ export default function Sidebar({
     const [showAccountDropdown, setShowAccountDropdown] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [processing, setProcessing] = useState(false);
+    const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
 
     const menuItems = user.role === 'admin' 
         ? getAdminMenuItems(currentRoute) 
@@ -100,43 +101,81 @@ export default function Sidebar({
                     </p>
                     {menuItems.map((item) => {
                         const Icon = item.icon;
-                        const MenuComponent = item.onClick ? 'button' : Link;
-                        const menuProps = item.onClick 
+                        const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+                        const isExpanded = !!expandedMenus[item.name];
+                        const MenuComponent = hasChildren || item.onClick ? 'button' : Link;
+                        const menuProps = hasChildren || item.onClick 
                             ? { 
                                 onClick: (e: React.MouseEvent) => {
                                     e.preventDefault();
-                                    item.onClick?.();
+                                    if (hasChildren) {
+                                        setExpandedMenus((prev) => ({ ...prev, [item.name]: !prev[item.name] }));
+                                    } else {
+                                        item.onClick?.();
+                                    }
                                 },
                                 type: 'button' as const,
                               }
                             : { href: route(item.href) };
 
                         return (
-                            <MenuComponent
-                                key={item.name}
-                                {...menuProps}
-                                className={`
-                                    group relative flex items-center rounded-lg text-sm transition-all duration-300 ease-in-out py-2.5 w-full
-                                    ${
-                                        item.active
-                                            ? 'bg-gray-100 text-black font-bold dark:bg-[#3a3a3a] dark:text-gray-100'
-                                            : 'text-gray-700 font-normal hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-[#3a3a3a]'
-                                    }
-                                `}
-                                title={!isVisuallyExpanded ? item.name : undefined}
-                            >
-                                <div className="flex w-14 flex-shrink-0 items-center justify-center">
-                                    <Icon
-                                        size={20}
-                                        className="transition-all duration-300 ease-in-out group-hover:scale-110"
-                                    />
-                                </div>
-                                <span className={`whitespace-nowrap transition-all duration-300 ease-in-out ${
-                                    isVisuallyExpanded 
-                                        ? 'opacity-100 translate-x-0 relative' 
-                                        : 'opacity-0 absolute w-0 overflow-hidden pointer-events-none'
-                                }`}>{item.name}</span>
-                            </MenuComponent>
+                            <div key={item.name}>
+                                <MenuComponent
+                                    {...menuProps}
+                                    className={`
+                                        group relative flex items-center rounded-lg text-sm transition-all duration-300 ease-in-out py-2.5 w-full
+                                        ${
+                                            item.active
+                                                ? 'bg-gray-100 text-black font-bold dark:bg-[#3a3a3a] dark:text-gray-100'
+                                                : 'text-gray-700 font-normal hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-[#3a3a3a]'
+                                        }
+                                    `}
+                                    title={!isVisuallyExpanded ? item.name : undefined}
+                                >
+                                    <div className="flex w-14 flex-shrink-0 items-center justify-center">
+                                        <Icon
+                                            size={20}
+                                            className="transition-all duration-300 ease-in-out group-hover:scale-110"
+                                        />
+                                    </div>
+                                    <span className={`whitespace-nowrap transition-all duration-300 ease-in-out ${
+                                        isVisuallyExpanded 
+                                            ? 'opacity-100 translate-x-0 relative' 
+                                            : 'opacity-0 absolute w-0 overflow-hidden pointer-events-none'
+                                    }`}>{item.name}</span>
+                                    {hasChildren && isVisuallyExpanded && (
+                                        <span className="ml-auto pr-2 text-gray-500 dark:text-gray-400">
+                                            {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                                        </span>
+                                    )}
+                                </MenuComponent>
+
+                                {hasChildren && isExpanded && isVisuallyExpanded && (
+                                    <div className="mt-1 space-y-1 pl-10">
+                                        {item.children!.map((child) => {
+                                            const ChildIcon = child.icon;
+                                            const ChildComponent = child.href ? Link : 'button';
+                                            const childProps = child.href
+                                                ? { href: route(child.href) }
+                                                : { 
+                                                    type: 'button' as const,
+                                                    onClick: child.onClick
+                                                  };
+                                            
+                                            return (
+                                                <ChildComponent
+                                                    key={child.name}
+                                                    {...childProps}
+                                                    className="flex w-full items-center gap-3 rounded-lg py-2 px-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-[#3a3a3a]"
+                                                >
+                                                    {ChildIcon && <ChildIcon size={16} className="text-gray-500 dark:text-gray-400" />}
+                                                    <span>{child.name}</span>
+                                                </ChildComponent>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
                         );
                     })}
                 </nav>
