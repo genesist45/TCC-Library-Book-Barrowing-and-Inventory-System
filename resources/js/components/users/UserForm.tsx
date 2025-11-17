@@ -218,7 +218,7 @@ export default function UserForm({
     };
 
     return (
-        <form onSubmit={handleSubmit} className="p-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6">
             <h2 className="text-lg font-medium text-gray-900 transition-colors duration-200 dark:text-gray-100">
                 {mode === 'add' ? 'Add New User' : 'Edit User'}
             </h2>
@@ -229,7 +229,7 @@ export default function UserForm({
                 }
             </p>
 
-            <div className="mt-6 grid grid-cols-2 gap-4">
+            <div className="mt-4 grid grid-cols-2 gap-3">
                 <div>
                     <InputLabel htmlFor="first_name" value="First Name" />
                     <TextInput
@@ -239,7 +239,7 @@ export default function UserForm({
                         value={data.first_name || ''}
                         onChange={(e) => handleChange('first_name', e.target.value)}
                     />
-                    <InputError message={touched.first_name ? localErrors.first_name : ''} className="mt-2" />
+                    <InputError message={touched.first_name ? localErrors.first_name : ''} className="mt-1" />
                 </div>
                 <div>
                     <InputLabel htmlFor="last_name" value="Last Name" />
@@ -250,11 +250,11 @@ export default function UserForm({
                         value={data.last_name || ''}
                         onChange={(e) => handleChange('last_name', e.target.value)}
                     />
-                    <InputError message={touched.last_name ? localErrors.last_name : ''} className="mt-2" />
+                    <InputError message={touched.last_name ? localErrors.last_name : ''} className="mt-1" />
                 </div>
             </div>
 
-            <div className="mt-4">
+            <div className="mt-3">
                 <InputLabel htmlFor="email" value="Email" />
                 <TextInput
                     id="email"
@@ -264,16 +264,16 @@ export default function UserForm({
                     onChange={(e) => handleChange('email', e.target.value)}
                 />
                 {touched.email && localErrors.email && (
-                    <InputError message={localErrors.email} className="mt-2" />
+                    <InputError message={localErrors.email} className="mt-1" />
                 )}
                 {touched.email && !localErrors.email && backendEmailError && (
                     <div className={`transition-opacity duration-300 ${showEmailError ? 'opacity-100' : 'opacity-0'}`}>
-                        <InputError message={backendEmailError} className="mt-2" />
+                        <InputError message={backendEmailError} className="mt-1" />
                     </div>
                 )}
             </div>
 
-            <div className="mt-4">
+            <div className="mt-3">
                 <InputLabel htmlFor="role" value="Role" />
                 <select
                     id="role"
@@ -290,10 +290,10 @@ export default function UserForm({
                     <option value="staff">Staff</option>
                     <option value="admin">Admin</option>
                 </select>
-                <InputError message={touched.role ? (localErrors.role || errors.role) : ''} className="mt-2" />
+                <InputError message={touched.role ? (localErrors.role || errors.role) : ''} className="mt-1" />
             </div>
 
-            <div className="mt-4">
+            <div className="mt-3">
                 <InputLabel
                     htmlFor="password"
                     value={mode === 'edit' ? 'Password (leave blank to keep current)' : 'Password'}
@@ -305,10 +305,10 @@ export default function UserForm({
                     value={data.password}
                     onChange={(e) => handleChange('password', e.target.value)}
                 />
-                <InputError message={touched.password ? (localErrors.password || errors.password) : ''} className="mt-2" />
+                <InputError message={touched.password ? (localErrors.password || errors.password) : ''} className="mt-1" />
             </div>
 
-            <div className="mt-4">
+            <div className="mt-3">
                 <InputLabel htmlFor="password_confirmation" value="Confirm Password" />
                 <TextInput
                     id="password_confirmation"
@@ -317,10 +317,10 @@ export default function UserForm({
                     value={data.password_confirmation}
                     onChange={(e) => handleChange('password_confirmation', e.target.value)}
                 />
-                <InputError message={touched.password_confirmation ? (localErrors.password_confirmation || errors.password_confirmation) : ''} className="mt-2" />
+                <InputError message={touched.password_confirmation ? (localErrors.password_confirmation || errors.password_confirmation) : ''} className="mt-1" />
             </div>
 
-            <div className="mt-6 flex justify-end gap-3">
+            <div className="mt-4 flex justify-end gap-3">
                 <SecondaryButton type="button" onClick={onCancel}>
                     Cancel
                 </SecondaryButton>

@@ -6,11 +6,11 @@ export default function InputError({
     ...props
 }: HTMLAttributes<HTMLParagraphElement> & { message?: string }) {
     return (
-        <div className="h-5">
+        <div className="h-4">
             {message && (
                 <p
                     {...props}
-                    className={`text-sm leading-5 text-red-600 dark:text-red-400 ${className}`}
+                    className={`text-xs leading-4 text-red-600 dark:text-red-400 ${className}`}
                 >
                     {message}
                 </p>
