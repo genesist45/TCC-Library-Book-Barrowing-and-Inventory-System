@@ -51,6 +51,23 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     // Email Reminder
     Route::get('/email-reminder', [EmailReminderController::class, 'index'])->name('email-reminder');
     Route::post('/email-reminder/send', [EmailReminderController::class, 'send'])->name('email-reminder.send');
+    
+    // Catalog Management (UI only for now)
+    Route::get('/catalog-items', function () {
+        return Inertia::render('admin/CatalogItems');
+    })->name('catalog-items');
+    
+    Route::get('/authors', function () {
+        return Inertia::render('admin/Authors');
+    })->name('authors');
+    
+    Route::get('/publishers', function () {
+        return Inertia::render('admin/Publishers');
+    })->name('publishers');
+    
+    Route::get('/categories', function () {
+        return Inertia::render('admin/Categories');
+    })->name('categories');
 });
 
 require __DIR__.'/auth.php';
