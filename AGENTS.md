@@ -122,6 +122,27 @@ alwaysApply: true
 - Generate fake data for testing and seeding
 - Keep data realistic and consistent
 
+**Migration Commands (Development Only)**
+- **`php artisan migrate:fresh`** — Drops ALL tables and re-runs ALL migrations from scratch
+- **`php artisan migrate:fresh --seed`** — Same as above + runs all seeders after migration
+- **SAFE for development** — Use this freely during development when:
+  - Testing new migrations
+  - Changing database structure
+  - Resetting the database to a clean state
+  - Fixing migration errors or conflicts
+- **NEVER use in production** — This command will DELETE ALL DATA permanently
+- **Common development workflow:**
+  1. Modify migrations or create new ones
+  2. Run `php artisan migrate:fresh --seed` to reset database
+  3. Test the changes with fresh seeded data
+  4. Repeat as needed
+- **Alternative commands:**
+  - `php artisan migrate` — Run new migrations only (safe, no data loss)
+  - `php artisan migrate:rollback` — Undo the last batch of migrations
+  - `php artisan migrate:reset` — Rollback all migrations
+  - `php artisan migrate:refresh` — Rollback all + re-run all migrations
+  - `php artisan migrate:refresh --seed` — Rollback all + re-run all + seed
+
 ### Best Practices
 
 **Code Standards:**
@@ -203,6 +224,73 @@ alwaysApply: true
 3. **Build:** `npm run build` for production assets
 4. **Code Quality:** Keep TypeScript strict mode enabled, use ESLint/Prettier
 5. **Testing:** Write tests for critical business logic (borrowing rules, due dates, etc.)
+
+---
+
+## 📝 GIT COMMIT GUIDELINES
+
+**Follow Conventional Commits Standard**
+
+All commit messages must follow this format:
+```
+<type>(scope): short and clear description of the change
+```
+
+### Commit Types
+
+- **feat** — Adding a new feature
+- **fix** — Fixing a bug
+- **style** — UI/styling changes
+- **refactor** — Cleanup or restructuring code
+- **docs** — Documentation updates
+- **chore** — Non-feature tasks (dependencies, configs, etc.)
+- **perf** — Performance improvements
+- **test** — Adding or updating tests
+
+### Commit Rules
+
+**1. Do NOT push without approval**
+- Always prepare commits first
+- Show the commit list to the team lead
+- Wait for approval before running `git push`
+
+**2. Group commits properly**
+- If multiple changes are inside the same component/folder → combine into **one commit**
+- If changes are in different components/folders → create **separate commits**
+
+**3. Write clear, descriptive messages**
+- Use present tense ("add" not "added")
+- Keep the subject line under 72 characters
+- Be specific about what changed and why
+
+### Examples
+
+**Good commit messages:**
+```bash
+feat(categories): add category management page with CRUD operations
+style(categories): update shimmer loader to match table structure
+fix(categories): remove toast notification on refresh action
+refactor(sidebar): update menu to support nested navigation with href
+chore(deps): update Inertia.js to latest version
+```
+
+**Bad commit messages:**
+```bash
+update files
+fix bug
+changes
+wip
+test
+```
+
+### Workflow
+
+1. **Make changes** to the codebase
+2. **Stage files:** `git add .`
+3. **Create commits** following the rules above
+4. **Show commits** to team lead for review
+5. **Wait for approval**
+6. **Push only after approval:** `git push`
 
 ---
 
