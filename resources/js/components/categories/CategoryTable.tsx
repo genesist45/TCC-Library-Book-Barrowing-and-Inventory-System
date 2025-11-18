@@ -5,6 +5,10 @@ const shimmerClass = "animate-shimmer bg-gradient-to-r from-gray-200 via-gray-10
 function CategoryTableRowSkeleton() {
     return (
         <tr className="border-b border-gray-200 transition-colors duration-300 dark:border-[#3a3a3a]">
+            {/* ID Column */}
+            <td className="whitespace-nowrap px-3 py-2 sm:px-4">
+                <div className={`${shimmerClass} h-4 w-12 rounded`} />
+            </td>
             {/* Name Column */}
             <td className="whitespace-nowrap px-3 py-2 sm:px-4">
                 <div className="flex items-center gap-2">
@@ -58,6 +62,9 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete, is
                 <thead className="border-b border-gray-200 bg-gray-50 transition-colors duration-300 dark:border-[#3a3a3a] dark:bg-[#3a3a3a]">
                     <tr>
                         <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:px-4">
+                            ID
+                        </th>
+                        <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:px-4">
                             Name
                         </th>
                         <th className="hidden px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:table-cell sm:px-4">
@@ -76,6 +83,9 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete, is
                     ) : (
                         categories.map((category) => (
                             <tr key={category.id} className="transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]">
+                                <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:px-4">
+                                    {category.id}
+                                </td>
                                 <td className="whitespace-nowrap px-3 py-2 sm:px-4">
                                     <div className="flex items-center gap-2">
                                         <div className="text-sm">
