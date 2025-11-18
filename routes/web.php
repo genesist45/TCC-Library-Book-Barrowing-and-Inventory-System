@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AuthorController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CatalogItemController;
 use App\Http\Controllers\Admin\EmailReminderController;
+use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\PublisherController;
 use App\Http\Controllers\Admin\QrScannerController;
 use App\Http\Controllers\Admin\UserController;
@@ -62,6 +63,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
         Route::resource('authors', AuthorController::class)->except(['create', 'edit']);
         Route::resource('publishers', PublisherController::class)->except(['create', 'edit']);
         Route::resource('catalog-items', CatalogItemController::class);
+        Route::resource('members', MemberController::class);
     });
 });
 
