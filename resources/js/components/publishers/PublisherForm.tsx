@@ -1,126 +1,87 @@
-import { FormEventHandler, useState, useEffect, useCallback } from 'react';
+import { FormEventHandler, useState, useEffect } from 'react';
+import { useForm } from '@inertiajs/react';
 import InputLabel from '@/components/forms/InputLabel';
 import TextInput from '@/components/forms/TextInput';
 import InputError from '@/components/forms/InputError';
 import PrimaryButton from '@/components/buttons/PrimaryButton';
 import SecondaryButton from '@/components/buttons/SecondaryButton';
 
+interface Publisher {
+    id: number;
+    name: string;
+    country: string;
+    description?: string;
+    is_published: boolean;
+}
+
 interface PublisherFormProps {
     mode: 'add' | 'edit';
-    data: {
-        name: string;
-        country: string;
-        description: string;
-        is_published: boolean;
-    };
-    errors: {
-        name?: string;
-        country?: string;
-        description?: string;
-        is_published?: string;
-    };
-    processing: boolean;
-    onSubmit: FormEventHandler;
-    onChange: (field: string, value: string | boolean) => void;
+    publisher?: Publisher | null;
     onCancel: () => void;
 }
 
 export default function PublisherForm({
     mode,
-    data,
-    errors,
-    processing,
-    onSubmit,
-    onChange,
+    publisher,
     onCancel,
 }: PublisherFormProps) {
-    const [localErrors, setLocalErrors] = useState({
-        name: '',
-        country: '',
-        description: '',
+    const { data, setData, post, patch, processing, errors, clearErrors } = useForm({
+        name: publisher?.name || '',
+        country: publisher?.country || '',
+        description: publisher?.description || '',
+        is_published: publisher?.is_published ?? true,
     });
 
-    const [touched, setTouched] = useState({
-        name: false,
-        country: false,
-        description: false,
+    const [showErrors, setShowErrors] = useState({
+        name: true,
+        country: true,
+        description: true,
+        is_published: true,
     });
 
     useEffect(() => {
-        const errorKeys = Object.keys(errors);
-        const hasErrors = errorKeys.length > 0 && errorKeys.some(key => errors[key as keyof typeof errors]);
-        
-        if (!hasErrors) {
-            setTouched({
-                name: false,
-                country: false,
-                description: false,
-            });
-            setLocalErrors({
-                name: '',
-                country: '',
-                description: '',
+        if (publisher && mode === 'edit') {
+            setData({
+                name: publisher.name,
+                country: publisher.country,
+                description: publisher.description || '',
+                is_published: publisher.is_published,
             });
         }
-    }, [errors]);
+    }, [publisher, mode]);
 
-    const validateField = useCallback((field: string, value: string) => {
-        let error = '';
-
-        switch (field) {
-            case 'name':
-                if (!value.trim()) {
-                    error = 'Publisher name is required';
-                }
-                break;
-            case 'country':
-                if (!value.trim()) {
-                    error = 'Country is required';
-                }
-                break;
+    const handleChange = (field: keyof typeof data, value: string | boolean) => {
+        setData(field, value);
+        setShowErrors({ ...showErrors, [field]: false });
+        if (errors[field]) {
+            clearErrors(field);
         }
-
-        return error;
-    }, []);
-
-    const handleChange = (field: string, value: string) => {
-        onChange(field, value);
-        setTouched({ ...touched, [field]: true });
-        const error = validateField(field, value);
-        setLocalErrors({ ...localErrors, [field]: error });
     };
-
-    useEffect(() => {
-        if (errors.name || errors.country || errors.description) {
-            setTouched(prev => ({
-                ...prev,
-                name: errors.name ? true : prev.name,
-                country: errors.country ? true : prev.country,
-                description: errors.description ? true : prev.description,
-            }));
-        }
-    }, [errors]);
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        const newTouched = {
+        setShowErrors({
             name: true,
             country: true,
             description: true,
-        };
-        setTouched(newTouched);
+            is_published: true,
+        });
 
-        const newErrors = {
-            name: validateField('name', data.name),
-            country: validateField('country', data.country),
-            description: '',
-        };
-        setLocalErrors(newErrors);
-
-        const hasErrors = Object.values(newErrors).some(error => error !== '');
-        if (!hasErrors) {
-            onSubmit(e);
+        if (mode === 'add') {
+            post(route('admin.publishers.store'), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    onCancel();
+                },
+            });
+        } else if (mode === 'edit' && publisher) {
+            patch(route('admin.publishers.update', publisher.id), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    onCancel();
+                },
+            });
         }
     };
 
@@ -145,7 +106,7 @@ export default function PublisherForm({
                     value={data.name}
                     onChange={(e) => handleChange('name', e.target.value)}
                 />
-                <InputError message={touched.name ? (localErrors.name || errors.name) : ''} className="mt-1" />
+                <InputError message={showErrors.name ? errors.name : ''} className="mt-1" />
             </div>
 
             <div className="mt-3">
@@ -158,7 +119,7 @@ export default function PublisherForm({
                     onChange={(e) => handleChange('country', e.target.value)}
                     placeholder="e.g., United States"
                 />
-                <InputError message={touched.country ? (localErrors.country || errors.country) : ''} className="mt-1" />
+                <InputError message={showErrors.country ? errors.country : ''} className="mt-1" />
             </div>
 
             <div className="mt-3">
@@ -171,7 +132,7 @@ export default function PublisherForm({
                     onChange={(e) => handleChange('description', e.target.value)}
                     placeholder="Brief description of this publisher..."
                 />
-                <InputError message={touched.description ? (localErrors.description || errors.description) : ''} className="mt-1" />
+                <InputError message={showErrors.description ? errors.description : ''} className="mt-1" />
             </div>
 
             <div className="mt-3">
@@ -182,7 +143,7 @@ export default function PublisherForm({
                     </div>
                     <button
                         type="button"
-                        onClick={() => onChange('is_published', !data.is_published)}
+                        onClick={() => handleChange('is_published', !data.is_published)}
                         className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
                             data.is_published ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700'
                         }`}

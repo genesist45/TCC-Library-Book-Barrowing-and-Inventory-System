@@ -1,39 +1,46 @@
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
-import { Head, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, router, usePage } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 import CatalogItemTable from '@/components/catalog-items/CatalogItemTable';
 import CatalogItemPageHeader from '@/components/catalog-items/CatalogItemPageHeader';
 import CatalogItemDeleteModal from '@/components/catalog-items/CatalogItemDeleteModal';
 import { toast } from 'sonner';
+import { PageProps, CatalogItem } from '@/types';
 
-interface CatalogItem {
-    id: number;
-    title: string;
-    type: string;
-    category?: string;
-    publisher?: string;
-    year?: string;
-    is_active: boolean;
+interface Props extends PageProps {
+    catalogItems: CatalogItem[];
+    flash?: {
+        success?: string;
+        error?: string;
+    };
 }
 
-export default function CatalogItems() {
-    const [items] = useState<CatalogItem[]>([]);
+export default function CatalogItems({ catalogItems, flash }: Props) {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [processing, setProcessing] = useState(false);
 
+    useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+        if (flash?.error) {
+            toast.error(flash.error);
+        }
+    }, [flash]);
+
     const handleAddItem = () => {
-        router.visit('/catalog-items/add');
+        router.visit(route('admin.catalog-items.create'));
     };
 
     const handleViewItem = (item: CatalogItem) => {
-        router.visit(`/catalog-items/${item.id}`);
+        router.visit(route('admin.catalog-items.show', item.id));
     };
 
     const handleEditItem = (item: CatalogItem) => {
-        router.visit(`/catalog-items/${item.id}/edit`);
+        router.visit(route('admin.catalog-items.edit', item.id));
     };
 
     const handleDeleteItem = (item: CatalogItem) => {
@@ -42,21 +49,29 @@ export default function CatalogItems() {
     };
 
     const confirmDelete = () => {
+        if (!selectedItem) return;
+
         setProcessing(true);
-        
-        setTimeout(() => {
-            setProcessing(false);
-            setShowDeleteModal(false);
-            setSelectedItem(null);
-            toast.success('Catalog item deleted successfully!');
-        }, 1000);
+        router.delete(route('admin.catalog-items.destroy', selectedItem.id), {
+            onSuccess: () => {
+                setShowDeleteModal(false);
+                setSelectedItem(null);
+                setProcessing(false);
+            },
+            onError: () => {
+                setProcessing(false);
+                toast.error('Failed to delete catalog item');
+            },
+        });
     };
 
     const handleRefresh = () => {
         setIsRefreshing(true);
-        setTimeout(() => {
-            setIsRefreshing(false);
-        }, 500);
+        router.reload({
+            onFinish: () => {
+                setIsRefreshing(false);
+            },
+        });
     };
 
     const closeModal = () => {
@@ -64,12 +79,17 @@ export default function CatalogItems() {
         setSelectedItem(null);
     };
 
-    const filteredItems = items.filter(item =>
-        (item.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        (item.type?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        (item.category?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        (item.publisher?.toLowerCase() || '').includes(searchTerm.toLowerCase())
-    );
+    const filteredItems = catalogItems.filter(item => {
+        const searchLower = searchTerm.toLowerCase();
+        return (
+            (item.title?.toLowerCase() || '').includes(searchLower) ||
+            (item.type?.toLowerCase() || '').includes(searchLower) ||
+            (item.category?.name?.toLowerCase() || '').includes(searchLower) ||
+            (item.publisher?.name?.toLowerCase() || '').includes(searchLower) ||
+            (item.isbn?.toLowerCase() || '').includes(searchLower) ||
+            (item.isbn13?.toLowerCase() || '').includes(searchLower)
+        );
+    });
 
     return (
         <AuthenticatedLayout>

@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
-import { FormEventHandler, useState } from 'react';
+import { Head, router, usePage } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 import PublisherTable from '@/components/publishers/PublisherTable';
 import PublisherPageHeader from '@/components/publishers/PublisherPageHeader';
 import { toast } from 'sonner';
@@ -19,45 +19,40 @@ interface Publisher {
     created_at: string;
 }
 
+interface PageProps {
+    publishers: Publisher[];
+    flash?: {
+        success?: string;
+        error?: string;
+    };
+}
+
 export default function Publishers() {
-    const [publishers] = useState<Publisher[]>([]);
+    const { publishers, flash } = usePage<PageProps>().props;
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showViewModal, setShowViewModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedPublisher, setSelectedPublisher] = useState<Publisher | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [formErrors, setFormErrors] = useState<any>({});
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [processing, setProcessing] = useState(false);
 
-    const [data, setData] = useState({
-        name: '',
-        country: '',
-        description: '',
-        is_published: true,
-    });
+    useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+        if (flash?.error) {
+            toast.error(flash.error);
+        }
+    }, [flash]);
 
     const openAddModal = () => {
-        setData({
-            name: '',
-            country: '',
-            description: '',
-            is_published: true,
-        });
-        setFormErrors({});
         setShowAddModal(true);
     };
 
     const openEditModal = (publisher: Publisher) => {
         setSelectedPublisher(publisher);
-        setFormErrors({});
-        setData({
-            name: publisher.name,
-            country: publisher.country,
-            description: publisher.description || '',
-            is_published: publisher.is_published,
-        });
         setShowEditModal(true);
     };
 
@@ -77,55 +72,32 @@ export default function Publishers() {
         setShowViewModal(false);
         setShowDeleteModal(false);
         setSelectedPublisher(null);
-        setData({
-            name: '',
-            country: '',
-            description: '',
-            is_published: true,
-        });
-    };
-
-    const submitAdd: FormEventHandler = (e) => {
-        e.preventDefault();
-        setProcessing(true);
-        
-        setTimeout(() => {
-            setProcessing(false);
-            closeModals();
-            toast.success('Publisher added successfully!');
-        }, 1000);
-    };
-
-    const submitEdit: FormEventHandler = (e) => {
-        e.preventDefault();
-        setProcessing(true);
-        
-        setTimeout(() => {
-            setProcessing(false);
-            closeModals();
-            toast.success('Publisher updated successfully!');
-        }, 1000);
     };
 
     const submitDelete = () => {
+        if (!selectedPublisher) return;
+
         setProcessing(true);
-        
-        setTimeout(() => {
-            setProcessing(false);
-            closeModals();
-            toast.success('Publisher deleted successfully!');
-        }, 1000);
+        router.delete(route('admin.publishers.destroy', selectedPublisher.id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                closeModals();
+                setProcessing(false);
+            },
+            onError: () => {
+                setProcessing(false);
+            },
+        });
     };
 
     const handleRefresh = () => {
         setIsRefreshing(true);
-        setTimeout(() => {
-            setIsRefreshing(false);
-        }, 500);
-    };
-
-    const handleChange = (field: string, value: string | boolean) => {
-        setData({ ...data, [field]: value });
+        router.reload({
+            preserveScroll: true,
+            onFinish: () => {
+                setIsRefreshing(false);
+            },
+        });
     };
 
     const filteredPublishers = publishers.filter(publisher =>
@@ -162,11 +134,6 @@ export default function Publishers() {
             <Modal show={showAddModal} onClose={closeModals}>
                 <PublisherForm
                     mode="add"
-                    data={data}
-                    errors={formErrors}
-                    processing={processing}
-                    onSubmit={submitAdd}
-                    onChange={handleChange}
                     onCancel={closeModals}
                 />
             </Modal>
@@ -174,11 +141,7 @@ export default function Publishers() {
             <Modal show={showEditModal} onClose={closeModals}>
                 <PublisherForm
                     mode="edit"
-                    data={data}
-                    errors={formErrors}
-                    processing={processing}
-                    onSubmit={submitEdit}
-                    onChange={handleChange}
+                    publisher={selectedPublisher}
                     onCancel={closeModals}
                 />
             </Modal>

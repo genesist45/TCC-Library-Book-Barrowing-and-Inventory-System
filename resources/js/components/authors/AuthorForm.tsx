@@ -1,126 +1,109 @@
-import { FormEventHandler, useState, useEffect, useCallback } from 'react';
+import { FormEventHandler, useState, useEffect } from 'react';
+import { useForm } from '@inertiajs/react';
 import InputLabel from '@/components/forms/InputLabel';
 import TextInput from '@/components/forms/TextInput';
 import InputError from '@/components/forms/InputError';
 import PrimaryButton from '@/components/buttons/PrimaryButton';
 import SecondaryButton from '@/components/buttons/SecondaryButton';
 
+interface Author {
+    id: number;
+    name: string;
+    country: string;
+    bio?: string;
+    is_published: boolean;
+}
+
 interface AuthorFormProps {
     mode: 'add' | 'edit';
-    data: {
-        name: string;
-        country: string;
-        bio: string;
-        is_published: boolean;
-    };
-    errors: {
-        name?: string;
-        country?: string;
-        bio?: string;
-        is_published?: string;
-    };
-    processing: boolean;
-    onSubmit: FormEventHandler;
-    onChange: (field: string, value: string | boolean) => void;
+    author?: Author | null;
     onCancel: () => void;
+    onSuccess: () => void;
 }
 
 export default function AuthorForm({
     mode,
-    data,
-    errors,
-    processing,
-    onSubmit,
-    onChange,
+    author,
     onCancel,
+    onSuccess,
 }: AuthorFormProps) {
-    const [localErrors, setLocalErrors] = useState({
-        name: '',
-        country: '',
-        bio: '',
+    const { data, setData, post, patch, processing, errors, clearErrors, reset } = useForm({
+        name: author?.name || '',
+        country: author?.country || '',
+        bio: author?.bio || '',
+        is_published: author?.is_published ?? true,
     });
 
-    const [touched, setTouched] = useState({
+    const [fieldTouched, setFieldTouched] = useState({
         name: false,
         country: false,
         bio: false,
     });
 
     useEffect(() => {
-        const errorKeys = Object.keys(errors);
-        const hasErrors = errorKeys.length > 0 && errorKeys.some(key => errors[key as keyof typeof errors]);
-        
-        if (!hasErrors) {
-            setTouched({
+        if (mode === 'add') {
+            reset();
+            setFieldTouched({
                 name: false,
                 country: false,
                 bio: false,
             });
-            setLocalErrors({
-                name: '',
-                country: '',
-                bio: '',
+        } else if (author) {
+            setData({
+                name: author.name || '',
+                country: author.country || '',
+                bio: author.bio || '',
+                is_published: author.is_published ?? true,
+            });
+            setFieldTouched({
+                name: false,
+                country: false,
+                bio: false,
             });
         }
-    }, [errors]);
+    }, [mode, author]);
 
-    const validateField = useCallback((field: string, value: string) => {
-        let error = '';
-
-        switch (field) {
-            case 'name':
-                if (!value.trim()) {
-                    error = 'Author name is required';
-                }
-                break;
-            case 'country':
-                if (!value.trim()) {
-                    error = 'Country is required';
-                }
-                break;
+    const handleFieldChange = (field: keyof typeof fieldTouched, value: string) => {
+        setData(field, value);
+        
+        if (errors[field]) {
+            clearErrors(field);
         }
-
-        return error;
-    }, []);
-
-    const handleChange = (field: string, value: string) => {
-        onChange(field, value);
-        setTouched({ ...touched, [field]: true });
-        const error = validateField(field, value);
-        setLocalErrors({ ...localErrors, [field]: error });
+        
+        if (!fieldTouched[field]) {
+            setFieldTouched(prev => ({ ...prev, [field]: true }));
+        }
     };
-
-    useEffect(() => {
-        if (errors.name || errors.country || errors.bio) {
-            setTouched(prev => ({
-                ...prev,
-                name: errors.name ? true : prev.name,
-                country: errors.country ? true : prev.country,
-                bio: errors.bio ? true : prev.bio,
-            }));
-        }
-    }, [errors]);
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        const newTouched = {
+        setFieldTouched({
             name: true,
             country: true,
             bio: true,
-        };
-        setTouched(newTouched);
+        });
 
-        const newErrors = {
-            name: validateField('name', data.name),
-            country: validateField('country', data.country),
-            bio: '',
-        };
-        setLocalErrors(newErrors);
-
-        const hasErrors = Object.values(newErrors).some(error => error !== '');
-        if (!hasErrors) {
-            onSubmit(e);
+        if (mode === 'add') {
+            post(route('admin.authors.store'), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    reset();
+                    setFieldTouched({
+                        name: false,
+                        country: false,
+                        bio: false,
+                    });
+                    onSuccess();
+                },
+            });
+        } else if (author) {
+            patch(route('admin.authors.update', author.id), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    onSuccess();
+                },
+            });
         }
     };
 
@@ -143,9 +126,9 @@ export default function AuthorForm({
                     type="text"
                     className="mt-1 block w-full"
                     value={data.name}
-                    onChange={(e) => handleChange('name', e.target.value)}
+                    onChange={(e) => handleFieldChange('name', e.target.value)}
                 />
-                <InputError message={touched.name ? (localErrors.name || errors.name) : ''} className="mt-1" />
+                <InputError message={errors.name} className="mt-1" />
             </div>
 
             <div className="mt-3">
@@ -155,10 +138,10 @@ export default function AuthorForm({
                     type="text"
                     className="mt-1 block w-full"
                     value={data.country}
-                    onChange={(e) => handleChange('country', e.target.value)}
+                    onChange={(e) => handleFieldChange('country', e.target.value)}
                     placeholder="e.g., United States"
                 />
-                <InputError message={touched.country ? (localErrors.country || errors.country) : ''} className="mt-1" />
+                <InputError message={errors.country} className="mt-1" />
             </div>
 
             <div className="mt-3">
@@ -168,10 +151,10 @@ export default function AuthorForm({
                     rows={3}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-indigo-600 dark:focus:ring-indigo-600"
                     value={data.bio}
-                    onChange={(e) => handleChange('bio', e.target.value)}
+                    onChange={(e) => handleFieldChange('bio', e.target.value)}
                     placeholder="Brief biography of this author..."
                 />
-                <InputError message={touched.bio ? (localErrors.bio || errors.bio) : ''} className="mt-1" />
+                <InputError message={errors.bio} className="mt-1" />
             </div>
 
             <div className="mt-3">
@@ -182,7 +165,7 @@ export default function AuthorForm({
                     </div>
                     <button
                         type="button"
-                        onClick={() => onChange('is_published', !data.is_published)}
+                        onClick={() => setData('is_published', !data.is_published)}
                         className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
                             data.is_published ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700'
                         }`}

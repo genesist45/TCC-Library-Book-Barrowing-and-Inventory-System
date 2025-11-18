@@ -1,66 +1,95 @@
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
-import { Head, router } from '@inertiajs/react';
-import { FormEventHandler, useState } from 'react';
+import { Head, useForm, router } from '@inertiajs/react';
+import { FormEventHandler, useState, useEffect } from 'react';
 import InputLabel from '@/components/forms/InputLabel';
 import TextInput from '@/components/forms/TextInput';
 import InputError from '@/components/forms/InputError';
 import PrimaryButton from '@/components/buttons/PrimaryButton';
 import SecondaryButton from '@/components/buttons/SecondaryButton';
-import { Upload } from 'lucide-react';
-import { toast } from 'sonner';
+import { Upload, X } from 'lucide-react';
+import { PageProps, Category, Publisher, Author, CatalogItem } from '@/types';
 
-interface CatalogItem {
-    id: number;
-    title: string;
-    type: string;
-    category?: string;
-    publisher?: string;
-    isbn?: string;
-    isbn13?: string;
-    call_no?: string;
-    subject?: string;
-    series?: string;
-    edition?: string;
-    year?: string;
-    url?: string;
-    description?: string;
-    is_active: boolean;
+interface Props extends PageProps {
+    catalogItem: CatalogItem;
+    categories: Category[];
+    publishers: Publisher[];
+    authors: Author[];
 }
 
-export default function CatalogItemEdit({ item }: { item?: CatalogItem }) {
-    const [processing, setProcessing] = useState(false);
-    const [data, setData] = useState({
-        title: item?.title || 'Sample Book Title',
-        type: item?.type || 'Book',
-        category: item?.category || '',
-        publisher: item?.publisher || '',
-        isbn: item?.isbn || '',
-        isbn13: item?.isbn13 || '',
-        call_no: item?.call_no || '',
-        subject: item?.subject || '',
-        series: item?.series || '',
-        edition: item?.edition || '',
-        year: item?.year || '',
-        url: item?.url || '',
-        description: item?.description || '',
-        is_active: item?.is_active ?? true,
+export default function CatalogItemEdit({ catalogItem, categories, publishers, authors }: Props) {
+    const { data, setData, post, processing, errors, clearErrors } = useForm({
+        title: catalogItem.title || '',
+        type: catalogItem.type || '',
+        category_id: catalogItem.category_id?.toString() || '',
+        publisher_id: catalogItem.publisher_id?.toString() || '',
+        author_ids: catalogItem.authors?.map(a => a.id) || [] as number[],
+        isbn: catalogItem.isbn || '',
+        isbn13: catalogItem.isbn13 || '',
+        call_no: catalogItem.call_no || '',
+        subject: catalogItem.subject || '',
+        series: catalogItem.series || '',
+        edition: catalogItem.edition || '',
+        year: catalogItem.year || '',
+        url: catalogItem.url || '',
+        description: catalogItem.description || '',
+        cover_image: null as File | null,
+        is_active: catalogItem.is_active ?? true,
+        _method: 'PATCH',
     });
 
-    const [errors] = useState<any>({});
+    const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
+    const [coverImageName, setCoverImageName] = useState<string>('');
+
+    useEffect(() => {
+        if (catalogItem.cover_image) {
+            setCoverImagePreview(catalogItem.cover_image);
+        }
+    }, [catalogItem.cover_image]);
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
-        setProcessing(true);
-
-        setTimeout(() => {
-            setProcessing(false);
-            toast.success('Catalog item updated successfully!');
-            router.visit('/catalog-items');
-        }, 1000);
+        post(route('admin.catalog-items.update', catalogItem.id), {
+            forceFormData: true,
+        });
     };
 
     const handleCancel = () => {
-        router.visit('/catalog-items');
+        router.visit(route('admin.catalog-items.index'));
+    };
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setData('cover_image', file);
+            setCoverImageName(file.name);
+            clearErrors('cover_image');
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setCoverImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleRemoveImage = () => {
+        setData('cover_image', null);
+        setCoverImageName('');
+        setCoverImagePreview(catalogItem.cover_image || null);
+    };
+
+    const handleAuthorToggle = (authorId: number) => {
+        const currentAuthors = [...data.author_ids];
+        const index = currentAuthors.indexOf(authorId);
+        
+        if (index > -1) {
+            currentAuthors.splice(index, 1);
+        } else {
+            currentAuthors.push(authorId);
+        }
+        
+        setData('author_ids', currentAuthors);
+        clearErrors('author_ids');
     };
 
     return (
@@ -89,7 +118,10 @@ export default function CatalogItemEdit({ item }: { item?: CatalogItem }) {
                                             type="text"
                                             className="mt-1 block w-full"
                                             value={data.title}
-                                            onChange={(e) => setData({ ...data, title: e.target.value })}
+                                            onChange={(e) => {
+                                                setData('title', e.target.value);
+                                                clearErrors('title');
+                                            }}
                                         />
                                         <InputError message={errors.title} className="mt-1" />
                                     </div>
@@ -99,7 +131,10 @@ export default function CatalogItemEdit({ item }: { item?: CatalogItem }) {
                                         <select
                                             id="type"
                                             value={data.type}
-                                            onChange={(e) => setData({ ...data, type: e.target.value })}
+                                            onChange={(e) => {
+                                                setData('type', e.target.value);
+                                                clearErrors('type');
+                                            }}
                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                                         >
                                             <option value="">Select Type</option>
@@ -116,29 +151,74 @@ export default function CatalogItemEdit({ item }: { item?: CatalogItem }) {
                                     </div>
 
                                     <div>
-                                        <InputLabel htmlFor="category" value="Category" />
+                                        <InputLabel htmlFor="category_id" value="Category" />
                                         <select
-                                            id="category"
-                                            value={data.category}
-                                            onChange={(e) => setData({ ...data, category: e.target.value })}
+                                            id="category_id"
+                                            value={data.category_id}
+                                            onChange={(e) => {
+                                                setData('category_id', e.target.value);
+                                                clearErrors('category_id');
+                                            }}
                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                                         >
                                             <option value="">Select Category</option>
+                                            {categories.map((category) => (
+                                                <option key={category.id} value={category.id}>
+                                                    {category.name}
+                                                </option>
+                                            ))}
                                         </select>
-                                        <InputError message={errors.category} className="mt-1" />
+                                        <InputError message={errors.category_id} className="mt-1" />
                                     </div>
 
                                     <div>
-                                        <InputLabel htmlFor="publisher" value="Publisher" />
+                                        <InputLabel htmlFor="publisher_id" value="Publisher" />
                                         <select
-                                            id="publisher"
-                                            value={data.publisher}
-                                            onChange={(e) => setData({ ...data, publisher: e.target.value })}
+                                            id="publisher_id"
+                                            value={data.publisher_id}
+                                            onChange={(e) => {
+                                                setData('publisher_id', e.target.value);
+                                                clearErrors('publisher_id');
+                                            }}
                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                                         >
                                             <option value="">Select Publisher</option>
+                                            {publishers.map((publisher) => (
+                                                <option key={publisher.id} value={publisher.id}>
+                                                    {publisher.name}
+                                                </option>
+                                            ))}
                                         </select>
-                                        <InputError message={errors.publisher} className="mt-1" />
+                                        <InputError message={errors.publisher_id} className="mt-1" />
+                                    </div>
+
+                                    <div className="sm:col-span-2">
+                                        <InputLabel htmlFor="authors" value="Authors" />
+                                        <div className="mt-2 max-h-40 overflow-y-auto rounded-md border border-gray-300 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
+                                            {authors.length === 0 ? (
+                                                <p className="text-sm text-gray-500 dark:text-gray-400">No authors available</p>
+                                            ) : (
+                                                <div className="space-y-2">
+                                                    {authors.map((author) => (
+                                                        <label
+                                                            key={author.id}
+                                                            className="flex items-center space-x-2 cursor-pointer"
+                                                        >
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={data.author_ids.includes(author.id)}
+                                                                onChange={() => handleAuthorToggle(author.id)}
+                                                                className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900"
+                                                            />
+                                                            <span className="text-sm text-gray-900 dark:text-gray-100">
+                                                                {author.name}
+                                                            </span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <InputError message={errors.author_ids} className="mt-1" />
                                     </div>
 
                                     <div>
@@ -148,7 +228,10 @@ export default function CatalogItemEdit({ item }: { item?: CatalogItem }) {
                                             type="text"
                                             className="mt-1 block w-full"
                                             value={data.year}
-                                            onChange={(e) => setData({ ...data, year: e.target.value })}
+                                            onChange={(e) => {
+                                                setData('year', e.target.value);
+                                                clearErrors('year');
+                                            }}
                                             placeholder="e.g., 2024"
                                         />
                                         <InputError message={errors.year} className="mt-1" />
@@ -161,7 +244,10 @@ export default function CatalogItemEdit({ item }: { item?: CatalogItem }) {
                                             type="text"
                                             className="mt-1 block w-full"
                                             value={data.isbn}
-                                            onChange={(e) => setData({ ...data, isbn: e.target.value })}
+                                            onChange={(e) => {
+                                                setData('isbn', e.target.value);
+                                                clearErrors('isbn');
+                                            }}
                                         />
                                         <InputError message={errors.isbn} className="mt-1" />
                                     </div>
@@ -173,7 +259,10 @@ export default function CatalogItemEdit({ item }: { item?: CatalogItem }) {
                                             type="text"
                                             className="mt-1 block w-full"
                                             value={data.isbn13}
-                                            onChange={(e) => setData({ ...data, isbn13: e.target.value })}
+                                            onChange={(e) => {
+                                                setData('isbn13', e.target.value);
+                                                clearErrors('isbn13');
+                                            }}
                                         />
                                         <InputError message={errors.isbn13} className="mt-1" />
                                     </div>
@@ -185,7 +274,10 @@ export default function CatalogItemEdit({ item }: { item?: CatalogItem }) {
                                             type="text"
                                             className="mt-1 block w-full"
                                             value={data.call_no}
-                                            onChange={(e) => setData({ ...data, call_no: e.target.value })}
+                                            onChange={(e) => {
+                                                setData('call_no', e.target.value);
+                                                clearErrors('call_no');
+                                            }}
                                         />
                                         <InputError message={errors.call_no} className="mt-1" />
                                     </div>
@@ -197,7 +289,10 @@ export default function CatalogItemEdit({ item }: { item?: CatalogItem }) {
                                             type="text"
                                             className="mt-1 block w-full"
                                             value={data.subject}
-                                            onChange={(e) => setData({ ...data, subject: e.target.value })}
+                                            onChange={(e) => {
+                                                setData('subject', e.target.value);
+                                                clearErrors('subject');
+                                            }}
                                         />
                                         <InputError message={errors.subject} className="mt-1" />
                                     </div>
@@ -209,7 +304,10 @@ export default function CatalogItemEdit({ item }: { item?: CatalogItem }) {
                                             type="text"
                                             className="mt-1 block w-full"
                                             value={data.series}
-                                            onChange={(e) => setData({ ...data, series: e.target.value })}
+                                            onChange={(e) => {
+                                                setData('series', e.target.value);
+                                                clearErrors('series');
+                                            }}
                                         />
                                         <InputError message={errors.series} className="mt-1" />
                                     </div>
@@ -221,7 +319,10 @@ export default function CatalogItemEdit({ item }: { item?: CatalogItem }) {
                                             type="text"
                                             className="mt-1 block w-full"
                                             value={data.edition}
-                                            onChange={(e) => setData({ ...data, edition: e.target.value })}
+                                            onChange={(e) => {
+                                                setData('edition', e.target.value);
+                                                clearErrors('edition');
+                                            }}
                                         />
                                         <InputError message={errors.edition} className="mt-1" />
                                     </div>
@@ -233,7 +334,10 @@ export default function CatalogItemEdit({ item }: { item?: CatalogItem }) {
                                             type="url"
                                             className="mt-1 block w-full"
                                             value={data.url}
-                                            onChange={(e) => setData({ ...data, url: e.target.value })}
+                                            onChange={(e) => {
+                                                setData('url', e.target.value);
+                                                clearErrors('url');
+                                            }}
                                             placeholder="https://..."
                                         />
                                         <InputError message={errors.url} className="mt-1" />
@@ -246,7 +350,10 @@ export default function CatalogItemEdit({ item }: { item?: CatalogItem }) {
                                             rows={4}
                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                                             value={data.description}
-                                            onChange={(e) => setData({ ...data, description: e.target.value })}
+                                            onChange={(e) => {
+                                                setData('description', e.target.value);
+                                                clearErrors('description');
+                                            }}
                                             placeholder="Brief description of this item..."
                                         />
                                         <InputError message={errors.description} className="mt-1" />
@@ -263,11 +370,33 @@ export default function CatalogItemEdit({ item }: { item?: CatalogItem }) {
                                                     id="cover_image"
                                                     className="hidden"
                                                     accept="image/*"
+                                                    onChange={handleImageChange}
                                                 />
                                             </label>
-                                            <span className="text-sm text-gray-500 dark:text-gray-400">No new file chosen</span>
+                                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                                                {coverImageName || (catalogItem.cover_image ? 'Current cover' : 'No file chosen')}
+                                            </span>
+                                            {coverImageName && (
+                                                <button
+                                                    type="button"
+                                                    onClick={handleRemoveImage}
+                                                    className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </button>
+                                            )}
                                         </div>
+                                        {coverImagePreview && (
+                                            <div className="mt-2">
+                                                <img
+                                                    src={coverImagePreview}
+                                                    alt="Cover preview"
+                                                    className="h-32 w-auto rounded-md border border-gray-300 dark:border-gray-700"
+                                                />
+                                            </div>
+                                        )}
                                         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Recommended: JPG, PNG (Max 2MB)</p>
+                                        <InputError message={errors.cover_image} className="mt-1" />
                                     </div>
 
                                     <div className="sm:col-span-2">
@@ -278,7 +407,7 @@ export default function CatalogItemEdit({ item }: { item?: CatalogItem }) {
                                             </div>
                                             <button
                                                 type="button"
-                                                onClick={() => setData({ ...data, is_active: !data.is_active })}
+                                                onClick={() => setData('is_active', !data.is_active)}
                                                 className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
                                                     data.is_active ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700'
                                                 }`}

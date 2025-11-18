@@ -1,126 +1,87 @@
-import { FormEventHandler, useState, useEffect, useCallback } from 'react';
+import { FormEventHandler, useState, useEffect } from 'react';
+import { useForm } from '@inertiajs/react';
 import InputLabel from '@/components/forms/InputLabel';
 import TextInput from '@/components/forms/TextInput';
 import InputError from '@/components/forms/InputError';
 import PrimaryButton from '@/components/buttons/PrimaryButton';
 import SecondaryButton from '@/components/buttons/SecondaryButton';
 
+interface Category {
+    id: number;
+    name: string;
+    slug?: string;
+    description?: string;
+    is_published: boolean;
+}
+
 interface CategoryFormProps {
     mode: 'add' | 'edit';
-    data: {
-        name: string;
-        slug: string;
-        description: string;
-        is_published: boolean;
-    };
-    errors: {
-        name?: string;
-        slug?: string;
-        description?: string;
-        is_published?: string;
-    };
-    processing: boolean;
-    onSubmit: FormEventHandler;
-    onChange: (field: string, value: string | boolean) => void;
+    category?: Category | null;
     onCancel: () => void;
 }
 
 export default function CategoryForm({
     mode,
-    data,
-    errors,
-    processing,
-    onSubmit,
-    onChange,
+    category,
     onCancel,
 }: CategoryFormProps) {
-    const [localErrors, setLocalErrors] = useState({
-        name: '',
-        slug: '',
-        description: '',
+    const { data, setData, post, patch, processing, errors, clearErrors } = useForm({
+        name: category?.name || '',
+        slug: category?.slug || '',
+        description: category?.description || '',
+        is_published: category?.is_published ?? true,
     });
 
-    const [touched, setTouched] = useState({
-        name: false,
-        slug: false,
-        description: false,
+    const [showErrors, setShowErrors] = useState({
+        name: true,
+        slug: true,
+        description: true,
+        is_published: true,
     });
 
     useEffect(() => {
-        const errorKeys = Object.keys(errors);
-        const hasErrors = errorKeys.length > 0 && errorKeys.some(key => errors[key as keyof typeof errors]);
-        
-        if (!hasErrors) {
-            setTouched({
-                name: false,
-                slug: false,
-                description: false,
-            });
-            setLocalErrors({
-                name: '',
-                slug: '',
-                description: '',
+        if (category && mode === 'edit') {
+            setData({
+                name: category.name,
+                slug: category.slug || '',
+                description: category.description || '',
+                is_published: category.is_published,
             });
         }
-    }, [errors]);
+    }, [category, mode]);
 
-    const validateField = useCallback((field: string, value: string) => {
-        let error = '';
-
-        switch (field) {
-            case 'name':
-                if (!value.trim()) {
-                    error = 'Category name is required';
-                }
-                break;
-            case 'slug':
-                if (value && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value)) {
-                    error = 'Slug must be lowercase letters, numbers, and hyphens only';
-                }
-                break;
+    const handleChange = (field: keyof typeof data, value: string | boolean) => {
+        setData(field, value);
+        setShowErrors({ ...showErrors, [field]: false });
+        if (errors[field]) {
+            clearErrors(field);
         }
-
-        return error;
-    }, []);
-
-    const handleChange = (field: string, value: string) => {
-        onChange(field, value);
-        setTouched({ ...touched, [field]: true });
-        const error = validateField(field, value);
-        setLocalErrors({ ...localErrors, [field]: error });
     };
-
-    useEffect(() => {
-        if (errors.name || errors.slug || errors.description) {
-            setTouched(prev => ({
-                ...prev,
-                name: errors.name ? true : prev.name,
-                slug: errors.slug ? true : prev.slug,
-                description: errors.description ? true : prev.description,
-            }));
-        }
-    }, [errors]);
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        const newTouched = {
+        setShowErrors({
             name: true,
             slug: true,
             description: true,
-        };
-        setTouched(newTouched);
+            is_published: true,
+        });
 
-        const newErrors = {
-            name: validateField('name', data.name),
-            slug: validateField('slug', data.slug),
-            description: '',
-        };
-        setLocalErrors(newErrors);
-
-        const hasErrors = Object.values(newErrors).some(error => error !== '');
-        if (!hasErrors) {
-            onSubmit(e);
+        if (mode === 'add') {
+            post(route('admin.categories.store'), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    onCancel();
+                },
+            });
+        } else if (mode === 'edit' && category) {
+            patch(route('admin.categories.update', category.id), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    onCancel();
+                },
+            });
         }
     };
 
@@ -145,7 +106,7 @@ export default function CategoryForm({
                     value={data.name}
                     onChange={(e) => handleChange('name', e.target.value)}
                 />
-                <InputError message={touched.name ? (localErrors.name || errors.name) : ''} className="mt-1" />
+                <InputError message={showErrors.name ? errors.name : ''} className="mt-1" />
             </div>
 
             <div className="mt-3">
@@ -158,7 +119,7 @@ export default function CategoryForm({
                     onChange={(e) => handleChange('slug', e.target.value)}
                     placeholder="e.g., science-fiction"
                 />
-                <InputError message={touched.slug ? (localErrors.slug || errors.slug) : ''} className="mt-1" />
+                <InputError message={showErrors.slug ? errors.slug : ''} className="mt-1" />
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Optional. Used for URLs. Leave blank to auto-generate.</p>
             </div>
 
@@ -172,7 +133,7 @@ export default function CategoryForm({
                     onChange={(e) => handleChange('description', e.target.value)}
                     placeholder="Brief description of this category..."
                 />
-                <InputError message={touched.description ? (localErrors.description || errors.description) : ''} className="mt-1" />
+                <InputError message={showErrors.description ? errors.description : ''} className="mt-1" />
             </div>
 
             <div className="mt-3">
@@ -183,7 +144,7 @@ export default function CategoryForm({
                     </div>
                     <button
                         type="button"
-                        onClick={() => onChange('is_published', !data.is_published)}
+                        onClick={() => handleChange('is_published', !data.is_published)}
                         className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
                             data.is_published ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700'
                         }`}

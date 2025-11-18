@@ -1,6 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\AuthorController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CatalogItemController;
 use App\Http\Controllers\Admin\EmailReminderController;
+use App\Http\Controllers\Admin\PublisherController;
 use App\Http\Controllers\Admin\QrScannerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\SetupController;
@@ -52,34 +56,13 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/email-reminder', [EmailReminderController::class, 'index'])->name('email-reminder');
     Route::post('/email-reminder/send', [EmailReminderController::class, 'send'])->name('email-reminder.send');
     
-    // Catalog Management (UI only for now)
-    Route::get('/catalog-items', function () {
-        return Inertia::render('admin/CatalogItems');
-    })->name('catalog-items');
-    
-    Route::get('/catalog-items/add', function () {
-        return Inertia::render('admin/catalog-items/Add');
-    })->name('catalog-items.add');
-    
-    Route::get('/catalog-items/{id}', function ($id) {
-        return Inertia::render('admin/catalog-items/View');
-    })->name('catalog-items.view');
-    
-    Route::get('/catalog-items/{id}/edit', function ($id) {
-        return Inertia::render('admin/catalog-items/Edit');
-    })->name('catalog-items.edit');
-    
-    Route::get('/authors', function () {
-        return Inertia::render('admin/Authors');
-    })->name('authors');
-    
-    Route::get('/publishers', function () {
-        return Inertia::render('admin/Publishers');
-    })->name('publishers');
-    
-    Route::get('/categories', function () {
-        return Inertia::render('admin/Categories');
-    })->name('categories');
+    // Category Management
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('categories', CategoryController::class)->except(['create', 'edit']);
+        Route::resource('authors', AuthorController::class)->except(['create', 'edit']);
+        Route::resource('publishers', PublisherController::class)->except(['create', 'edit']);
+        Route::resource('catalog-items', CatalogItemController::class);
+    });
 });
 
 require __DIR__.'/auth.php';
