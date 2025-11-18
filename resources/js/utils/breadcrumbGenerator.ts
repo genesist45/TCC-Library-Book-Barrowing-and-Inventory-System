@@ -19,32 +19,32 @@ export function generateBreadcrumbs(currentRoute: string): BreadcrumbItem[] {
     }
 
     // Authors routes
-    if (currentRoute.startsWith('authors')) {
+    if (currentRoute.startsWith('admin.authors')) {
         breadcrumbs.push({ label: 'Authors', active: true });
         return breadcrumbs;
     }
 
     // Categories routes
-    if (currentRoute.startsWith('categories')) {
+    if (currentRoute.startsWith('admin.categories')) {
         breadcrumbs.push({ label: 'Categories', active: true });
         return breadcrumbs;
     }
 
     // Publishers routes
-    if (currentRoute.startsWith('publishers')) {
+    if (currentRoute.startsWith('admin.publishers')) {
         breadcrumbs.push({ label: 'Publishers', active: true });
         return breadcrumbs;
     }
 
     // Catalog Items routes
-    if (currentRoute.startsWith('catalog-items')) {
-        breadcrumbs.push({ label: 'Catalog Items', href: route('catalog-items') });
+    if (currentRoute.startsWith('admin.catalog-items')) {
+        breadcrumbs.push({ label: 'Catalog Items', href: route('admin.catalog-items.index') });
 
-        if (currentRoute === 'catalog-items.add') {
+        if (currentRoute === 'admin.catalog-items.create') {
             breadcrumbs.push({ label: 'Add New Item', active: true });
-        } else if (currentRoute === 'catalog-items.edit') {
+        } else if (currentRoute === 'admin.catalog-items.edit') {
             breadcrumbs.push({ label: 'Edit Item', active: true });
-        } else if (currentRoute === 'catalog-items.view') {
+        } else if (currentRoute === 'admin.catalog-items.show') {
             breadcrumbs.push({ label: 'View Item', active: true });
         } else {
             breadcrumbs[breadcrumbs.length - 1].active = true;

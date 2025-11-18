@@ -50,22 +50,22 @@ export const getAdminMenuItems = (currentRoute: string): MenuItem[] => {
                 {
                     name: 'Catalog Items',
                     icon: List,
-                    href: 'catalog-items',
+                    href: 'admin.catalog-items.index',
                 },
                 {
                     name: 'Authors',
                     icon: UserSquare2,
-                    href: 'authors',
+                    href: 'admin.authors.index',
                 },
                 {
                     name: 'Publishers',
                     icon: Building2,
-                    href: 'publishers',
+                    href: 'admin.publishers.index',
                 },
                 {
                     name: 'Categories',
                     icon: Tags,
-                    href: 'categories',
+                    href: 'admin.categories.index',
                 },
             ],
         },
