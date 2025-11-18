@@ -36,6 +36,23 @@ export function generateBreadcrumbs(currentRoute: string): BreadcrumbItem[] {
         return breadcrumbs;
     }
 
+    // Members routes
+    if (currentRoute.startsWith('admin.members')) {
+        breadcrumbs.push({ label: 'Members', href: route('admin.members.index') });
+
+        if (currentRoute === 'admin.members.create') {
+            breadcrumbs.push({ label: 'Add New Member', active: true });
+        } else if (currentRoute === 'admin.members.edit') {
+            breadcrumbs.push({ label: 'Edit Member', active: true });
+        } else if (currentRoute === 'admin.members.show') {
+            breadcrumbs.push({ label: 'View Member', active: true });
+        } else {
+            breadcrumbs[breadcrumbs.length - 1].active = true;
+        }
+
+        return breadcrumbs;
+    }
+
     // Catalog Items routes
     if (currentRoute.startsWith('admin.catalog-items')) {
         breadcrumbs.push({ label: 'Catalog Items', href: route('admin.catalog-items.index') });
