@@ -56,6 +56,22 @@ export interface CatalogItem {
     authors?: Author[];
 }
 
+export interface Member {
+    id: number;
+    member_no: string;
+    name: string;
+    type: 'Regular' | 'Privileged';
+    status: 'Active' | 'Inactive' | 'Suspended';
+    email?: string;
+    phone?: string;
+    address?: string;
+    booking_quota?: number;
+    member_group?: string;
+    allow_login: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>,
 > = T & {

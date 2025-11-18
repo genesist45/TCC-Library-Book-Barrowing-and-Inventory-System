@@ -1,9 +1,9 @@
-import { LayoutDashboard, Users, ScanBarcode, Mail, LibraryBig, List, UserSquare2, Building2, Tags } from 'lucide-react';
+import { LayoutDashboard, Users, ScanBarcode, Mail, LibraryBig, List, UserSquare2, Building2, Tags, RefreshCcw, UserCheck } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 
 export interface MenuItem {
     name: string;
-    href: string;
+    href?: string;
     icon: LucideIcon;
     active?: boolean;
     onClick?: () => void;
@@ -30,6 +30,18 @@ export const getAdminMenuItems = (currentRoute: string): MenuItem[] => {
             active: currentRoute === 'users.index' || currentRoute.startsWith('users.'),
         },
         {
+            name: 'Circulations',
+            icon: RefreshCcw,
+            active: false,
+            children: [
+                {
+                    name: 'Members',
+                    icon: UserCheck,
+                    href: 'admin.members.index',
+                },
+            ],
+        },
+        {
             name: 'QR Scanner',
             href: 'qr-scanner',
             icon: ScanBarcode,
@@ -43,7 +55,6 @@ export const getAdminMenuItems = (currentRoute: string): MenuItem[] => {
         },
         {
             name: 'Catalogs',
-            href: '#',
             icon: LibraryBig,
             active: false,
             children: [
