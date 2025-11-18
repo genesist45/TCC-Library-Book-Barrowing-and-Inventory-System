@@ -1,21 +1,109 @@
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
+import { useState } from 'react';
+import CatalogItemTable from '@/components/catalog-items/CatalogItemTable';
+import CatalogItemPageHeader from '@/components/catalog-items/CatalogItemPageHeader';
+import CatalogItemDeleteModal from '@/components/catalog-items/CatalogItemDeleteModal';
+import { toast } from 'sonner';
+
+interface CatalogItem {
+    id: number;
+    title: string;
+    type: string;
+    category?: string;
+    publisher?: string;
+    year?: string;
+    is_active: boolean;
+}
 
 export default function CatalogItems() {
+    const [items] = useState<CatalogItem[]>([]);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [processing, setProcessing] = useState(false);
+
+    const handleAddItem = () => {
+        router.visit('/catalog-items/add');
+    };
+
+    const handleViewItem = (item: CatalogItem) => {
+        router.visit(`/catalog-items/${item.id}`);
+    };
+
+    const handleEditItem = (item: CatalogItem) => {
+        router.visit(`/catalog-items/${item.id}/edit`);
+    };
+
+    const handleDeleteItem = (item: CatalogItem) => {
+        setSelectedItem(item);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = () => {
+        setProcessing(true);
+        
+        setTimeout(() => {
+            setProcessing(false);
+            setShowDeleteModal(false);
+            setSelectedItem(null);
+            toast.success('Catalog item deleted successfully!');
+        }, 1000);
+    };
+
+    const handleRefresh = () => {
+        setIsRefreshing(true);
+        setTimeout(() => {
+            setIsRefreshing(false);
+        }, 500);
+    };
+
+    const closeModal = () => {
+        setShowDeleteModal(false);
+        setSelectedItem(null);
+    };
+
+    const filteredItems = items.filter(item =>
+        (item.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (item.type?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (item.category?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (item.publisher?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    );
+
     return (
         <AuthenticatedLayout>
             <Head title="Catalog Items" />
 
             <div className="p-4 sm:p-6">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-colors duration-300 dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">
-                        <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">Catalog Items</h2>
-                        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                            This page is under construction. Catalog items management will be available soon.
-                        </p>
+                    <CatalogItemPageHeader 
+                        searchValue={searchTerm}
+                        onSearchChange={setSearchTerm}
+                        onAddItem={handleAddItem}
+                        onRefresh={handleRefresh}
+                        isRefreshing={isRefreshing}
+                    />
+
+                    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-colors duration-300 dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">
+                        <CatalogItemTable
+                            items={filteredItems}
+                            onView={handleViewItem}
+                            onEdit={handleEditItem}
+                            onDelete={handleDeleteItem}
+                            isLoading={isRefreshing}
+                        />
                     </div>
                 </div>
             </div>
+
+            <CatalogItemDeleteModal
+                show={showDeleteModal}
+                item={selectedItem}
+                processing={processing}
+                onConfirm={confirmDelete}
+                onCancel={closeModal}
+            />
         </AuthenticatedLayout>
     );
 }

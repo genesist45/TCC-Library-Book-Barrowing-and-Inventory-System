@@ -57,6 +57,18 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
         return Inertia::render('admin/CatalogItems');
     })->name('catalog-items');
     
+    Route::get('/catalog-items/add', function () {
+        return Inertia::render('admin/catalog-items/Add');
+    })->name('catalog-items.add');
+    
+    Route::get('/catalog-items/{id}', function ($id) {
+        return Inertia::render('admin/catalog-items/View');
+    })->name('catalog-items.view');
+    
+    Route::get('/catalog-items/{id}/edit', function ($id) {
+        return Inertia::render('admin/catalog-items/Edit');
+    })->name('catalog-items.edit');
+    
     Route::get('/authors', function () {
         return Inertia::render('admin/Authors');
     })->name('authors');
