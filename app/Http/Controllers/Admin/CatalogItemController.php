@@ -60,14 +60,14 @@ class CatalogItemController extends Controller
     public function show(CatalogItem $catalogItem): Response
     {
         return Inertia::render('admin/catalog-items/View', [
-            'item' => $catalogItem->load(['category', 'publisher', 'authors'])
+            'catalogItem' => $catalogItem->load(['category', 'publisher', 'authors'])
         ]);
     }
 
     public function edit(CatalogItem $catalogItem): Response
     {
         return Inertia::render('admin/catalog-items/Edit', [
-            'item' => $catalogItem->load('authors'),
+            'catalogItem' => $catalogItem->load('authors'),
             'categories' => Category::where('is_published', true)->orderBy('name')->get(['id', 'name']),
             'publishers' => Publisher::where('is_published', true)->orderBy('name')->get(['id', 'name']),
             'authors' => Author::where('is_published', true)->orderBy('name')->get(['id', 'name']),

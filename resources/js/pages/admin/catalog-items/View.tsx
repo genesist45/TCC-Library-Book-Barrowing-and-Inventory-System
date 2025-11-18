@@ -39,7 +39,7 @@ export default function CatalogItemView({ catalogItem }: Props) {
                                 {catalogItem.cover_image && (
                                     <div className="flex justify-center">
                                         <img
-                                            src={catalogItem.cover_image}
+                                            src={`/storage/${catalogItem.cover_image}`}
                                             alt={catalogItem.title}
                                             className="h-48 w-auto rounded-md border border-gray-300 object-cover dark:border-gray-700"
                                         />

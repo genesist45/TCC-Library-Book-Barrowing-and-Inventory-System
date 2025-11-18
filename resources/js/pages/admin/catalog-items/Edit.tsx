@@ -42,7 +42,7 @@ export default function CatalogItemEdit({ catalogItem, categories, publishers, a
 
     useEffect(() => {
         if (catalogItem.cover_image) {
-            setCoverImagePreview(catalogItem.cover_image);
+            setCoverImagePreview(`/storage/${catalogItem.cover_image}`);
         }
     }, [catalogItem.cover_image]);
 
@@ -75,7 +75,7 @@ export default function CatalogItemEdit({ catalogItem, categories, publishers, a
     const handleRemoveImage = () => {
         setData('cover_image', null);
         setCoverImageName('');
-        setCoverImagePreview(catalogItem.cover_image || null);
+        setCoverImagePreview(catalogItem.cover_image ? `/storage/${catalogItem.cover_image}` : null);
     };
 
     const handleAuthorToggle = (authorId: number) => {

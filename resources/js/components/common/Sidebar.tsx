@@ -33,11 +33,13 @@ export default function Sidebar({
     onMouseLeave,
     user 
 }: SidebarProps) {
-    const isVisuallyExpanded = showExpanded;
     const [showAccountDropdown, setShowAccountDropdown] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [processing, setProcessing] = useState(false);
     const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
+    
+    const hasExpandedMenus = Object.values(expandedMenus).some(val => val === true);
+    const isVisuallyExpanded = showExpanded || hasExpandedMenus;
 
     const menuItems = user.role === 'admin' 
         ? getAdminMenuItems(currentRoute) 
@@ -108,6 +110,7 @@ export default function Sidebar({
                             ? { 
                                 onClick: (e: React.MouseEvent) => {
                                     e.preventDefault();
+                                    e.stopPropagation();
                                     if (hasChildren) {
                                         setExpandedMenus((prev) => ({ ...prev, [item.name]: !prev[item.name] }));
                                     } else {
@@ -116,7 +119,7 @@ export default function Sidebar({
                                 },
                                 type: 'button' as const,
                               }
-                            : { href: route(item.href) };
+                            : { href: route(item.href!) };
 
                         return (
                             <div key={item.name}>
