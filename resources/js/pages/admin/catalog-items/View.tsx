@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import SecondaryButton from '@/components/buttons/SecondaryButton';
 import PrimaryButton from '@/components/buttons/PrimaryButton';
-import { ArrowLeft, Pencil } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 interface CatalogItem {
     id: number;
@@ -57,21 +57,7 @@ export default function CatalogItemView({ item }: { item?: CatalogItem }) {
             <Head title={`View: ${displayItem.title}`} />
 
             <div className="p-4 sm:p-6">
-                <div className="mx-auto max-w-4xl">
-                    <div className="mb-4 flex items-center justify-between">
-                        <button
-                            onClick={handleBack}
-                            className="flex items-center gap-2 text-sm text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
-                        >
-                            <ArrowLeft className="h-4 w-4" />
-                            Back to Catalog Items
-                        </button>
-                        <PrimaryButton onClick={handleEdit} className="flex items-center gap-2">
-                            <Pencil className="h-4 w-4" />
-                            Edit
-                        </PrimaryButton>
-                    </div>
-
+                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="rounded-lg border border-gray-200 bg-white shadow-sm transition-colors duration-300 dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">
                         <div className="border-b border-gray-200 p-4 dark:border-[#3a3a3a] sm:p-6">
                             <h2 className="text-xl font-semibold text-gray-900 transition-colors duration-300 dark:text-gray-100">
