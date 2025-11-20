@@ -52,15 +52,6 @@ export default function Header({
             <div className="flex h-14 items-center justify-between px-4 sm:px-6 lg:px-1.5">
                 {/* Left side - Hamburger Menu */}
                 <div className="flex items-center">
-                    {/* Desktop sidebar toggle */}
-                    <button
-                        onClick={onToggleSidebar}
-                        className="hidden rounded-md p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:bg-[#3a3a3a] dark:hover:text-gray-200 lg:block"
-                        title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-                    >
-                        {sidebarCollapsed ? <PanelLeft size={20} /> : <PanelLeftClose size={20} />}
-                    </button>
-
                     {/* Mobile menu button */}
                     <button
                         onClick={onToggleMobileSidebar}

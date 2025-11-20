@@ -5,16 +5,15 @@ import iconLogo from '@/assets/images/logos/tcc-icon.png';
 import defaultUserImage from '@/assets/images/avatars/default-user.png';
 import { getAdminMenuItems, MenuItem } from '@/components/menu/admin';
 import { getStaffMenuItems } from '@/components/menu/staff';
-import { Settings, LogOut, ChevronsUpDown, ChevronRight, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { Settings, LogOut, ChevronsUpDown, ChevronRight, ChevronDown, PanelLeft, PanelLeftClose } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import ConfirmModal from '@/components/modals/ConfirmModal';
 
 interface SidebarProps {
     currentRoute: string;
     collapsed: boolean;
     showExpanded?: boolean;
-    onMouseEnter?: () => void;
-    onMouseLeave?: () => void;
+    onToggle?: () => void;
     user: {
         first_name: string;
         last_name: string;
@@ -29,21 +28,66 @@ export default function Sidebar({
     currentRoute, 
     collapsed, 
     showExpanded = false,
-    onMouseEnter,
-    onMouseLeave,
+    onToggle,
     user 
 }: SidebarProps) {
     const [showAccountDropdown, setShowAccountDropdown] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [processing, setProcessing] = useState(false);
-    const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
+
+    // Initialize expanded menus from localStorage
+    const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('sidebarExpandedMenus');
+            return saved ? JSON.parse(saved) : {};
+        }
+        return {};
+    });
+
+    // Persist expanded menus state
+    useEffect(() => {
+        localStorage.setItem('sidebarExpandedMenus', JSON.stringify(expandedMenus));
+    }, [expandedMenus]);
     
-    const hasExpandedMenus = Object.values(expandedMenus).some(val => val === true);
-    const isVisuallyExpanded = showExpanded || hasExpandedMenus;
+    // Floating menu state
+    const [hoveredMenu, setHoveredMenu] = useState<{ name: string; top: number; children: MenuItem['children'] } | null>(null);
+    const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const isVisuallyExpanded = showExpanded;
 
     const menuItems = user.role === 'admin' 
         ? getAdminMenuItems(currentRoute) 
         : getStaffMenuItems(currentRoute);
+
+    const handleMouseEnter = (item: MenuItem, e: React.MouseEvent) => {
+        if (!isVisuallyExpanded && item.children && item.children.length > 0) {
+            if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+            const rect = e.currentTarget.getBoundingClientRect();
+            setHoveredMenu({
+                name: item.name,
+                top: rect.top,
+                children: item.children
+            });
+        }
+    };
+
+    const handleMouseLeave = () => {
+        if (!isVisuallyExpanded) {
+            hoverTimeoutRef.current = setTimeout(() => {
+                setHoveredMenu(null);
+            }, 100);
+        }
+    };
+
+    const handleFloatingMenuEnter = () => {
+        if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    };
+
+    const handleFloatingMenuLeave = () => {
+        hoverTimeoutRef.current = setTimeout(() => {
+            setHoveredMenu(null);
+        }, 100);
+    };
 
     const handleLogout = () => {
         setProcessing(true);
@@ -61,46 +105,64 @@ export default function Sidebar({
             className={`fixed left-0 top-0 h-screen overflow-x-hidden sidebar-no-scrollbar bg-white border-r border-gray-200 shadow-sm transition-all duration-300 ease-in-out dark:bg-[#2a2a2a] dark:border-[#3a3a3a] dark:shadow-black/50 ${
                 isVisuallyExpanded ? 'w-64' : 'w-20'
             } ${collapsed && isVisuallyExpanded ? 'z-50' : 'z-40'}`}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
         >
             <div className="flex h-full flex-col">
                 {/* Logo Section */}
-                <div className="relative flex h-14 items-center justify-center overflow-hidden px-3 transition-all duration-300 ease-in-out">
-                    {/* Full Logo - Shows when expanded */}
-                    <img
-                        src={logo}
-                        alt="TCC Logo"
-                        className={`absolute h-10 w-auto object-contain transition-all duration-200 ease-in-out ${
-                            isVisuallyExpanded 
-                                ? 'opacity-100 scale-100' 
-                                : 'opacity-0 scale-95 pointer-events-none'
-                        }`}
-                    />
-                    {/* Icon Logo - Shows when collapsed */}
-                    <img
-                        src={iconLogo}
-                        alt="TCC Icon"
-                        className={`absolute h-9 w-9 object-contain transition-all duration-200 ease-in-out ${
-                            !isVisuallyExpanded 
-                                ? 'opacity-100 scale-100' 
-                                : 'opacity-0 scale-95 pointer-events-none'
-                        }`}
-                    />
+                <div className="relative flex h-14 flex-shrink-0 items-center justify-center px-3">
+                    {/* Expanded State: Full Logo + Close Button */}
+                    <div className={`absolute inset-0 flex items-center justify-between px-4 transition-all duration-300 ease-in-out ${
+                        isVisuallyExpanded ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
+                    }`}>
+                        <img
+                            src={logo}
+                            alt="TCC Logo"
+                            className="h-10 w-auto object-contain"
+                        />
+                        <button
+                            onClick={onToggle}
+                            className="rounded-md p-1 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-[#3a3a3a]"
+                        >
+                            <PanelLeftClose size={20} />
+                        </button>
+                    </div>
+
+                    {/* Collapsed State: Toggle Button (Logo -> Hamburger) */}
+                    <div className={`transition-all duration-300 ease-in-out ${
+                        !isVisuallyExpanded ? 'opacity-100 visible scale-100' : 'opacity-0 invisible scale-90 pointer-events-none absolute'
+                    }`}>
+                        <button
+                            onClick={onToggle}
+                            className="group relative flex h-10 w-10 items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-[#3a3a3a]"
+                            style={{ cursor: 'ew-resize' }}
+                        >
+                            <img
+                                src={iconLogo}
+                                alt="TCC"
+                                className="absolute h-9 w-9 object-contain transition-opacity duration-200 group-hover:opacity-0"
+                            />
+                            <PanelLeft 
+                                size={20} 
+                                className="text-gray-500 opacity-0 transition-opacity duration-200 group-hover:opacity-100 dark:text-gray-400" 
+                            />
+                        </button>
+                    </div>
                 </div>
 
-                {/* Divider - Full width, aligned with header bottom */}
+                {/* Divider - Full width */}
                 <hr className="border-gray-200 transition-colors duration-300 dark:border-[#3a3a3a]" />
 
                 {/* Menu Section */}
-                <nav className={`flex-1 space-y-1 overflow-y-auto overflow-x-hidden py-4 px-3 scrollbar-hide transition-all duration-300 ease-in-out ${
-                    !isVisuallyExpanded ? '-translate-y-8' : 'translate-y-0'
-                }`}>
-                    <p className={`mb-3 px-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500 transition-all duration-300 ease-in-out dark:text-gray-400 ${
-                        isVisuallyExpanded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'
+                <nav className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden py-4 px-3 scrollbar-hide">
+                    
+                    {/* Collapsed Hamburger - Removed as it's moved to header */}
+
+                    <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                        isVisuallyExpanded ? 'max-h-8 opacity-100 mb-3' : 'max-h-0 opacity-0 mb-0'
                     }`}>
-                        Menu
-                    </p>
+                        <p className="px-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                            Menu
+                        </p>
+                    </div>
                     {menuItems.map((item: MenuItem) => {
                         const Icon = item.icon;
                         const hasChildren = item.children !== undefined && Array.isArray(item.children) && item.children.length > 0;
@@ -134,6 +196,8 @@ export default function Sidebar({
                                         }
                                     `}
                                     title={!isVisuallyExpanded ? item.name : undefined}
+                                    onMouseEnter={(e) => handleMouseEnter(item, e)}
+                                    onMouseLeave={handleMouseLeave}
                                 >
                                     <div className="flex w-14 flex-shrink-0 items-center justify-center">
                                         <Icon
@@ -153,35 +217,62 @@ export default function Sidebar({
                                     )}
                                 </MenuComponent>
 
-                                {hasChildren && isExpanded && isVisuallyExpanded && item.children && (
-                                    <div className="mt-1 space-y-1 pl-10">
-                                        {item.children.map((child: NonNullable<MenuItem['children']>[0]) => {
-                                            const ChildIcon = child.icon;
-                                            const ChildComponent = child.href ? Link : 'button';
-                                            const childProps = child.href
-                                                ? { href: route(child.href) }
-                                                : { 
-                                                    type: 'button' as const,
-                                                    onClick: child.onClick
-                                                  };
-                                            
-                                            return (
-                                                <ChildComponent
-                                                    key={child.name}
-                                                    {...childProps}
-                                                    className="flex w-full items-center gap-3 rounded-lg py-2 px-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-[#3a3a3a]"
-                                                >
-                                                    {ChildIcon && <ChildIcon size={16} className="text-gray-500 dark:text-gray-400" />}
-                                                    <span>{child.name}</span>
-                                                </ChildComponent>
-                                            );
-                                        })}
+                                <div 
+                                    className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${
+                                        hasChildren && isExpanded && isVisuallyExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                                    }`}
+                                >
+                                    <div className="overflow-hidden">
+                                        {hasChildren && item.children && (
+                                            <div className="relative ml-[1.75rem] mt-1">
+                                                {item.children.map((child: NonNullable<MenuItem['children']>[0], index: number) => {
+                                                    const isLast = index === item.children!.length - 1;
+                                                    const ChildIcon = child.icon;
+                                                    const ChildComponent = child.href ? Link : 'button';
+                                                    const childProps = child.href
+                                                        ? { href: route(child.href) }
+                                                        : { 
+                                                            type: 'button' as const,
+                                                            onClick: child.onClick
+                                                        };
+                                                    
+                                                    return (
+                                                        <div key={child.name} className="relative pl-6">
+                                                            {/* Vertical Line */}
+                                                            <div 
+                                                                className={`absolute left-0 top-0 w-px bg-gray-200 dark:bg-[#3a3a3a] ${
+                                                                    isLast ? 'h-1/2' : 'h-full'
+                                                                }`} 
+                                                            />
+                                                            
+                                                            {/* Horizontal Line */}
+                                                            <div className="absolute left-0 top-1/2 h-px w-4 bg-gray-200 dark:bg-[#3a3a3a]" />
+                                                            
+                                                            <ChildComponent
+                                                                {...childProps}
+                                                                className={`flex w-full items-center gap-3 rounded-lg py-2 px-2 text-sm transition-colors ${
+                                                                    child.active 
+                                                                        ? 'bg-gray-100 text-black font-bold dark:bg-[#3a3a3a] dark:text-gray-100' 
+                                                                        : 'text-gray-700 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-[#3a3a3a]'
+                                                                }`}
+                                                            >
+                                                                {ChildIcon && <ChildIcon size={16} className="text-gray-500 dark:text-gray-400" />}
+                                                                <span>{child.name}</span>
+                                                            </ChildComponent>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
                                     </div>
-                                )}
+                                </div>
                             </div>
                         );
                     })}
                 </nav>
+
+                {/* Divider */}
+                <hr className="border-gray-200 transition-colors duration-300 dark:border-[#3a3a3a]" />
 
                 {/* Sticky Footer - Account Section - Desktop Only */}
                 <div className="relative hidden px-3 pb-3 pt-1 transition-all duration-300 ease-in-out lg:block">
@@ -287,6 +378,43 @@ export default function Sidebar({
                 </div>
             </div>
         </aside>
+
+        {/* Floating Menu for Collapsed State */}
+        {hoveredMenu && (
+            <div
+                className="fixed left-20 z-50 w-48 rounded-lg border border-gray-200 bg-white py-2 shadow-lg dark:border-[#3a3a3a] dark:bg-[#2a2a2a]"
+                style={{ top: hoveredMenu.top }}
+                onMouseEnter={handleFloatingMenuEnter}
+                onMouseLeave={handleFloatingMenuLeave}
+            >
+                <div className="px-4 py-2 text-xs font-bold uppercase text-gray-500 dark:text-gray-400">
+                    {hoveredMenu.name}
+                </div>
+                {hoveredMenu.children?.map((child) => {
+                    const ChildComponent = child.href ? Link : 'button';
+                    const childProps = child.href
+                        ? { href: route(child.href) }
+                        : { 
+                            type: 'button' as const,
+                            onClick: child.onClick
+                          };
+                    
+                    return (
+                        <ChildComponent
+                            key={child.name}
+                            {...childProps}
+                            className={`block w-full px-4 py-2 text-left text-sm transition-colors ${
+                                child.active
+                                    ? 'bg-gray-100 text-black font-bold dark:bg-[#3a3a3a] dark:text-gray-100'
+                                    : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#3a3a3a]'
+                            }`}
+                        >
+                            {child.name}
+                        </ChildComponent>
+                    );
+                })}
+            </div>
+        )}
 
         {/* Logout Confirmation Modal */}
         <ConfirmModal
