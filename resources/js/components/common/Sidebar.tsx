@@ -3,7 +3,7 @@ import { router } from '@inertiajs/react';
 import logo from '@/assets/images/logos/tcc-logo.png';
 import iconLogo from '@/assets/images/logos/tcc-icon.png';
 import defaultUserImage from '@/assets/images/avatars/default-user.png';
-import { getAdminMenuItems } from '@/components/menu/admin';
+import { getAdminMenuItems, MenuItem } from '@/components/menu/admin';
 import { getStaffMenuItems } from '@/components/menu/staff';
 import { Settings, LogOut, ChevronsUpDown, ChevronRight, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
@@ -101,9 +101,9 @@ export default function Sidebar({
                     }`}>
                         Menu
                     </p>
-                    {menuItems.map((item) => {
+                    {menuItems.map((item: MenuItem) => {
                         const Icon = item.icon;
-                        const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+                        const hasChildren = item.children !== undefined && Array.isArray(item.children) && item.children.length > 0;
                         const isExpanded = !!expandedMenus[item.name];
                         const MenuComponent = hasChildren || item.onClick ? 'button' : Link;
                         const menuProps = hasChildren || item.onClick 
@@ -153,9 +153,9 @@ export default function Sidebar({
                                     )}
                                 </MenuComponent>
 
-                                {hasChildren && isExpanded && isVisuallyExpanded && (
+                                {hasChildren && isExpanded && isVisuallyExpanded && item.children && (
                                     <div className="mt-1 space-y-1 pl-10">
-                                        {item.children!.map((child) => {
+                                        {item.children.map((child: NonNullable<MenuItem['children']>[0]) => {
                                             const ChildIcon = child.icon;
                                             const ChildComponent = child.href ? Link : 'button';
                                             const childProps = child.href
