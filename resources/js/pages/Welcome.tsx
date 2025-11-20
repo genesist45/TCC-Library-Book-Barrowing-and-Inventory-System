@@ -369,7 +369,7 @@ export default function Welcome({ auth, popularBooks = [] }: PageProps<{ popular
                 />
             )}
 
-            <Toaster position="top-center" richColors />
+            <Toaster position="bottom-right" richColors toastOptions={{ style: { zIndex: 9999 } }} />
         </>
     );
 }
