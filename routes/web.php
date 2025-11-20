@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthorController;
+use App\Http\Controllers\Admin\BookRequestController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CatalogItemController;
 use App\Http\Controllers\Admin\EmailReminderController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Admin\QrScannerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\SetupController;
 use App\Http\Controllers\Shared\AIChatController;
+use App\Http\Controllers\Shared\BookSearchController;
 use App\Http\Controllers\Shared\DashboardController;
 use App\Http\Controllers\Shared\ProfileController;
 use Illuminate\Foundation\Application;
@@ -21,6 +23,23 @@ Route::get('/setup-admin', [SetupController::class, 'createAdmin']);
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
+});
+
+// Public book search routes
+Route::get('/books/search', [BookSearchController::class, 'search'])->name('books.search');
+Route::get('/books/{id}', [BookSearchController::class, 'show'])->name('books.show');
+Route::get('/books/{id}/borrow', [BookSearchController::class, 'createBorrowRequest'])->name('books.borrow-request.create');
+Route::post('/books/borrow-request', [BookSearchController::class, 'storeBorrowRequest'])->name('books.borrow-request.store');
+
+
+
+// API endpoint for member lookup by member number
+Route::get('/api/members/{memberNo}', function ($memberNo) {
+    $member = \App\Models\Member::where('member_no', $memberNo)->first();
+    if (!$member) {
+        return response()->json(['error' => 'Member not found'], 404);
+    }
+    return response()->json($member);
 });
 
 // Shared authenticated routes (both admin and staff)
@@ -64,6 +83,11 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
         Route::resource('publishers', PublisherController::class)->except(['create', 'edit']);
         Route::resource('catalog-items', CatalogItemController::class);
         Route::resource('members', MemberController::class);
+        
+        // Book Requests (Circulations)
+        Route::post('book-requests/{id}/approve', [BookRequestController::class, 'approve'])->name('book-requests.approve');
+        Route::post('book-requests/{id}/disapprove', [BookRequestController::class, 'disapprove'])->name('book-requests.disapprove');
+        Route::resource('book-requests', BookRequestController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
     });
 });
 
