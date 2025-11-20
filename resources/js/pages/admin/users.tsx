@@ -14,6 +14,7 @@ interface User {
     first_name: string;
     last_name: string;
     name: string;
+    username: string;
     email: string;
     role: 'admin' | 'staff';
     profile_picture?: string;
@@ -34,6 +35,7 @@ export default function Index({ users }: { users: User[] }) {
         name: '',
         first_name: '',
         last_name: '',
+        username: '',
         email: '',
         role: '' as 'admin' | 'staff' | '',
         password: '',
@@ -55,6 +57,7 @@ export default function Index({ users }: { users: User[] }) {
             name: user.name,
             first_name: user.first_name,
             last_name: user.last_name,
+            username: user.username,
             email: user.email,
             role: user.role,
             password: '',
@@ -84,13 +87,13 @@ export default function Index({ users }: { users: User[] }) {
 
     const submitAdd: FormEventHandler = (e) => {
         e.preventDefault();
-        
+
         const fullName = `${data.first_name} ${data.last_name}`.trim();
         const submitData = {
             ...data,
             name: fullName,
         };
-        
+
         router.post(route('users.store'), submitData, {
             onSuccess: () => {
                 closeModals();
@@ -113,7 +116,7 @@ export default function Index({ users }: { users: User[] }) {
                 ...data,
                 name: fullName,
             };
-            
+
             router.patch(route('users.update', selectedUser.id), submitData, {
                 onSuccess: () => {
                     closeModals();
@@ -165,7 +168,7 @@ export default function Index({ users }: { users: User[] }) {
 
             <div className="p-4 sm:p-6">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <UserPageHeader 
+                    <UserPageHeader
                         searchValue={searchTerm}
                         onSearchChange={setSearchTerm}
                         onAddUser={openAddModal}
@@ -186,7 +189,7 @@ export default function Index({ users }: { users: User[] }) {
             </div>
 
             {/* User Modals - Always mounted for smooth transitions */}
-            <Modal show={showAddModal} onClose={closeModals}>
+            <Modal show={showAddModal} onClose={closeModals} maxWidth="xl">
                 <UserForm
                     mode="add"
                     data={data}
@@ -198,7 +201,7 @@ export default function Index({ users }: { users: User[] }) {
                 />
             </Modal>
 
-            <Modal show={showEditModal} onClose={closeModals}>
+            <Modal show={showEditModal} onClose={closeModals} maxWidth="xl">
                 <UserForm
                     mode="edit"
                     data={data}

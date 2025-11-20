@@ -7,6 +7,7 @@ interface User {
     first_name: string;
     last_name: string;
     name: string;
+    username: string;
     email: string;
     role: 'admin' | 'staff';
     profile_picture?: string;
@@ -89,11 +90,10 @@ export default function UserTable({ users, onView, onEdit, onDelete, isLoading =
                                     {user.email}
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-2 text-sm sm:px-4">
-                                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium sm:px-2.5 ${
-                                        user.role === 'admin' 
+                                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium sm:px-2.5 ${user.role === 'admin'
                                             ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
                                             : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                                    }`}>
+                                        }`}>
                                         {user.role === 'admin' ? 'Ad' : 'St'}
                                         <span className="hidden sm:inline">
                                             {user.role === 'admin' ? 'min' : 'aff'}

@@ -18,6 +18,7 @@ class RoleBasedUserSeeder extends Seeder
         User::create([
             'first_name' => 'Admin',
             'last_name' => 'User',
+            'username' => 'admin',
             'email' => 'admin@tcc.com',
             'role' => 'admin',
             'password' => Hash::make('password'),
@@ -28,6 +29,7 @@ class RoleBasedUserSeeder extends Seeder
         User::create([
             'first_name' => 'Staff',
             'last_name' => 'User',
+            'username' => 'staff',
             'email' => 'staff@tcc.com',
             'role' => 'staff',
             'password' => Hash::make('password'),

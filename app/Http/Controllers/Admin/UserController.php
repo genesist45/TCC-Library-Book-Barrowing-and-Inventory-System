@@ -23,6 +23,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
             'role' => 'required|in:admin,staff',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
@@ -34,6 +35,7 @@ class UserController extends Controller
         User::create([
             'first_name' => $nameParts[0],
             'last_name' => $nameParts[1] ?? '',
+            'username' => $validated['username'],
             'email' => $validated['email'],
             'role' => $validated['role'],
             'password' => Hash::make($validated['password']),
@@ -46,6 +48,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'role' => 'required|in:admin,staff',
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
@@ -57,6 +60,7 @@ class UserController extends Controller
         $user->update([
             'first_name' => $nameParts[0],
             'last_name' => $nameParts[1] ?? '',
+            'username' => $validated['username'],
             'email' => $validated['email'],
             'role' => $validated['role'],
             'password' => $validated['password'] ? Hash::make($validated['password']) : $user->password,
