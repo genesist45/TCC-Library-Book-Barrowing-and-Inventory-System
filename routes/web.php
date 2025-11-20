@@ -22,7 +22,15 @@ use Inertia\Inertia;
 Route::get('/setup-admin', [SetupController::class, 'createAdmin']);
 
 Route::get('/', function () {
-    return Inertia::render('Welcome');
+    $popularBooks = \App\Models\CatalogItem::with(['category', 'publisher', 'authors'])
+        ->where('is_active', true)
+        ->latest()
+        ->take(10)
+        ->get();
+    
+    return Inertia::render('Welcome', [
+        'popularBooks' => $popularBooks
+    ]);
 });
 
 // Public book search routes

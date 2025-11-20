@@ -1,7 +1,9 @@
-import { PageProps } from '@/types';
+import { PageProps, CatalogItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import PublicHeader from '@/components/common/PublicHeader';
 import ScrollToTop from '@/components/common/ScrollToTop';
+import BookCard from '@/components/books/BookCard';
+import BookDetailsModal from '@/components/books/BookDetailsModal';
 import { useState, useEffect } from 'react';
 import { Search, BookOpen } from 'lucide-react';
 import { Toaster } from 'sonner';
@@ -16,11 +18,48 @@ interface SearchResult {
     is_active: boolean;
 }
 
-export default function Welcome({ auth }: PageProps) {
+export default function Welcome({ auth, popularBooks = [] }: PageProps<{ popularBooks: CatalogItem[] }>) {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
     const [showDropdown, setShowDropdown] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
+
+    // Modal state
+    const [selectedBook, setSelectedBook] = useState<CatalogItem | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Filter states
+    const [typeFilter, setTypeFilter] = useState('');
+    const [yearFilter, setYearFilter] = useState('');
+    const [statusFilter, setStatusFilter] = useState('');
+
+    // Filter popular books based on selected filters
+    const filteredPopularBooks = popularBooks.filter((book) => {
+        // Type filter
+        if (typeFilter && book.type !== typeFilter) return false;
+
+        // Year filter
+        if (yearFilter) {
+            if (yearFilter === 'older') {
+                const bookYear = parseInt(book.year || '0');
+                if (bookYear >= 2019) return false;
+            } else if (book.year !== yearFilter) {
+                return false;
+            }
+        }
+
+        // Status filter
+        if (statusFilter === 'active' && !book.is_active) return false;
+        if (statusFilter === 'inactive' && book.is_active) return false;
+
+        return true;
+    });
+
+    // Handle book card click
+    const handleBookClick = (book: CatalogItem) => {
+        setSelectedBook(book);
+        setIsModalOpen(true);
+    };
 
     useEffect(() => {
         if (searchQuery.length >= 1) {
@@ -94,7 +133,7 @@ export default function Welcome({ auth }: PageProps) {
 
                 {/* Book Search Section */}
                 <section className="container mx-auto px-4 py-16 sm:px-6 sm:py-20">
-                    <div className="mx-auto max-w-4xl">
+                    <div className="mx-auto max-w-7xl">
                         {/* Search Card */}
                         <div className="relative rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 p-8 shadow-md transition-shadow hover:shadow-lg sm:p-10">
                             {/* Decorative Elements */}
@@ -103,101 +142,215 @@ export default function Welcome({ auth }: PageProps) {
 
                             {/* Content */}
                             <div className="relative">
-                                {/* Search Bar - Now at the top */}
-                                <div className="relative mb-6">
-                                    <div className="relative">
-                                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                                            <Search className="h-5 w-5 text-gray-400" />
+                                {/* Search Bar and Filters in One Row - Left Aligned */}
+                                <div className="mb-6">
+                                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
+                                        {/* Search Bar */}
+                                        <div className="relative flex-1">
+                                            <div className="relative">
+                                                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                                                    <Search className="h-5 w-5 text-gray-400" />
+                                                </div>
+                                                <input
+                                                    type="text"
+                                                    value={searchQuery}
+                                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                                    onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
+                                                    placeholder="Search for books by title..."
+                                                    className="w-full rounded-lg border-2 border-gray-200 bg-white py-3 pl-12 pr-4 text-gray-900 placeholder-gray-400 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                                                />
+                                                {isSearching && (
+                                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
+                                                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600"></div>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Search Dropdown */}
+                                            {showDropdown && searchResults.length > 0 && (
+                                                <div className="absolute z-50 mt-2 w-full rounded-lg border border-gray-200 bg-white shadow-xl">
+                                                    <div className="max-h-96 overflow-y-auto">
+                                                        {searchResults.map((book, index) => (
+                                                            <button
+                                                                key={book.id}
+                                                                onClick={() => handleSearchResultClick(book.id)}
+                                                                className={`flex w-full items-center gap-4 p-3 text-left transition hover:bg-indigo-50 ${index !== searchResults.length - 1 ? 'border-b border-gray-100' : ''
+                                                                    }`}
+                                                            >
+                                                                <div className="flex h-14 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded bg-gradient-to-br from-gray-100 to-gray-200 shadow-sm">
+                                                                    {book.cover_image ? (
+                                                                        <img
+                                                                            src={`/storage/${book.cover_image}`}
+                                                                            alt={book.title}
+                                                                            className="h-full w-full object-cover"
+                                                                        />
+                                                                    ) : (
+                                                                        <BookOpen className="h-5 w-5 text-gray-400" />
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <h4 className="truncate text-sm font-semibold text-gray-900">{book.title}</h4>
+                                                                    <p className="text-xs text-gray-600">
+                                                                        {book.type} {book.year && `• ${book.year}`}
+                                                                        {!book.is_active && (
+                                                                            <span className="ml-2 text-red-600">• Inactive</span>
+                                                                        )}
+                                                                    </p>
+                                                                </div>
+                                                                <div className="flex-shrink-0">
+                                                                    <div className="rounded-full bg-indigo-100 p-1.5">
+                                                                        <svg className="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                                        </svg>
+                                                                    </div>
+                                                                </div>
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {showDropdown && searchQuery.length >= 1 && searchResults.length === 0 && !isSearching && (
+                                                <div className="absolute z-50 mt-2 w-full rounded-lg border border-gray-200 bg-white p-6 text-center shadow-lg">
+                                                    <div className="mb-2 flex justify-center">
+                                                        <div className="rounded-full bg-gray-100 p-3">
+                                                            <BookOpen className="h-6 w-6 text-gray-400" />
+                                                        </div>
+                                                    </div>
+                                                    <p className="font-medium text-gray-900">No books found</p>
+                                                    <p className="mt-1 text-sm text-gray-500">
+                                                        We couldn't find any books matching "{searchQuery}"
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
-                                        <input
-                                            type="text"
-                                            value={searchQuery}
-                                            onChange={(e) => setSearchQuery(e.target.value)}
-                                            onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
-                                            placeholder="Search for books by title..."
-                                            className="w-full rounded-xl border-2 border-indigo-200 bg-white py-4 pl-12 pr-4 text-gray-900 placeholder-gray-500 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-100"
-                                        />
-                                        {isSearching && (
-                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
-                                                <div className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600"></div>
+
+                                        {/* Filter Options */}
+                                        <div className="flex gap-3 lg:w-auto">
+                                            {/* Type Filter */}
+                                            <div className="relative flex-1 lg:w-40">
+                                                <select
+                                                    value={typeFilter}
+                                                    onChange={(e) => setTypeFilter(e.target.value)}
+                                                    className="w-full appearance-none rounded-lg border border-gray-200 bg-white px-4 py-3 pr-10 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                                                >
+                                                    <option value="">All Types</option>
+                                                    <option value="Book">Book</option>
+                                                    <option value="Journal">Journal</option>
+                                                    <option value="Magazine">Magazine</option>
+                                                    <option value="Thesis">Thesis</option>
+                                                    <option value="Reference">Reference</option>
+                                                </select>
+                                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                                    <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+
+                                            {/* Year Filter */}
+                                            <div className="relative flex-1 lg:w-40">
+                                                <select
+                                                    value={yearFilter}
+                                                    onChange={(e) => setYearFilter(e.target.value)}
+                                                    className="w-full appearance-none rounded-lg border border-gray-200 bg-white px-4 py-3 pr-10 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                                                >
+                                                    <option value="">All Years</option>
+                                                    <option value="2024">2024</option>
+                                                    <option value="2023">2023</option>
+                                                    <option value="2022">2022</option>
+                                                    <option value="2021">2021</option>
+                                                    <option value="2020">2020</option>
+                                                    <option value="older">2019 & Older</option>
+                                                </select>
+                                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                                    <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+
+                                            {/* Status Filter */}
+                                            <div className="relative flex-1 lg:w-40">
+                                                <select
+                                                    value={statusFilter}
+                                                    onChange={(e) => setStatusFilter(e.target.value)}
+                                                    className="w-full appearance-none rounded-lg border border-gray-200 bg-white px-4 py-3 pr-10 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                                                >
+                                                    <option value="">All Status</option>
+                                                    <option value="active">Active</option>
+                                                    <option value="inactive">Inactive</option>
+                                                </select>
+                                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                                    <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Horizontal Divider */}
+                                <hr className="border-gray-200" />
+
+                                {/* Popular Books Section */}
+                                {popularBooks.length > 0 && (
+                                    <div className="mt-12">
+                                        {/* Section Header */}
+                                        <div className="mb-6 flex items-center justify-between">
+                                            <div>
+                                                <h3 className="text-xl font-bold text-gray-900 sm:text-2xl">
+                                                    Popular Books
+                                                </h3>
+                                                <p className="mt-1 text-sm text-gray-600">
+                                                    Discover our featured titles from the collection
+                                                </p>
+                                            </div>
+                                            {auth.user && (
+                                                <Link
+                                                    href={route('dashboard')}
+                                                    className="hidden text-sm font-semibold text-indigo-600 transition hover:text-indigo-700 sm:block"
+                                                >
+                                                    View All →
+                                                </Link>
+                                            )}
+                                        </div>
+
+                                        {/* Books Grid - 5 per row on desktop */}
+                                        {filteredPopularBooks.length > 0 ? (
+                                            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-6">
+                                                {filteredPopularBooks.slice(0, 10).map((book) => (
+                                                    <BookCard
+                                                        key={book.id}
+                                                        book={book}
+                                                        onClick={() => handleBookClick(book)}
+                                                    />
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-12 text-center">
+                                                <BookOpen className="mx-auto h-12 w-12 text-gray-400" />
+                                                <h3 className="mt-4 text-lg font-semibold text-gray-900">No books found</h3>
+                                                <p className="mt-2 text-sm text-gray-600">
+                                                    Try adjusting your filters to see more results
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {/* Mobile View All Link */}
+                                        {auth.user && (
+                                            <div className="mt-6 text-center sm:hidden">
+                                                <Link
+                                                    href={route('dashboard')}
+                                                    className="text-sm font-semibold text-indigo-600 transition hover:text-indigo-700"
+                                                >
+                                                    View All →
+                                                </Link>
                                             </div>
                                         )}
                                     </div>
-
-                                    {/* Search Dropdown */}
-                                    {showDropdown && searchResults.length > 0 && (
-                                        <div className="absolute z-50 mt-2 w-full rounded-xl border border-gray-200 bg-white shadow-lg">
-                                            <div className="max-h-96 overflow-y-auto">
-                                                {searchResults.map((book, index) => (
-                                                    <button
-                                                        key={book.id}
-                                                        onClick={() => handleSearchResultClick(book.id)}
-                                                        className={`flex w-full items-center gap-4 p-4 text-left transition hover:bg-indigo-50 ${index !== searchResults.length - 1 ? 'border-b border-gray-100' : ''
-                                                            }`}
-                                                    >
-                                                        <div className="flex h-16 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 shadow-sm">
-                                                            {book.cover_image ? (
-                                                                <img
-                                                                    src={`/storage/${book.cover_image}`}
-                                                                    alt={book.title}
-                                                                    className="h-full w-full object-cover"
-                                                                />
-                                                            ) : (
-                                                                <BookOpen className="h-6 w-6 text-gray-400" />
-                                                            )}
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <h4 className="truncate font-semibold text-gray-900">{book.title}</h4>
-                                                            <p className="text-sm text-gray-600">
-                                                                {book.type} {book.year && `• ${book.year}`}
-                                                                {!book.is_active && (
-                                                                    <span className="ml-2 text-red-600">• Inactive</span>
-                                                                )}
-                                                            </p>
-                                                        </div>
-                                                        <div className="flex-shrink-0">
-                                                            <div className="rounded-full bg-indigo-100 p-2">
-                                                                <svg className="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                                                </svg>
-                                                            </div>
-                                                        </div>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {showDropdown && searchQuery.length >= 1 && searchResults.length === 0 && !isSearching && (
-                                        <div className="absolute z-50 mt-2 w-full rounded-xl border border-gray-200 bg-white p-6 text-center shadow-lg">
-                                            <div className="mb-2 flex justify-center">
-                                                <div className="rounded-full bg-gray-100 p-3">
-                                                    <BookOpen className="h-6 w-6 text-gray-400" />
-                                                </div>
-                                            </div>
-                                            <p className="font-medium text-gray-900">No books found</p>
-                                            <p className="mt-1 text-sm text-gray-500">
-                                                We couldn't find any books matching "{searchQuery}"
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Icon, Title and Description - Now below */}
-                                <div className="text-center">
-                                    <div className="mb-4 flex items-center justify-center">
-                                        <div className="rounded-full bg-indigo-600 p-3 shadow-lg">
-                                            <Search className="h-6 w-6 text-white" />
-                                        </div>
-                                    </div>
-
-                                    <h3 className="mb-2 text-xl font-bold text-gray-900 sm:text-2xl">
-                                        Search Our Library
-                                    </h3>
-                                    <p className="text-sm text-gray-600">
-                                        Find your next great read from our extensive collection
-                                    </p>
-                                </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -206,7 +359,17 @@ export default function Welcome({ auth }: PageProps) {
                 {/* Scroll to Top Button with Progress */}
                 <ScrollToTop />
             </div>
-            <Toaster position="top-right" richColors />
+
+            {/* Book Details Modal */}
+            {selectedBook && (
+                <BookDetailsModal
+                    book={selectedBook}
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                />
+            )}
+
+            <Toaster position="top-center" richColors />
         </>
     );
 }
