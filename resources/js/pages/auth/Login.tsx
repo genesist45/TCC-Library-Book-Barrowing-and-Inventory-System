@@ -13,7 +13,7 @@ export default function Login({
     canResetPassword: boolean;
 }) {
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
-        email: '',
+        username: '',
         password: '',
         remember: false as boolean,
     });
@@ -24,8 +24,8 @@ export default function Login({
 
     // Handle alert animation
     useEffect(() => {
-        const hasError = !!(validationError || errors.email || errors.password);
-        
+        const hasError = !!(validationError || errors.username || errors.password);
+
         if (hasError) {
             // Trigger entrance animation
             setShowAlert(true);
@@ -36,22 +36,22 @@ export default function Login({
             }, 300); // Match transition duration
             return () => clearTimeout(timer);
         }
-    }, [validationError, errors.email, errors.password]);
+    }, [validationError, errors.username, errors.password]);
 
     // Email validation regex
     const isValidEmail = (email: string) => {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     };
 
-    // Real-time email validation
-    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Real-time username validation
+    const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        setData('email', value);
-        
-        // Clear validation error and server errors only when email becomes valid
-        if (value && isValidEmail(value)) {
+        setData('username', value);
+
+        // Clear validation error and server errors when username has content
+        if (value && value.length >= 3) {
             setValidationError('');
-            clearErrors('email');
+            clearErrors('username');
         }
     };
 
@@ -59,7 +59,7 @@ export default function Login({
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setData('password', value);
-        
+
         // Clear validation error and server errors only when password reaches 8+ characters
         if (value.length >= 8) {
             setValidationError('');
@@ -71,13 +71,13 @@ export default function Login({
         e.preventDefault();
 
         // Client-side validation - show only first error
-        if (!data.email) {
-            setValidationError('Email is required');
+        if (!data.username) {
+            setValidationError('Username is required');
             return;
         }
-        
-        if (!isValidEmail(data.email)) {
-            setValidationError('Please enter a valid email address');
+
+        if (data.username.length < 3) {
+            setValidationError('Username must be at least 3 characters');
             return;
         }
 
@@ -85,7 +85,7 @@ export default function Login({
             setValidationError('Password is required');
             return;
         }
-        
+
         if (data.password.length < 8) {
             setValidationError('Password must be at least 8 characters');
             return;
@@ -105,9 +105,9 @@ export default function Login({
 
             <LoginHeader status={status} />
 
-            <ValidationAlert 
-                message={validationError || errors.email || errors.password}
-                show={!!(validationError || errors.email || errors.password)}
+            <ValidationAlert
+                message={validationError || errors.username || errors.password}
+                show={!!(validationError || errors.username || errors.password)}
             />
 
             <LoginForm
@@ -115,7 +115,7 @@ export default function Login({
                 setData={setData}
                 processing={processing}
                 onSubmit={submit}
-                onEmailChange={handleEmailChange}
+                onUsernameChange={handleUsernameChange}
                 onPasswordChange={handlePasswordChange}
             />
         </GuestLayout>
