@@ -72,6 +72,26 @@ export interface Member {
     updated_at: string;
 }
 
+export interface BookRequest {
+    id: number;
+    member_id: number;
+    catalog_item_id: number;
+    full_name: string;
+    email: string;
+    quota?: number;
+    phone?: string;
+    address?: string;
+    return_date: string;
+    return_time: string;
+    notes?: string;
+    status: 'Pending' | 'Approved' | 'Disapproved';
+    created_at: string;
+    updated_at: string;
+    member?: Member;
+    catalogItem?: CatalogItem;
+    catalog_item?: CatalogItem;
+}
+
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>,
 > = T & {
