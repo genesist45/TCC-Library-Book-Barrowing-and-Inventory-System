@@ -5,9 +5,9 @@ import MemberTable from '@/components/members/MemberTable';
 import MemberPageHeader from '@/components/members/MemberPageHeader';
 import { toast } from 'sonner';
 import MemberDeleteModal from '@/components/members/MemberDeleteModal';
-import { Member } from '@/types';
+import { Member, PageProps as InertiaPageProps } from '@/types';
 
-interface PageProps {
+interface PageProps extends InertiaPageProps {
     members: Member[];
     flash?: {
         success?: string;
@@ -61,7 +61,7 @@ export default function Members() {
     const handleRefresh = () => {
         setIsRefreshing(true);
         router.reload({
-            preserveScroll: true,
+            preserveUrl: true,
             onFinish: () => {
                 setIsRefreshing(false);
             },

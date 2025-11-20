@@ -8,6 +8,7 @@ import Modal from '@/components/modals/Modal';
 import CategoryForm from '@/components/categories/CategoryForm';
 import CategoryViewModal from '@/components/categories/CategoryViewModal';
 import CategoryDeleteModal from '@/components/categories/CategoryDeleteModal';
+import { PageProps as InertiaPageProps } from '@/types';
 
 interface Category {
     id: number;
@@ -19,7 +20,7 @@ interface Category {
     created_at: string;
 }
 
-interface PageProps {
+interface PageProps extends InertiaPageProps {
     categories: Category[];
     flash?: {
         success?: string;
@@ -93,7 +94,7 @@ export default function Categories() {
     const handleRefresh = () => {
         setIsRefreshing(true);
         router.reload({
-            preserveScroll: true,
+            preserveUrl: true,
             onFinish: () => {
                 setIsRefreshing(false);
             },

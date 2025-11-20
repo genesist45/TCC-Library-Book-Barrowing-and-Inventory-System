@@ -8,6 +8,7 @@ import Modal from '@/components/modals/Modal';
 import AuthorForm from '@/components/authors/AuthorForm';
 import AuthorViewModal from '@/components/authors/AuthorViewModal';
 import AuthorDeleteModal from '@/components/authors/AuthorDeleteModal';
+import { PageProps as InertiaPageProps } from '@/types';
 
 interface Author {
     id: number;
@@ -19,7 +20,7 @@ interface Author {
     created_at: string;
 }
 
-interface PageProps {
+interface PageProps extends InertiaPageProps {
     authors: Author[];
     flash?: {
         success?: string;
@@ -98,7 +99,7 @@ export default function Authors() {
     const handleRefresh = () => {
         setIsRefreshing(true);
         router.reload({
-            preserveScroll: true,
+            preserveUrl: true,
             onFinish: () => {
                 setIsRefreshing(false);
             },

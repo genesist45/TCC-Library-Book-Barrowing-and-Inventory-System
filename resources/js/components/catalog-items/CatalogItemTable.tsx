@@ -1,5 +1,6 @@
 import { Eye, Pencil, Trash2 } from 'lucide-react';
 import { router } from '@inertiajs/react';
+import { CatalogItem } from '@/types';
 
 const shimmerClass = "animate-shimmer bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 bg-[length:200%_100%] dark:from-[#3a3a3a] dark:via-[#4a4a4a] dark:to-[#3a3a3a]";
 
@@ -33,30 +34,6 @@ function CatalogItemTableRowSkeleton() {
             </td>
         </tr>
     );
-}
-
-interface Category {
-    id: number;
-    name: string;
-    description?: string;
-    is_active: boolean;
-}
-
-interface Publisher {
-    id: number;
-    name: string;
-    website?: string;
-    is_active: boolean;
-}
-
-interface CatalogItem {
-    id: number;
-    title: string;
-    type: string;
-    category?: Category;
-    publisher?: Publisher;
-    year?: string;
-    is_active: boolean;
 }
 
 interface CatalogItemTableProps {

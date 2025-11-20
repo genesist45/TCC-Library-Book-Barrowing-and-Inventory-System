@@ -8,6 +8,7 @@ import Modal from '@/components/modals/Modal';
 import PublisherForm from '@/components/publishers/PublisherForm';
 import PublisherViewModal from '@/components/publishers/PublisherViewModal';
 import PublisherDeleteModal from '@/components/publishers/PublisherDeleteModal';
+import { PageProps as InertiaPageProps } from '@/types';
 
 interface Publisher {
     id: number;
@@ -19,7 +20,7 @@ interface Publisher {
     created_at: string;
 }
 
-interface PageProps {
+interface PageProps extends InertiaPageProps {
     publishers: Publisher[];
     flash?: {
         success?: string;
@@ -79,7 +80,7 @@ export default function Publishers() {
 
         setProcessing(true);
         router.delete(route('admin.publishers.destroy', selectedPublisher.id), {
-            preserveScroll: true,
+            preserveUrl: true,
             onSuccess: () => {
                 closeModals();
                 setProcessing(false);
@@ -93,7 +94,7 @@ export default function Publishers() {
     const handleRefresh = () => {
         setIsRefreshing(true);
         router.reload({
-            preserveScroll: true,
+            preserveUrl: true,
             onFinish: () => {
                 setIsRefreshing(false);
             },
