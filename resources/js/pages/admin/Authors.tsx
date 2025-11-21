@@ -87,10 +87,12 @@ export default function Authors() {
         router.delete(route('admin.authors.destroy', selectedAuthor.id), {
             preserveScroll: true,
             onSuccess: () => {
+                toast.success('Author deleted successfully!');
                 closeModals();
                 setIsDeleting(false);
             },
             onError: () => {
+                toast.error('Failed to delete author');
                 setIsDeleting(false);
             },
         });
@@ -117,7 +119,7 @@ export default function Authors() {
 
             <div className="p-4 sm:p-6">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <AuthorPageHeader 
+                    <AuthorPageHeader
                         searchValue={searchTerm}
                         onSearchChange={setSearchTerm}
                         onAddAuthor={openAddModal}

@@ -75,6 +75,12 @@ export default function Categories() {
         setSelectedCategory(null);
     };
 
+    const handleFormSuccess = (action: 'created' | 'updated') => {
+        closeModals();
+        const message = action === 'created' ? 'Category created successfully!' : 'Category updated successfully!';
+        toast.success(message);
+    };
+
     const submitDelete = () => {
         if (!selectedCategory) return;
 
@@ -83,6 +89,7 @@ export default function Categories() {
             preserveScroll: true,
             onSuccess: () => {
                 closeModals();
+                toast.success('Category deleted successfully!');
                 setProcessing(false);
             },
             onError: () => {
@@ -112,7 +119,7 @@ export default function Categories() {
 
             <div className="p-4 sm:p-6">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <CategoryPageHeader 
+                    <CategoryPageHeader
                         searchValue={searchTerm}
                         onSearchChange={setSearchTerm}
                         onAddCategory={openAddModal}

@@ -82,10 +82,12 @@ export default function Publishers() {
         router.delete(route('admin.publishers.destroy', selectedPublisher.id), {
             preserveUrl: true,
             onSuccess: () => {
+                toast.success('Publisher deleted successfully!');
                 closeModals();
                 setProcessing(false);
             },
             onError: () => {
+                toast.error('Failed to delete publisher');
                 setProcessing(false);
             },
         });
@@ -112,7 +114,7 @@ export default function Publishers() {
 
             <div className="p-4 sm:p-6">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <PublisherPageHeader 
+                    <PublisherPageHeader
                         searchValue={searchTerm}
                         onSearchChange={setSearchTerm}
                         onAddPublisher={openAddModal}

@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head, router, usePage } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import MemberTable from '@/components/members/MemberTable';
 import MemberPageHeader from '@/components/members/MemberPageHeader';
 import { toast } from 'sonner';
@@ -9,28 +9,15 @@ import { Member, PageProps as InertiaPageProps } from '@/types';
 
 interface PageProps extends InertiaPageProps {
     members: Member[];
-    flash?: {
-        success?: string;
-        error?: string;
-    };
 }
 
 export default function Members() {
-    const { members, flash } = usePage<PageProps>().props;
+    const { members } = usePage<PageProps>().props;
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedMember, setSelectedMember] = useState<Member | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [processing, setProcessing] = useState(false);
-
-    useEffect(() => {
-        if (flash?.success) {
-            toast.success(flash.success);
-        }
-        if (flash?.error) {
-            toast.error(flash.error);
-        }
-    }, [flash]);
 
     const openDeleteModal = (member: Member) => {
         setSelectedMember(member);
@@ -49,10 +36,12 @@ export default function Members() {
         router.delete(route('admin.members.destroy', selectedMember.id), {
             preserveScroll: true,
             onSuccess: () => {
+                toast.success('Member deleted successfully!');
                 closeModals();
                 setProcessing(false);
             },
             onError: () => {
+                toast.error('Failed to delete member');
                 setProcessing(false);
             },
         });
@@ -80,7 +69,7 @@ export default function Members() {
 
             <div className="p-4 sm:p-6">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <MemberPageHeader 
+                    <MemberPageHeader
                         searchValue={searchTerm}
                         onSearchChange={setSearchTerm}
                         onRefresh={handleRefresh}
