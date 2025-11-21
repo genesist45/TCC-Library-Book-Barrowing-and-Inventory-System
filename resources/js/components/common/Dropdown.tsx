@@ -15,8 +15,8 @@ const DropDownContext = createContext<{
     toggleOpen: () => void;
 }>({
     open: false,
-    setOpen: () => {},
-    toggleOpen: () => {},
+    setOpen: () => { },
+    toggleOpen: () => { },
 });
 
 const Dropdown = ({ children }: PropsWithChildren) => {
@@ -38,7 +38,7 @@ const Trigger = ({ children }: PropsWithChildren) => {
 
     return (
         <>
-            <div onClick={toggleOpen}>{children}</div>
+            <div onClick={toggleOpen} className="cursor-pointer">{children}</div>
 
             {open && (
                 <div
@@ -52,29 +52,44 @@ const Trigger = ({ children }: PropsWithChildren) => {
 
 const Content = ({
     align = 'right',
+    direction = 'down',
     width = '48',
     contentClasses = 'py-1 bg-white dark:bg-[#2a2a2a]',
     children,
 }: PropsWithChildren<{
     align?: 'left' | 'right';
-    width?: '48';
+    direction?: 'up' | 'down';
+    width?: '48' | '80';
     contentClasses?: string;
 }>) => {
     const { open, setOpen } = useContext(DropDownContext);
 
     let alignmentClasses = 'origin-top';
 
-    if (align === 'left') {
-        alignmentClasses = 'ltr:origin-top-left rtl:origin-top-right start-0';
-    } else if (align === 'right') {
-        alignmentClasses = 'ltr:origin-top-right rtl:origin-top-left end-0';
+    if (direction === 'up') {
+        alignmentClasses = 'origin-bottom';
+        if (align === 'left') {
+            alignmentClasses = 'ltr:origin-bottom-left rtl:origin-bottom-right start-0';
+        } else if (align === 'right') {
+            alignmentClasses = 'ltr:origin-bottom-right rtl:origin-bottom-left end-0';
+        }
+    } else {
+        if (align === 'left') {
+            alignmentClasses = 'ltr:origin-top-left rtl:origin-top-right start-0';
+        } else if (align === 'right') {
+            alignmentClasses = 'ltr:origin-top-right rtl:origin-top-left end-0';
+        }
     }
 
     let widthClasses = '';
 
     if (width === '48') {
         widthClasses = 'w-48';
+    } else if (width === '80') {
+        widthClasses = 'w-80';
     }
+
+    const positionClasses = direction === 'up' ? 'bottom-full mb-2' : 'mt-2';
 
     return (
         <>
@@ -88,7 +103,7 @@ const Content = ({
                 leaveTo="opacity-0 scale-95"
             >
                 <div
-                    className={`absolute z-50 mt-2 rounded-md shadow-lg transition-colors ${alignmentClasses} ${widthClasses}`}
+                    className={`absolute z-50 ${positionClasses} rounded-md shadow-lg transition-colors ${alignmentClasses} ${widthClasses}`}
                     onClick={() => setOpen(false)}
                 >
                     <div

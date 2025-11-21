@@ -72,6 +72,10 @@ class BookSearchController extends Controller
         
         $bookRequest = \App\Models\BookRequest::create($validated);
 
+        // Notify all admins
+        $admins = \App\Models\User::where('role', 'admin')->get();
+        \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\NewBookRequestNotification($bookRequest));
+
         return redirect()->back()->with('success', 'Your borrow request has been submitted successfully!');
     }
 }
