@@ -5,6 +5,7 @@ import TextInput from '@/components/forms/TextInput';
 import InputError from '@/components/forms/InputError';
 import PrimaryButton from '@/components/buttons/PrimaryButton';
 import SecondaryButton from '@/components/buttons/SecondaryButton';
+import { toast } from 'sonner';
 
 interface Author {
     id: number;
@@ -65,11 +66,11 @@ export default function AuthorForm({
 
     const handleFieldChange = (field: keyof typeof fieldTouched, value: string) => {
         setData(field, value);
-        
+
         if (errors[field]) {
             clearErrors(field);
         }
-        
+
         if (!fieldTouched[field]) {
             setFieldTouched(prev => ({ ...prev, [field]: true }));
         }
@@ -88,6 +89,7 @@ export default function AuthorForm({
             post(route('admin.authors.store'), {
                 preserveScroll: true,
                 onSuccess: () => {
+                    toast.success('Author created successfully!');
                     reset();
                     setFieldTouched({
                         name: false,
@@ -101,6 +103,7 @@ export default function AuthorForm({
             patch(route('admin.authors.update', author.id), {
                 preserveScroll: true,
                 onSuccess: () => {
+                    toast.success('Author updated successfully!');
                     onSuccess();
                 },
             });
@@ -113,7 +116,7 @@ export default function AuthorForm({
                 {mode === 'add' ? 'Add New Author' : 'Edit Author'}
             </h2>
             <p className="mt-1 text-sm text-gray-600 transition-colors duration-200 dark:text-gray-400">
-                {mode === 'add' 
+                {mode === 'add'
                     ? 'Fill in the information below to create a new author'
                     : 'Update the author information below'
                 }
@@ -166,26 +169,23 @@ export default function AuthorForm({
                     <button
                         type="button"
                         onClick={() => setData('is_published', !data.is_published)}
-                        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
-                            data.is_published ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
+                        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${data.is_published ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700'
+                            }`}
                         role="switch"
                         aria-checked={data.is_published}
                         aria-labelledby="is_published"
                     >
                         <span
-                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                                data.is_published ? 'translate-x-5' : 'translate-x-0'
-                            }`}
+                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${data.is_published ? 'translate-x-5' : 'translate-x-0'
+                                }`}
                         />
                     </button>
                 </div>
                 <div className="mt-1">
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        data.is_published
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${data.is_published
                             ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
                             : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
-                    }`}>
+                        }`}>
                         {data.is_published ? 'Active' : 'Inactive'}
                     </span>
                 </div>
