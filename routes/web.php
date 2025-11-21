@@ -68,6 +68,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/ai/conversations/{id}', [AIChatController::class, 'getConversation'])->name('ai.conversations.get');
     Route::post('/ai/conversations', [AIChatController::class, 'saveConversation'])->name('ai.conversations.save');
     Route::delete('/ai/conversations/{id}', [AIChatController::class, 'deleteConversation'])->name('ai.conversations.delete');
+
+    // Notifications
+    Route::post('/notifications/{id}/read', function ($id) {
+        request()->user()->notifications()->findOrFail($id)->markAsRead();
+        return back();
+    })->name('notifications.read');
+
+    Route::delete('/notifications/{id}', function ($id) {
+        request()->user()->notifications()->findOrFail($id)->delete();
+        return back();
+    })->name('notifications.destroy');
+
+    Route::post('/notifications/read-all', function () {
+        request()->user()->unreadNotifications->markAsRead();
+        return back();
+    })->name('notifications.read-all');
 });
 
 // Admin-only routes (without URL prefix, but protected by role middleware)

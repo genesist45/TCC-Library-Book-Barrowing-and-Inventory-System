@@ -53,6 +53,21 @@ export function generateBreadcrumbs(currentRoute: string): BreadcrumbItem[] {
         return breadcrumbs;
     }
 
+    // Book Requests routes
+    if (currentRoute.startsWith('admin.book-requests')) {
+        breadcrumbs.push({ label: 'Book Requests', href: route('admin.book-requests.index') });
+
+        if (currentRoute === 'admin.book-requests.edit') {
+            breadcrumbs.push({ label: 'Edit Request', active: true });
+        } else if (currentRoute === 'admin.book-requests.show') {
+            breadcrumbs.push({ label: 'View Request', active: true });
+        } else {
+            breadcrumbs[breadcrumbs.length - 1].active = true;
+        }
+
+        return breadcrumbs;
+    }
+
     // Catalog Items routes
     if (currentRoute.startsWith('admin.catalog-items')) {
         breadcrumbs.push({ label: 'Catalog Items', href: route('admin.catalog-items.index') });
