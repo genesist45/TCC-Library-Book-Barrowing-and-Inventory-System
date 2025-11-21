@@ -68,7 +68,7 @@ export default function CatalogItemTable({ items, onView, onEdit, onDelete, isLo
                         <th className="hidden px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 lg:table-cell sm:px-4">
                             Year
                         </th>
-                        <th className="px-3 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:px-4">
+                        <th className="px-3 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 print:hidden sm:px-4">
                             Actions
                         </th>
                     </tr>
@@ -113,7 +113,7 @@ export default function CatalogItemTable({ items, onView, onEdit, onDelete, isLo
                                 <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 lg:table-cell sm:px-4">
                                     {item.year || '-'}
                                 </td>
-                                <td className="whitespace-nowrap px-3 py-2 text-center text-sm sm:px-4">
+                                <td className="whitespace-nowrap px-3 py-2 text-center text-sm print:hidden sm:px-4">
                                     <div className="flex items-center justify-center gap-1 sm:gap-2">
                                         <button
                                             onClick={() => onView(item)}

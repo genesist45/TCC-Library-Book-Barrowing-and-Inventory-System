@@ -54,6 +54,7 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
         setProcessing(true);
         router.delete(route('admin.catalog-items.destroy', selectedItem.id), {
             onSuccess: () => {
+                toast.success('Catalog item deleted successfully!');
                 setShowDeleteModal(false);
                 setSelectedItem(null);
                 setProcessing(false);
@@ -93,11 +94,69 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
 
     return (
         <AuthenticatedLayout>
-            <Head title="Catalog Items" />
+            <Head title="Catalog Items">
+                <style>{`
+                    @media print {
+                        /* Hide everything except the print content */
+                        body * {
+                            visibility: hidden;
+                        }
+                        
+                        /* Show only the print container and its children */
+                        #print-container,
+                        #print-container * {
+                            visibility: visible;
+                        }
+                        
+                        /* Position the print container at the top */
+                        #print-container {
+                            position: absolute;
+                            left: 0;
+                            top: 0;
+                            width: 100%;
+                            padding: 20px;
+                        }
+                        
+                        /* Clean print styles */
+                        @page {
+                            margin: 1cm;
+                        }
+                        
+                        /* Remove backgrounds and borders for clean printing */
+                        body {
+                            background: white !important;
+                        }
+                        
+                        /* Table print styles */
+                        table {
+                            border-collapse: collapse;
+                            width: 100%;
+                            font-size: 10pt;
+                        }
+                        
+                        th, td {
+                            border: 1px solid #000 !important;
+                            padding: 8px !important;
+                            text-align: left;
+                        }
+                        
+                        th {
+                            background-color: #f0f0f0 !important;
+                            font-weight: bold;
+                        }
+                        
+                        /* Ensure table doesn't break across pages awkwardly */
+                        tr {
+                            page-break-inside: avoid;
+                        }
+                    }
+                `}</style>
+            </Head>
 
-            <div className="p-4 sm:p-6">
+            {/* Screen View - Normal UI */}
+            <div className="print:hidden p-4 sm:p-6">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <CatalogItemPageHeader 
+                    <CatalogItemPageHeader
                         searchValue={searchTerm}
                         onSearchChange={setSearchTerm}
                         onAddItem={handleAddItem}
@@ -115,6 +174,99 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
                         />
                     </div>
                 </div>
+            </div>
+
+            {/* Print View - Clean and Professional */}
+            <div id="print-container" className="hidden print:block">
+                <div className="mb-6">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                        Catalog Inventory Report
+                    </h1>
+                    <p className="text-sm text-gray-600 mb-1">
+                        Comprehensive list of all library catalog items and media resources
+                    </p>
+                    <p className="text-xs text-gray-500">
+                        Generated on: {new Date().toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                        Total Items: {filteredItems.length}
+                    </p>
+                </div>
+
+                <table className="w-full border-collapse">
+                    <thead>
+                        <tr>
+                            <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
+                                ID
+                            </th>
+                            <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
+                                Title
+                            </th>
+                            <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
+                                Type
+                            </th>
+                            <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
+                                Authors
+                            </th>
+                            <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
+                                Publisher
+                            </th>
+                            <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
+                                Year
+                            </th>
+                            <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
+                                ISBN
+                            </th>
+                            <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
+                                Category
+                            </th>
+                            <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
+                                Status
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredItems.map((item) => (
+                            <tr key={item.id}>
+                                <td className="border border-gray-300 px-3 py-2 text-xs">
+                                    {item.id}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2 text-xs font-medium">
+                                    {item.title}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2 text-xs">
+                                    {item.type}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2 text-xs">
+                                    {item.authors && item.authors.length > 0
+                                        ? item.authors.map(a => a.name).join(', ')
+                                        : '-'}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2 text-xs">
+                                    {item.publisher?.name || '-'}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2 text-xs">
+                                    {item.year || '-'}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2 text-xs">
+                                    {item.isbn || item.isbn13 || '-'}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2 text-xs">
+                                    {item.category?.name || '-'}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2 text-xs">
+                                    {item.is_active ? 'Active' : 'Inactive'}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
 
             <CatalogItemDeleteModal
