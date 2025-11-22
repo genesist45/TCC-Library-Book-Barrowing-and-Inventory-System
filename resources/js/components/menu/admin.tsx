@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, ScanBarcode, Mail, LibraryBig, List, UserSquare2, Building2, Tags, RefreshCcw, UserCheck, BookCheck } from 'lucide-react';
+import { LayoutDashboard, Users, ScanBarcode, Mail, LibraryBig, List, UserSquare2, Building2, Tags, RefreshCcw, UserCheck, BookCheck, Book } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 
 export interface MenuItem {
@@ -33,7 +33,7 @@ export const getAdminMenuItems = (currentRoute: string): MenuItem[] => {
         {
             name: 'Circulations',
             icon: RefreshCcw,
-            active: currentRoute.startsWith('admin.members.') || currentRoute.startsWith('admin.book-requests.'),
+            active: currentRoute.startsWith('admin.members.') || currentRoute.startsWith('admin.book-requests.') || currentRoute.startsWith('admin.book-returns.'),
             children: [
                 {
                     name: 'Members',
@@ -46,6 +46,12 @@ export const getAdminMenuItems = (currentRoute: string): MenuItem[] => {
                     icon: BookCheck,
                     href: 'admin.book-requests.index',
                     active: currentRoute === 'admin.book-requests.index' || currentRoute.startsWith('admin.book-requests.'),
+                },
+                {
+                    name: 'Book Returns',
+                    icon: Book,
+                    href: 'admin.book-returns.index',
+                    active: currentRoute === 'admin.book-returns.index' || currentRoute.startsWith('admin.book-returns.'),
                 },
             ],
         },

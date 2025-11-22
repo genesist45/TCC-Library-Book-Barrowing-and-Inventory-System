@@ -26,7 +26,7 @@ class BookRequestController extends Controller
      */
     public function show($id)
     {
-        $bookRequest = \App\Models\BookRequest::with(['member', 'catalogItem'])->findOrFail($id);
+        $bookRequest = \App\Models\BookRequest::with(['member', 'catalogItem.authors', 'catalogItem.publisher'])->findOrFail($id);
 
         return inertia('admin/circulations/book-requests/Show', [
             'bookRequest' => $bookRequest,
@@ -38,7 +38,7 @@ class BookRequestController extends Controller
      */
     public function edit($id)
     {
-        $bookRequest = \App\Models\BookRequest::with(['member', 'catalogItem'])->findOrFail($id);
+        $bookRequest = \App\Models\BookRequest::with(['member', 'catalogItem.authors', 'catalogItem.publisher'])->findOrFail($id);
         
         return inertia('admin/circulations/book-requests/Edit', [
             'bookRequest' => $bookRequest,
@@ -83,15 +83,23 @@ class BookRequestController extends Controller
         
         // Handle status change to "Approved"
         if ($statusChanged && $validated['status'] === 'Approved') {
-            // 1. Send Approval Email
+            // 1. Mark the book as "Borrowed"
+            $bookRequest->catalogItem->update(['status' => 'Borrowed']);
+            
+            // 2. Send Approval Email
             \Illuminate\Support\Facades\Mail::to($bookRequest->email)->send(new \App\Mail\BookRequestApproved($bookRequest));
             
-            // 2. Schedule Due-Date Reminder
+            // 3. Schedule Due-Date Reminder
             $this->scheduleDueDateReminder($bookRequest);
         }
         
         // Handle status change to "Disapproved"
         if ($statusChanged && $validated['status'] === 'Disapproved') {
+            // If it was previously approved, mark the book as "Available" again
+            if ($oldStatus === 'Approved') {
+                $bookRequest->catalogItem->update(['status' => 'Available']);
+            }
+            
             // Send Disapproval Email
             \Illuminate\Support\Facades\Mail::to($bookRequest->email)->send(new \App\Mail\BookRequestDisapproved($bookRequest));
         }
@@ -155,6 +163,9 @@ class BookRequestController extends Controller
         $bookRequest = \App\Models\BookRequest::with(['catalogItem.authors', 'catalogItem.publisher'])->findOrFail($id);
         $bookRequest->update(['status' => 'Approved']);
 
+        // Mark the book as "Borrowed"
+        $bookRequest->catalogItem->update(['status' => 'Borrowed']);
+
         // 1. Send Approval Email
         \Illuminate\Support\Facades\Mail::to($bookRequest->email)->send(new \App\Mail\BookRequestApproved($bookRequest));
 
@@ -167,6 +178,12 @@ class BookRequestController extends Controller
     public function disapprove($id)
     {
         $bookRequest = \App\Models\BookRequest::with(['catalogItem.authors', 'catalogItem.publisher'])->findOrFail($id);
+        
+        // If it was previously approved, mark the book as "Available" again
+        if ($bookRequest->status === 'Approved') {
+            $bookRequest->catalogItem->update(['status' => 'Available']);
+        }
+        
         $bookRequest->update(['status' => 'Disapproved']);
 
         // Send Disapproval Email

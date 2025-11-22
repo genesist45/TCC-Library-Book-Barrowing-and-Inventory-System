@@ -24,6 +24,7 @@ class CatalogItem extends Model
         'description',
         'cover_image',
         'is_active',
+        'status',
     ];
 
     protected $casts = [

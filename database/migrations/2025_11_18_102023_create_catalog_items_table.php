@@ -28,6 +28,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('cover_image')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->enum('status', ['Available', 'Borrowed'])->default('Available');
             $table->timestamps();
         });
     }

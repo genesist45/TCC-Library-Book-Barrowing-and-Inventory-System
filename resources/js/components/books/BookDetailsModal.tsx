@@ -236,6 +236,9 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                                         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${book.is_active ? 'bg-green-100 text-green-700 ring-1 ring-green-200' : 'bg-red-100 text-red-700 ring-1 ring-red-200'}`}>
                                             {book.is_active ? 'Active' : 'Inactive'}
                                         </span>
+                                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${book.status === 'Available' ? 'bg-green-100 text-green-700 ring-1 ring-green-200' : 'bg-red-100 text-red-700 ring-1 ring-red-200'}`}>
+                                            {book.status === 'Available' ? 'Available' : 'Borrowed'}
+                                        </span>
                                     </div>
 
                                     {/* Additional Info */}
@@ -278,12 +281,19 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
 
                                     {/* Book Request Button */}
                                     <div className="mt-6">
-                                        <button
-                                            onClick={() => setShowRequestForm(true)}
-                                            className="w-full rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:scale-[1.02] hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl active:scale-[0.98]"
-                                        >
-                                            Book a Request
-                                        </button>
+                                        {book.status === 'Borrowed' ? (
+                                            <div className="w-full rounded-full bg-gray-100 px-8 py-2.5 text-center text-sm font-bold text-gray-500">
+                                                <p>This book is currently borrowed</p>
+                                                <p className="text-xs font-normal text-gray-400 mt-1">Not available for requests</p>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => setShowRequestForm(true)}
+                                                className="w-full rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:scale-[1.02] hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl active:scale-[0.98]"
+                                            >
+                                                Book a Request
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>

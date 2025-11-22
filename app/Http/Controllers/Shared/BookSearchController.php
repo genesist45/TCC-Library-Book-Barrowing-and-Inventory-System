@@ -60,6 +60,12 @@ class BookSearchController extends Controller
     {
         $validated = $request->validated();
         
+        // Check if the book is already borrowed
+        $catalogItem = \App\Models\CatalogItem::findOrFail($validated['catalog_item_id']);
+        if ($catalogItem->status === 'Borrowed') {
+            return redirect()->back()->withErrors(['catalog_item_id' => 'This book is currently borrowed and not available for requests.'])->withInput();
+        }
+        
         // Look up member by member_no to get the actual member_id
         $member = \App\Models\Member::where('member_no', $validated['member_id'])->first();
         

@@ -51,6 +51,7 @@ export interface CatalogItem {
     description?: string;
     cover_image?: string;
     is_active: boolean;
+    status: 'Available' | 'Borrowed';
     created_at: string;
     updated_at: string;
     authors?: Author[];

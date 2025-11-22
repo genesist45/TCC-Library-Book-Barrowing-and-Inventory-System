@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuthorController;
 use App\Http\Controllers\Admin\BookRequestController;
+use App\Http\Controllers\Admin\BookReturnController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CatalogItemController;
 use App\Http\Controllers\Admin\EmailReminderController;
@@ -112,6 +113,9 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
         Route::post('book-requests/{id}/approve', [BookRequestController::class, 'approve'])->name('book-requests.approve');
         Route::post('book-requests/{id}/disapprove', [BookRequestController::class, 'disapprove'])->name('book-requests.disapprove');
         Route::resource('book-requests', BookRequestController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
+        
+        // Book Returns (Circulations)
+        Route::resource('book-returns', BookReturnController::class);
     });
 });
 

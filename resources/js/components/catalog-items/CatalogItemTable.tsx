@@ -25,6 +25,12 @@ function CatalogItemTableRowSkeleton() {
             <td className="hidden whitespace-nowrap px-3 py-2 lg:table-cell sm:px-4">
                 <div className={`${shimmerClass} h-4 w-16 rounded`} />
             </td>
+            <td className="hidden whitespace-nowrap px-3 py-2 lg:table-cell sm:px-4">
+                <div className={`${shimmerClass} h-4 w-16 rounded`} />
+            </td>
+            <td className="hidden whitespace-nowrap px-3 py-2 lg:table-cell sm:px-4">
+                <div className={`${shimmerClass} h-6 w-20 rounded-full`} />
+            </td>
             <td className="whitespace-nowrap px-3 py-2 text-center sm:px-4">
                 <div className="flex items-center justify-center gap-1 sm:gap-2">
                     <div className={`${shimmerClass} h-6 w-6 rounded`} />
@@ -67,6 +73,9 @@ export default function CatalogItemTable({ items, onView, onEdit, onDelete, isLo
                         </th>
                         <th className="hidden px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 lg:table-cell sm:px-4">
                             Year
+                        </th>
+                        <th className="hidden px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 lg:table-cell sm:px-4">
+                            Status
                         </th>
                         <th className="px-3 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 print:hidden sm:px-4">
                             Actions
@@ -112,6 +121,15 @@ export default function CatalogItemTable({ items, onView, onEdit, onDelete, isLo
                                 </td>
                                 <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 lg:table-cell sm:px-4">
                                     {item.year || '-'}
+                                </td>
+                                <td className="hidden whitespace-nowrap px-3 py-2 lg:table-cell sm:px-4">
+                                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                        item.status === 'Available'
+                                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                            : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                                    }`}>
+                                        {item.status}
+                                    </span>
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-2 text-center text-sm print:hidden sm:px-4">
                                     <div className="flex items-center justify-center gap-1 sm:gap-2">

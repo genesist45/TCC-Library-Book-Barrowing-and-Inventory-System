@@ -26,6 +26,15 @@ export default function BookCard({ book, onClick }: BookCardProps) {
                     </div>
                 )}
 
+                {/* Status Badge */}
+                {book.status === 'Borrowed' && (
+                    <div className="absolute top-2 right-2">
+                        <span className="inline-flex items-center rounded-full bg-red-500 px-2.5 py-1 text-xs font-semibold text-white shadow-lg">
+                            Borrowed
+                        </span>
+                    </div>
+                )}
+
                 {/* Hover Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             </div>

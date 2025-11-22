@@ -31,7 +31,7 @@ export default function Welcome({ auth, popularBooks = [] }: PageProps<{ popular
     // Filter states
     const [typeFilter, setTypeFilter] = useState('');
     const [yearFilter, setYearFilter] = useState('');
-    const [statusFilter, setStatusFilter] = useState('');
+    const [availabilityFilter, setAvailabilityFilter] = useState('');
 
     // Filter popular books based on selected filters
     const filteredPopularBooks = popularBooks.filter((book) => {
@@ -48,9 +48,9 @@ export default function Welcome({ auth, popularBooks = [] }: PageProps<{ popular
             }
         }
 
-        // Status filter
-        if (statusFilter === 'active' && !book.is_active) return false;
-        if (statusFilter === 'inactive' && book.is_active) return false;
+        // Availability filter (Available/Borrowed)
+        if (availabilityFilter === 'available' && book.status !== 'Available') return false;
+        if (availabilityFilter === 'borrowed' && book.status !== 'Borrowed') return false;
 
         return true;
     });
@@ -270,16 +270,16 @@ export default function Welcome({ auth, popularBooks = [] }: PageProps<{ popular
                                                 </div>
                                             </div>
 
-                                            {/* Status Filter */}
+                                            {/* Availability Filter */}
                                             <div className="relative flex-1 lg:w-40">
                                                 <select
-                                                    value={statusFilter}
-                                                    onChange={(e) => setStatusFilter(e.target.value)}
+                                                    value={availabilityFilter}
+                                                    onChange={(e) => setAvailabilityFilter(e.target.value)}
                                                     className="w-full appearance-none rounded-lg border border-gray-200 bg-white px-4 py-3 pr-10 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
                                                 >
                                                     <option value="">All Status</option>
-                                                    <option value="active">Active</option>
-                                                    <option value="inactive">Inactive</option>
+                                                    <option value="available">Available</option>
+                                                    <option value="borrowed">Borrowed</option>
                                                 </select>
                                                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                                                     <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
