@@ -2,9 +2,8 @@ import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import { PageProps, BookRequest } from '@/types';
 import { useState, useEffect } from 'react';
-import { Pencil, Trash2, CheckCircle, XCircle, Eye, MoreVertical, Search, RefreshCw, Printer } from 'lucide-react';
+import { Pencil, Trash2, CheckCircle, XCircle, Eye, Search, RefreshCw, Printer } from 'lucide-react';
 import SecondaryButton from '@/components/buttons/SecondaryButton';
-import Dropdown from '@/components/common/Dropdown';
 import { TableRowSkeleton } from '@/components/common/Loading';
 import { toast } from 'sonner';
 
@@ -198,9 +197,6 @@ export default function BookRequestsView({ bookRequests, flash }: Props) {
                                             ID
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                                            Book Title
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
                                             Member ID
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
@@ -223,11 +219,11 @@ export default function BookRequestsView({ bookRequests, flash }: Props) {
                                 <tbody className="divide-y divide-gray-200 bg-white dark:divide-[#3a3a3a] dark:bg-[#2a2a2a]">
                                     {isLoading ? (
                                         Array.from({ length: 5 }).map((_, i) => (
-                                            <TableRowSkeleton key={i} columns={8} />
+                                            <TableRowSkeleton key={i} columns={7} />
                                         ))
                                     ) : filteredRequests.length === 0 ? (
                                         <tr>
-                                            <td colSpan={8} className="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+                                            <td colSpan={7} className="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
                                                 No book requests found matching "{searchQuery}"
                                             </td>
                                         </tr>
@@ -240,9 +236,6 @@ export default function BookRequestsView({ bookRequests, flash }: Props) {
                                             >
                                                 <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">
                                                     {request.id}
-                                                </td>
-                                                <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
-                                                    {request.catalogItem?.title || request.catalog_item?.title || 'N/A'}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
                                                     {request.member?.member_no || `#${request.member_id}`}
@@ -273,63 +266,56 @@ export default function BookRequestsView({ bookRequests, flash }: Props) {
                                                     </span>
                                                 </td>
                                                 <td className="whitespace-nowrap px-6 py-4 text-sm print:hidden">
-                                                    <Dropdown>
-                                                        <Dropdown.Trigger>
-                                                            <button className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-400 transition hover:bg-gray-50 hover:text-gray-600 dark:border-[#4a4a4a] dark:hover:bg-[#3a3a3a] dark:hover:text-gray-200">
-                                                                <MoreVertical className="h-4 w-4" />
-                                                            </button>
-                                                        </Dropdown.Trigger>
-                                                        <Dropdown.Content direction={index >= filteredRequests.length - 2 && filteredRequests.length > 3 ? 'up' : 'down'}>
-                                                            {/* Approve */}
-                                                            {request.status === 'Pending' && (
-                                                                <button
-                                                                    onClick={() => handleApprove(request.id)}
-                                                                    className="flex w-full items-center gap-2 px-4 py-2 text-start text-sm text-green-600 hover:bg-gray-100 dark:text-green-400 dark:hover:bg-[#3a3a3a]"
-                                                                >
-                                                                    <CheckCircle className="h-4 w-4" />
-                                                                    Approve
-                                                                </button>
-                                                            )}
-
-                                                            {/* Disapprove */}
-                                                            {request.status === 'Pending' && (
-                                                                <button
-                                                                    onClick={() => handleDisapprove(request.id)}
-                                                                    className="flex w-full items-center gap-2 px-4 py-2 text-start text-sm text-red-600 hover:bg-gray-100 dark:text-red-400 dark:hover:bg-[#3a3a3a]"
-                                                                >
-                                                                    <XCircle className="h-4 w-4" />
-                                                                    Disapprove
-                                                                </button>
-                                                            )}
-
-                                                            {/* View */}
-                                                            <Dropdown.Link
-                                                                href={route('admin.book-requests.show', request.id)}
-                                                                className="flex items-center gap-2"
-                                                            >
-                                                                <Eye className="h-4 w-4" />
-                                                                View Details
-                                                            </Dropdown.Link>
-
-                                                            {/* Edit */}
-                                                            <Dropdown.Link
-                                                                href={route('admin.book-requests.edit', request.id)}
-                                                                className="flex items-center gap-2"
-                                                            >
-                                                                <Pencil className="h-4 w-4" />
-                                                                Edit
-                                                            </Dropdown.Link>
-
-                                                            {/* Delete */}
+                                                    <div className="flex items-center gap-2">
+                                                        {/* Approve Button - Only for Pending */}
+                                                        {request.status === 'Pending' && (
                                                             <button
-                                                                onClick={() => handleDelete(request)}
-                                                                className="flex w-full items-center gap-2 px-4 py-2 text-start text-sm text-red-600 hover:bg-gray-100 dark:text-red-400 dark:hover:bg-[#3a3a3a]"
+                                                                onClick={() => handleApprove(request.id)}
+                                                                className="flex items-center justify-center rounded-lg bg-green-100 p-1.5 text-green-600 transition hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50"
+                                                                title="Approve this request"
                                                             >
-                                                                <Trash2 className="h-4 w-4" />
-                                                                Delete
+                                                                <CheckCircle className="h-4 w-4" />
                                                             </button>
-                                                        </Dropdown.Content>
-                                                    </Dropdown>
+                                                        )}
+
+                                                        {/* Disapprove Button - Only for Pending */}
+                                                        {request.status === 'Pending' && (
+                                                            <button
+                                                                onClick={() => handleDisapprove(request.id)}
+                                                                className="flex items-center justify-center rounded-lg bg-red-100 p-1.5 text-red-600 transition hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
+                                                                title="Disapprove this request"
+                                                            >
+                                                                <XCircle className="h-4 w-4" />
+                                                            </button>
+                                                        )}
+
+                                                        {/* View Button */}
+                                                        <button
+                                                            onClick={() => router.visit(route('admin.book-requests.show', request.id))}
+                                                            className="flex items-center justify-center rounded-lg bg-blue-100 p-1.5 text-blue-600 transition hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                                                            title="View full details"
+                                                        >
+                                                            <Eye className="h-4 w-4" />
+                                                        </button>
+
+                                                        {/* Edit Button */}
+                                                        <button
+                                                            onClick={() => router.visit(route('admin.book-requests.edit', request.id))}
+                                                            className="flex items-center justify-center rounded-lg bg-amber-100 p-1.5 text-amber-600 transition hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50"
+                                                            title="Edit this request"
+                                                        >
+                                                            <Pencil className="h-4 w-4" />
+                                                        </button>
+
+                                                        {/* Delete Button */}
+                                                        <button
+                                                            onClick={() => handleDelete(request)}
+                                                            className="flex items-center justify-center rounded-lg bg-red-100 p-1.5 text-red-600 transition hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
+                                                            title="Delete this request"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))

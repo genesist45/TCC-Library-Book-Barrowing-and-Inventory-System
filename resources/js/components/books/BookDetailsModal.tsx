@@ -20,6 +20,18 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
         message: string;
     }>({ isValid: null, isChecking: false, message: '' });
 
+    // Get today's date and 1 month from today
+    const today = new Date().toISOString().split('T')[0];
+    const maxDate = new Date();
+    maxDate.setMonth(maxDate.getMonth() + 1);
+    const maxDateString = maxDate.toISOString().split('T')[0];
+
+    // Format dates for display
+    const todayFormatted = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const maxDateFormatted = maxDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+    const [daysRemaining, setDaysRemaining] = useState<number | null>(null);
+
     const { data, setData, post, processing, errors, reset } = useForm({
         member_id: '',
         catalog_item_id: book.id,
@@ -28,12 +40,12 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
         quota: '',
         phone: '',
         address: '',
-        return_date: '',
-        return_time: '12:00',
+        return_date: today,
+        return_time: '07:00',
         notes: '',
     });
 
-    // Validate member number
+    // Validate member number and auto-fill form fields
     useEffect(() => {
         if (data.member_id) {
             setMemberValidation({ isValid: null, isChecking: true, message: 'Checking...' });
@@ -41,14 +53,34 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
             const timer = setTimeout(() => {
                 axios
                     .get(`/api/members/${data.member_id}`)
-                    .then(() => {
+                    .then((response) => {
+                        const memberData = response.data;
+
+                        // Auto-fill form fields from member data
+                        setData((prevData) => ({
+                            ...prevData,
+                            full_name: memberData.name || '',
+                            email: memberData.email || '',
+                            quota: memberData.booking_quota?.toString() || '',
+                            phone: memberData.phone || '',
+                        }));
+
                         setMemberValidation({
                             isValid: true,
                             isChecking: false,
-                            message: 'Valid member number',
+                            message: 'Valid member number - Fields auto-filled',
                         });
                     })
                     .catch(() => {
+                        // Clear auto-filled fields if member not found
+                        setData((prevData) => ({
+                            ...prevData,
+                            full_name: '',
+                            email: '',
+                            quota: '',
+                            phone: '',
+                        }));
+
                         setMemberValidation({
                             isValid: false,
                             isChecking: false,
@@ -59,6 +91,14 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
 
             return () => clearTimeout(timer);
         } else {
+            // Clear fields when member_id is empty
+            setData((prevData) => ({
+                ...prevData,
+                full_name: '',
+                email: '',
+                quota: '',
+                phone: '',
+            }));
             setMemberValidation({ isValid: null, isChecking: false, message: '' });
         }
     }, [data.member_id]);
@@ -75,8 +115,21 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
         });
     };
 
-    // Get today's date
-    const today = new Date().toISOString().split('T')[0];
+    // Calculate days remaining when return_date changes
+    useEffect(() => {
+        if (data.return_date) {
+            const returnDate = new Date(data.return_date);
+            const todayDate = new Date();
+            todayDate.setHours(0, 0, 0, 0);
+            returnDate.setHours(0, 0, 0, 0);
+
+            const diffTime = returnDate.getTime() - todayDate.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            setDaysRemaining(diffDays);
+        } else {
+            setDaysRemaining(null);
+        }
+    }, [data.return_date]);
 
     // Reset form when modal closes
     useEffect(() => {
@@ -84,6 +137,7 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
             setShowRequestForm(false);
             reset();
             setMemberValidation({ isValid: null, isChecking: false, message: '' });
+            setDaysRemaining(0); // Reset to 0 days (today)
         }
     }, [isOpen]);
 
@@ -122,7 +176,7 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                             {showRequestForm && (
                                 <div className="mt-6 animate-fade-in text-center">
                                     <h3 className="text-xl font-bold leading-tight text-gray-900">{book.title}</h3>
-                                    
+
                                     {book.authors && book.authors.length > 0 && (
                                         <p className="mt-2 text-sm font-medium text-gray-600">
                                             By {book.authors.map((a) => a.name).join(', ')}
@@ -153,10 +207,9 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                     {/* Right Side - Content */}
                     <div className="flex-1 overflow-hidden">
                         {/* Book Details View */}
-                        <div 
-                            className={`grid transition-[grid-template-rows,opacity,transform] duration-500 ease-in-out ${
-                                showRequestForm ? 'grid-rows-[0fr] opacity-0 -translate-x-4 pointer-events-none' : 'grid-rows-[1fr] opacity-100 translate-x-0'
-                            }`}
+                        <div
+                            className={`grid transition-[grid-template-rows,opacity,transform] duration-500 ease-in-out ${showRequestForm ? 'grid-rows-[0fr] opacity-0 -translate-x-4 pointer-events-none' : 'grid-rows-[1fr] opacity-100 translate-x-0'
+                                }`}
                         >
                             <div className="overflow-hidden">
                                 <div className="p-8">
@@ -237,22 +290,21 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                         </div>
 
                         {/* Borrow Request Form View */}
-                        <div 
-                            className={`grid transition-[grid-template-rows,opacity,transform] duration-500 ease-in-out ${
-                                showRequestForm ? 'grid-rows-[1fr] opacity-100 translate-x-0' : 'grid-rows-[0fr] opacity-0 translate-x-4 pointer-events-none'
-                            }`}
+                        <div
+                            className={`grid transition-[grid-template-rows,opacity,transform] duration-500 ease-in-out ${showRequestForm ? 'grid-rows-[1fr] opacity-100 translate-x-0' : 'grid-rows-[0fr] opacity-0 translate-x-4 pointer-events-none'
+                                }`}
                         >
                             <div className="overflow-hidden">
-                                <div className="p-8">
-                                    <div className="mb-4">
+                                <div className="p-6">
+                                    <div className="mb-3">
                                         <h2 className="text-2xl font-bold text-gray-900">Borrow Request</h2>
                                         <p className="mt-1 text-sm text-gray-600">
                                             Fill out the form to request borrowing this book
                                         </p>
                                     </div>
 
-                                    <form onSubmit={handleSubmit} className="space-y-3">
-                                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                    <form onSubmit={handleSubmit} className="space-y-2">
+                                        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                                             {/* Member Number */}
                                             <div className="sm:col-span-2">
                                                 <label className="block text-xs font-medium text-gray-700">
@@ -264,10 +316,10 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                                                         value={data.member_id}
                                                         onChange={(e) => setData('member_id', e.target.value)}
                                                         className={`w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${memberValidation.isValid === true
-                                                                ? 'border-green-500 focus:border-green-500 focus:ring-green-500'
-                                                                : memberValidation.isValid === false
-                                                                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                                                                    : ''
+                                                            ? 'border-green-500 focus:border-green-500 focus:ring-green-500'
+                                                            : memberValidation.isValid === false
+                                                                ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                                                                : ''
                                                             }`}
                                                         placeholder="Enter member number"
                                                         required
@@ -294,97 +346,152 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                                                 )}
                                             </div>
 
-                                            {/* Full Name */}
-                                            <div>
-                                                <label className="block text-xs font-medium text-gray-700">
-                                                    Full Name <span className="text-red-500">*</span>
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    value={data.full_name}
-                                                    onChange={(e) => setData('full_name', e.target.value)}
-                                                    className="mt-1 w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                                    required
-                                                />
-                                                {errors.full_name && <p className="mt-0.5 text-xs text-red-600">{errors.full_name}</p>}
-                                            </div>
+                                            {/* Member Information - Display as text when valid */}
+                                            {memberValidation.isValid ? (
+                                                <>
+                                                    {/* Full Name - Display */}
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-500">Full Name</label>
+                                                        <div className="mt-1 rounded-lg bg-gradient-to-br from-indigo-50 to-purple-50 px-3 py-2 text-sm font-medium text-gray-900">
+                                                            {data.full_name}
+                                                        </div>
+                                                    </div>
 
-                                            {/* Email */}
-                                            <div>
-                                                <label className="block text-xs font-medium text-gray-700">
-                                                    Email <span className="text-red-500">*</span>
-                                                </label>
-                                                <input
-                                                    type="email"
-                                                    value={data.email}
-                                                    onChange={(e) => setData('email', e.target.value)}
-                                                    className="mt-1 w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                                    required
-                                                />
-                                                {errors.email && <p className="mt-0.5 text-xs text-red-600">{errors.email}</p>}
-                                            </div>
+                                                    {/* Email - Display */}
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-500">Email</label>
+                                                        <div className="mt-1 rounded-lg bg-gradient-to-br from-indigo-50 to-purple-50 px-3 py-2 text-sm font-medium text-gray-900">
+                                                            {data.email}
+                                                        </div>
+                                                    </div>
 
-                                            {/* Quota */}
-                                            <div>
-                                                <label className="block text-xs font-medium text-gray-700">
-                                                    Quota <span className="text-red-500">*</span>
-                                                </label>
-                                                <input
-                                                    type="number"
-                                                    value={data.quota}
-                                                    onChange={(e) => setData('quota', e.target.value)}
-                                                    className="mt-1 w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                                />
-                                                {errors.quota && <p className="mt-0.5 text-xs text-red-600">{errors.quota}</p>}
-                                            </div>
+                                                    {/* Quota - Display */}
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-500">Quota</label>
+                                                        <div className="mt-1 rounded-lg bg-gradient-to-br from-indigo-50 to-purple-50 px-3 py-2 text-sm font-medium text-gray-900">
+                                                            {data.quota}
+                                                        </div>
+                                                    </div>
 
-                                            {/* Phone */}
-                                            <div>
-                                                <label className="block text-xs font-medium text-gray-700">Phone</label>
-                                                <input
-                                                    type="tel"
-                                                    value={data.phone}
-                                                    onChange={(e) => setData('phone', e.target.value)}
-                                                    className="mt-1 w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                                />
-                                                {errors.phone && <p className="mt-0.5 text-xs text-red-600">{errors.phone}</p>}
-                                            </div>
+                                                    {/* Phone - Display */}
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-500">Phone</label>
+                                                        <div className="mt-1 rounded-lg bg-gradient-to-br from-indigo-50 to-purple-50 px-3 py-2 text-sm font-medium text-gray-900">
+                                                            {data.phone || '—'}
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {/* Full Name - Input */}
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-700">
+                                                            Full Name <span className="text-red-500">*</span>
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={data.full_name}
+                                                            onChange={(e) => setData('full_name', e.target.value)}
+                                                            className="mt-1 w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                            required
+                                                        />
+                                                        {errors.full_name && <p className="mt-0.5 text-xs text-red-600">{errors.full_name}</p>}
+                                                    </div>
 
-                                            {/* Return Date */}
-                                            <div>
-                                                <label className="block text-xs font-medium text-gray-700">
-                                                    Return Date <span className="text-red-500">*</span>
-                                                </label>
-                                                <div className="relative mt-1">
-                                                    <Calendar className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                                                    <input
-                                                        type="date"
-                                                        value={data.return_date}
-                                                        onChange={(e) => setData('return_date', e.target.value)}
-                                                        min={today}
-                                                        className="w-full rounded-md border-gray-300 py-1.5 pl-9 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                                        required
-                                                    />
+                                                    {/* Email - Input */}
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-700">
+                                                            Email <span className="text-red-500">*</span>
+                                                        </label>
+                                                        <input
+                                                            type="email"
+                                                            value={data.email}
+                                                            onChange={(e) => setData('email', e.target.value)}
+                                                            className="mt-1 w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                            required
+                                                        />
+                                                        {errors.email && <p className="mt-0.5 text-xs text-red-600">{errors.email}</p>}
+                                                    </div>
+
+                                                    {/* Quota - Input */}
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-700">
+                                                            Quota <span className="text-red-500">*</span>
+                                                        </label>
+                                                        <input
+                                                            type="number"
+                                                            value={data.quota}
+                                                            onChange={(e) => setData('quota', e.target.value)}
+                                                            className="mt-1 w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                            required
+                                                        />
+                                                        {errors.quota && <p className="mt-0.5 text-xs text-red-600">{errors.quota}</p>}
+                                                    </div>
+
+                                                    {/* Phone - Input */}
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-700">Phone</label>
+                                                        <input
+                                                            type="tel"
+                                                            value={data.phone}
+                                                            onChange={(e) => setData('phone', e.target.value)}
+                                                            className="mt-1 w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                        />
+                                                        {errors.phone && <p className="mt-0.5 text-xs text-red-600">{errors.phone}</p>}
+                                                    </div>
+                                                </>
+                                            )}
+
+                                            {/* Return Schedule Section */}
+                                            <div className="sm:col-span-2">
+                                                <h3 className="mb-1.5 text-sm font-semibold text-gray-700">Return Schedule</h3>
+                                                <div className="grid grid-cols-2 gap-2.5">
+                                                    {/* Return Date */}
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-700">
+                                                            Return Date <span className="text-red-500">*</span>
+                                                        </label>
+                                                        <div className="relative mt-1">
+                                                            <Calendar className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                                            <input
+                                                                type="date"
+                                                                value={data.return_date}
+                                                                onChange={(e) => setData('return_date', e.target.value)}
+                                                                min={today}
+                                                                max={maxDateString}
+                                                                className="w-full rounded-md border-gray-300 py-1.5 pl-9 pr-3 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                                required
+                                                            />
+                                                        </div>
+                                                        {daysRemaining !== null && (
+                                                            <p className="mt-1 text-xs font-medium text-indigo-600">
+                                                                {daysRemaining === 0 ? 'Due today' :
+                                                                    daysRemaining === 1 ? '1 day remaining' :
+                                                                        `${daysRemaining} days remaining`}
+                                                            </p>
+                                                        )}
+                                                        {errors.return_date && <p className="mt-0.5 text-xs text-red-600">{errors.return_date}</p>}
+                                                    </div>
+
+                                                    {/* Return Time */}
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-700">
+                                                            Return Time <span className="text-red-500">*</span>
+                                                        </label>
+                                                        <div className="relative mt-1">
+                                                            <Clock className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                                            <input
+                                                                type="time"
+                                                                value={data.return_time}
+                                                                onChange={(e) => setData('return_time', e.target.value)}
+                                                                className="w-full rounded-md border-gray-300 py-1.5 pl-9 pr-3 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                                required
+                                                            />
+                                                        </div>
+                                                        <p className="mt-1 text-xs text-gray-500">Allowed: 7:00-11:00 AM, 1:00-4:00 PM</p>
+                                                        {errors.return_time && <p className="mt-0.5 text-xs text-red-600">{errors.return_time}</p>}
+                                                    </div>
                                                 </div>
-                                                {errors.return_date && <p className="mt-0.5 text-xs text-red-600">{errors.return_date}</p>}
-                                            </div>
-
-                                            {/* Return Time */}
-                                            <div>
-                                                <label className="block text-xs font-medium text-gray-700">
-                                                    Return Time <span className="text-red-500">*</span>
-                                                </label>
-                                                <div className="relative mt-1">
-                                                    <Clock className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                                                    <input
-                                                        type="time"
-                                                        value={data.return_time}
-                                                        onChange={(e) => setData('return_time', e.target.value)}
-                                                        className="w-full rounded-md border-gray-300 py-1.5 pl-9 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                                        required
-                                                    />
-                                                </div>
-                                                {errors.return_time && <p className="mt-0.5 text-xs text-red-600">{errors.return_time}</p>}
                                             </div>
 
                                             {/* Address */}
@@ -393,8 +500,9 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                                                 <textarea
                                                     value={data.address}
                                                     onChange={(e) => setData('address', e.target.value)}
-                                                    rows={2}
-                                                    className="mt-1 w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                    rows={1}
+                                                    className="mt-1 w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 resize-none"
+                                                    style={{ minHeight: '2.5rem' }}
                                                 />
                                                 {errors.address && <p className="mt-0.5 text-xs text-red-600">{errors.address}</p>}
                                             </div>
@@ -405,15 +513,16 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                                                 <textarea
                                                     value={data.notes}
                                                     onChange={(e) => setData('notes', e.target.value)}
-                                                    rows={2}
-                                                    className="mt-1 w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                    rows={1}
+                                                    className="mt-1 w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 resize-none"
+                                                    style={{ minHeight: '2.5rem' }}
                                                 />
                                                 {errors.notes && <p className="mt-0.5 text-xs text-red-600">{errors.notes}</p>}
                                             </div>
                                         </div>
 
                                         {/* Buttons */}
-                                        <div className="flex justify-end gap-3 border-t border-gray-200 pt-4">
+                                        <div className="flex justify-end gap-3 border-t border-gray-200 pt-3 mt-3">
                                             <button
                                                 type="button"
                                                 onClick={() => setShowRequestForm(false)}
