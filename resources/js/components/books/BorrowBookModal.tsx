@@ -1,19 +1,10 @@
 import { useState, useEffect, Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { X, Search, Calendar, Clock, BookOpen } from 'lucide-react';
+import { X, Calendar, Clock, BookOpen } from 'lucide-react';
 import { useForm } from '@inertiajs/react';
 import { CatalogItem } from '@/types';
 import { toast } from 'sonner';
 import axios from 'axios';
-
-interface Member {
-    id: number;
-    member_no: string;
-    name: string;
-    email: string;
-    quota: number;
-    phone?: string;
-}
 
 interface BorrowBookModalProps {
     book: CatalogItem;
@@ -22,14 +13,12 @@ interface BorrowBookModalProps {
 }
 
 export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookModalProps) {
-    // Search States
-    const [memberSearch, setMemberSearch] = useState('');
-    const [searchResults, setSearchResults] = useState<Member[]>([]);
-    const [isSearching, setIsSearching] = useState(false);
-    const [selectedMember, setSelectedMember] = useState<Member | null>(null);
-    const [showResults, setShowResults] = useState(false);
+    const [memberValidation, setMemberValidation] = useState<{
+        isValid: boolean | null;
+        isChecking: boolean;
+        message: string;
+    }>({ isValid: null, isChecking: false, message: '' });
 
-    // Validation States
     const [timeError, setTimeError] = useState<string>('');
     const [dateError, setDateError] = useState<string>('');
     const [daysRemaining, setDaysRemaining] = useState<number>(0);
@@ -43,52 +32,67 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
         phone: '',
         address: '',
         return_date: new Date().toISOString().split('T')[0],
-        return_time: '12:00',
+        return_time: '13:00',
         notes: '',
     });
 
-    // Search members
+    // Validate member number and auto-fill form fields
     useEffect(() => {
-        if (memberSearch.length >= 1) {
-            setIsSearching(true);
+        if (data.member_id) {
+            setMemberValidation({ isValid: null, isChecking: true, message: 'Checking...' });
+
             const timer = setTimeout(() => {
                 axios
-                    .get('/api/members/search', {
-                        params: { query: memberSearch },
-                    })
+                    .get(`/api/members/${data.member_id}`)
                     .then((response) => {
-                        setSearchResults(response.data);
-                        setShowResults(true);
-                        setIsSearching(false);
+                        const memberData = response.data;
+
+                        // Auto-fill form fields from member data
+                        setData((prevData) => ({
+                            ...prevData,
+                            full_name: memberData.name || '',
+                            email: memberData.email || '',
+                            quota: memberData.booking_quota?.toString() || '',
+                            phone: memberData.phone || '',
+                        }));
+
+                        setMemberValidation({
+                            isValid: true,
+                            isChecking: false,
+                            message: 'Valid member number - Fields auto-filled',
+                        });
                     })
                     .catch(() => {
-                        setIsSearching(false);
+                        // Clear auto-filled fields if member not found
+                        setData((prevData) => ({
+                            ...prevData,
+                            full_name: '',
+                            email: '',
+                            quota: '',
+                            phone: '',
+                        }));
+
+                        setMemberValidation({
+                            isValid: false,
+                            isChecking: false,
+                            message: 'Member number does not exist',
+                        });
                     });
-            }, 300);
+            }, 500);
 
             return () => clearTimeout(timer);
         } else {
-            setSearchResults([]);
-            setShowResults(false);
+            // Clear fields when member_id is empty
+            setData((prevData) => ({
+                ...prevData,
+                full_name: '',
+                email: '',
+                quota: '',
+                phone: '',
+            }));
+            setMemberValidation({ isValid: null, isChecking: false, message: '' });
         }
-    }, [memberSearch]);
-
-    // Handle member selection
-    const handleSelectMember = (member: Member) => {
-        setSelectedMember(member);
-        setMemberSearch(`${member.name} (${member.member_no})`);
-        setShowResults(false);
-
-        // Auto-fill form fields
-        setData((prevData) => ({
-            ...prevData,
-            member_id: member.id.toString(),
-            full_name: member.name,
-            email: member.email,
-            quota: member.quota.toString(),
-            phone: member.phone || '',
-        }));
-    };
+    }, [data.member_id]);
 
     // Validate return time
     const validateReturnTime = (time: string): boolean => {
@@ -183,8 +187,7 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
             onSuccess: () => {
                 toast.success('Borrow request submitted successfully!');
                 reset();
-                setSelectedMember(null);
-                setMemberSearch('');
+                setMemberValidation({ isValid: null, isChecking: false, message: '' });
                 setTimeError('');
                 setDateError('');
                 setDaysRemaining(0);
@@ -199,9 +202,7 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
 
     const handleClose = () => {
         reset();
-        setSelectedMember(null);
-        setMemberSearch('');
-        setShowResults(false);
+        setMemberValidation({ isValid: null, isChecking: false, message: '' });
         setTimeError('');
         setDateError('');
         setDaysRemaining(0);
@@ -284,97 +285,74 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
                                 {/* Form */}
                                 <form onSubmit={handleSubmit} className="p-4">
                                     <div className="space-y-4">
-                                        {/* Member Selection */}
+                                        {/* Member Number */}
                                         <div>
-                                            {!selectedMember ? (
-                                                <div className="relative">
-                                                    <label className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">
-                                                        Search Member <span className="text-red-500">*</span>
-                                                    </label>
-                                                    <div className="relative">
-                                                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                                            <Search className="h-4 w-4 text-gray-400" />
-                                                        </div>
-                                                        <input
-                                                            type="text"
-                                                            value={memberSearch}
-                                                            onChange={(e) => setMemberSearch(e.target.value)}
-                                                            className="w-full rounded-md border-gray-300 py-1.5 pl-9 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-gray-100"
-                                                            placeholder="Search member..."
-                                                            autoFocus
-                                                        />
-                                                        {isSearching && (
-                                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                                                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600"></div>
-                                                            </div>
-                                                        )}
+                                            <label className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">
+                                                Member Number <span className="text-red-500">*</span>
+                                            </label>
+                                            <div className="relative">
+                                                <input
+                                                    type="text"
+                                                    value={data.member_id}
+                                                    onChange={(e) => setData('member_id', e.target.value)}
+                                                    className={`w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-gray-100 ${
+                                                        memberValidation.isValid === true
+                                                            ? 'border-green-500 focus:border-green-500 focus:ring-green-500'
+                                                            : memberValidation.isValid === false
+                                                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                                                            : ''
+                                                    }`}
+                                                    placeholder="Enter member number"
+                                                    autoFocus
+                                                    required
+                                                />
+                                                {memberValidation.isValid === true && (
+                                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                                        <svg className="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                                        </svg>
                                                     </div>
-
-                                                    {/* Dropdown Results */}
-                                                    {showResults && searchResults.length > 0 && (
-                                                        <div className="absolute z-20 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white shadow-lg dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">
-                                                            {searchResults.map((member) => (
-                                                                <button
-                                                                    key={member.id}
-                                                                    type="button"
-                                                                    onClick={() => handleSelectMember(member)}
-                                                                    className="flex w-full items-center gap-3 px-3 py-2 text-left transition hover:bg-gray-50 dark:hover:bg-[#3a3a3a]"
-                                                                >
-                                                                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
-                                                                        <span className="text-xs font-bold">{member.name.charAt(0)}</span>
-                                                                    </div>
-                                                                    <div className="flex-1 min-w-0">
-                                                                        <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{member.name}</p>
-                                                                        <p className="truncate text-xs text-gray-500 dark:text-gray-400">{member.member_no}</p>
-                                                                    </div>
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            ) : (
-                                                /* Selected Member Preview Card */
-                                                <div className="relative rounded-lg border border-indigo-200 bg-indigo-50 p-3 dark:border-indigo-900/30 dark:bg-indigo-900/10">
-                                                    <div className="flex items-center justify-between">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
-                                                                <span className="text-sm font-bold">{selectedMember.name.charAt(0)}</span>
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{selectedMember.name}</p>
-                                                                <div className="flex flex-col text-xs text-gray-600 dark:text-gray-400">
-                                                                    <span>{selectedMember.email}</span>
-                                                                    {selectedMember.phone && <span>{selectedMember.phone}</span>}
-                                                                    <span>Quota: {selectedMember.quota}</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                                setSelectedMember(null);
-                                                                setMemberSearch('');
-                                                                setData((prev) => ({
-                                                                    ...prev,
-                                                                    member_id: '',
-                                                                    full_name: '',
-                                                                    email: '',
-                                                                    quota: '',
-                                                                    phone: '',
-                                                                }));
-                                                            }}
-                                                            className="rounded p-1 text-gray-400 hover:bg-white hover:text-red-500 dark:hover:bg-[#3a3a3a]"
-                                                            title="Change Member"
-                                                        >
-                                                            <X className="h-4 w-4" />
-                                                        </button>
+                                                )}
+                                                {memberValidation.isChecking && (
+                                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600"></div>
                                                     </div>
-                                                </div>
+                                                )}
+                                            </div>
+                                            {memberValidation.isValid === true && (
+                                                <p className="mt-1 text-xs text-green-600 dark:text-green-400">{memberValidation.message}</p>
+                                            )}
+                                            {memberValidation.isValid === false && (
+                                                <p className="mt-1 text-xs text-red-600 dark:text-red-400">{memberValidation.message}</p>
                                             )}
                                         </div>
 
+                                        {/* Auto-filled Member Information */}
+                                        {memberValidation.isValid && (
+                                            <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-3 dark:border-indigo-900/30 dark:bg-indigo-900/10">
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Name</label>
+                                                        <p className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-gray-100">{data.full_name}</p>
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Email</label>
+                                                        <p className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-gray-100">{data.email}</p>
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Quota</label>
+                                                        <p className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-gray-100">{data.quota}</p>
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Phone</label>
+                                                        <p className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-gray-100">{data.phone || '—'}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         {/* Hidden Inputs for Auto-filled Data */}
-                                        {selectedMember && (
+                                        {memberValidation.isValid && (
                                             <>
                                                 <input type="hidden" name="full_name" value={data.full_name} />
                                                 <input type="hidden" name="email" value={data.email} />
@@ -464,7 +442,7 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
                                         </button>
                                         <button
                                             type="submit"
-                                            disabled={processing || !selectedMember || !!timeError || !!dateError}
+                                            disabled={processing || !memberValidation.isValid || !!timeError || !!dateError}
                                             className="rounded-md bg-indigo-600 px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             {processing ? 'Submitting...' : 'Confirm Request'}
