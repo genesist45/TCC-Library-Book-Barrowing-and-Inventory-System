@@ -10,10 +10,10 @@ export default function BookCard({ book, onClick }: BookCardProps) {
     return (
         <div
             onClick={onClick}
-            className="group cursor-pointer overflow-hidden rounded-xl bg-white shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+            className="group cursor-pointer overflow-hidden rounded-xl bg-white shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 dark:bg-[#2a2a2a] dark:shadow-lg"
         >
             {/* Book Cover Image */}
-            <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+            <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-[#3a3a3a] dark:to-[#2a2a2a]">
                 {book.cover_image ? (
                     <img
                         src={`/storage/${book.cover_image}`}
@@ -22,7 +22,7 @@ export default function BookCard({ book, onClick }: BookCardProps) {
                     />
                 ) : (
                     <div className="flex h-full w-full items-center justify-center">
-                        <BookOpen className="h-16 w-16 text-gray-400" />
+                        <BookOpen className="h-16 w-16 text-gray-400 dark:text-gray-500" />
                     </div>
                 )}
 
@@ -40,19 +40,19 @@ export default function BookCard({ book, onClick }: BookCardProps) {
             </div>
 
             {/* Book Details */}
-            <div className="p-4">
+            <div className="p-3 dark:bg-[#2a2a2a]">
                 {/* Book Title */}
-                <h3 className="mb-2 line-clamp-2 text-base font-bold text-gray-900 transition-colors group-hover:text-indigo-600">
+                <h3 className="mb-1 line-clamp-2 text-sm font-bold text-gray-900 transition-colors group-hover:text-indigo-600 dark:text-gray-100 dark:group-hover:text-indigo-400">
                     {book.title}
                 </h3>
 
                 {/* Author Name */}
                 {book.authors && book.authors.length > 0 ? (
-                    <p className="text-sm text-gray-600">
+                    <p className="line-clamp-1 text-xs text-gray-600 dark:text-gray-400">
                         {book.authors.map((author) => author.name).join(', ')}
                     </p>
                 ) : (
-                    <p className="text-sm italic text-gray-400">No author listed</p>
+                    <p className="text-xs italic text-gray-400 dark:text-gray-500">No author listed</p>
                 )}
             </div>
         </div>
