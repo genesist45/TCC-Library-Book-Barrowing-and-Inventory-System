@@ -1,29 +1,4 @@
-interface BookReturn {
-    id: number;
-    return_date: string;
-    return_time: string;
-    condition_on_return: string;
-    remarks?: string;
-    penalty_amount: number;
-    status: string;
-    member?: {
-        id: number;
-        name: string;
-        member_no: string;
-    };
-    catalog_item?: {
-        id: number;
-        title: string;
-    };
-    book_request?: {
-        id: number;
-    };
-    processor?: {
-        id: number;
-        name: string;
-    };
-    created_at: string;
-}
+import { BookReturn } from '@/types';
 
 interface BookReturnViewModalProps {
     show: boolean;

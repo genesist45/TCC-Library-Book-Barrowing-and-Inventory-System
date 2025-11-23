@@ -41,6 +41,17 @@ class BookSearchController extends Controller
     }
 
     /**
+     * Get book details as JSON (for API/modal usage)
+     */
+    public function getBookDetails($id)
+    {
+        $catalogItem = \App\Models\CatalogItem::with(['category', 'publisher', 'authors'])
+            ->findOrFail($id);
+
+        return response()->json($catalogItem);
+    }
+
+    /**
      * Show borrow request page
      */
     public function createBorrowRequest($id)

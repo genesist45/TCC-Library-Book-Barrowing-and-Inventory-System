@@ -88,8 +88,22 @@ export default function Welcome({ auth, popularBooks = [] }: PageProps<{ popular
         }
     }, [searchQuery]);
 
-    const handleSearchResultClick = (bookId: number) => {
-        router.visit(route('books.show', bookId));
+    const handleSearchResultClick = async (bookId: number) => {
+        try {
+            // Fetch full book details
+            const response = await axios.get(`/api/catalog-items/${bookId}`);
+            const bookData = response.data;
+
+            // Open modal with the book data
+            setSelectedBook(bookData);
+            setIsModalOpen(true);
+
+            // Close search dropdown
+            setShowDropdown(false);
+            setSearchQuery('');
+        } catch (error) {
+            console.error('Error fetching book details:', error);
+        }
     };
 
     return (
@@ -142,8 +156,21 @@ export default function Welcome({ auth, popularBooks = [] }: PageProps<{ popular
 
                             {/* Content */}
                             <div className="relative">
-                                {/* Search Bar and Filters in One Row - Left Aligned */}
+                                {/* Book Catalog Title & Search/Filters Section */}
                                 <div className="mb-6">
+                                    {/* Book Catalog Title - Left Aligned */}
+                                    <div className="mb-4">
+                                        <h2 className="font-jakarta text-2xl font-extrabold tracking-tight sm:text-3xl">
+                                            <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                                                Book Catalog
+                                            </span>
+                                        </h2>
+                                        <p className="mt-1 font-jakarta text-xs font-medium text-gray-600 sm:text-sm">
+                                            Explore our extensive collection of books, journals, and resources.
+                                        </p>
+                                    </div>
+
+                                    {/* Search Bar and Filters Row */}
                                     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
                                         {/* Search Bar */}
                                         <div className="relative flex-1">
@@ -157,7 +184,7 @@ export default function Welcome({ auth, popularBooks = [] }: PageProps<{ popular
                                                     onChange={(e) => setSearchQuery(e.target.value)}
                                                     onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
                                                     placeholder="Search for books by title..."
-                                                    className="w-full rounded-lg border-2 border-gray-200 bg-white py-3 pl-12 pr-4 text-gray-900 placeholder-gray-400 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                                                    className="w-full rounded-lg border-2 border-gray-200 bg-white py-2 pl-12 pr-4 text-sm text-gray-900 placeholder-gray-400 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
                                                 />
                                                 {isSearching && (
                                                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
@@ -232,7 +259,7 @@ export default function Welcome({ auth, popularBooks = [] }: PageProps<{ popular
                                                 <select
                                                     value={typeFilter}
                                                     onChange={(e) => setTypeFilter(e.target.value)}
-                                                    className="w-full appearance-none rounded-lg border border-gray-200 bg-white px-4 py-3 pr-10 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                                                    className="w-full appearance-none rounded-lg border border-gray-200 bg-white px-4 py-2 pr-10 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
                                                 >
                                                     <option value="">All Types</option>
                                                     <option value="Book">Book</option>
@@ -253,7 +280,7 @@ export default function Welcome({ auth, popularBooks = [] }: PageProps<{ popular
                                                 <select
                                                     value={yearFilter}
                                                     onChange={(e) => setYearFilter(e.target.value)}
-                                                    className="w-full appearance-none rounded-lg border border-gray-200 bg-white px-4 py-3 pr-10 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                                                    className="w-full appearance-none rounded-lg border border-gray-200 bg-white px-4 py-2 pr-10 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
                                                 >
                                                     <option value="">All Years</option>
                                                     <option value="2024">2024</option>
@@ -275,7 +302,7 @@ export default function Welcome({ auth, popularBooks = [] }: PageProps<{ popular
                                                 <select
                                                     value={availabilityFilter}
                                                     onChange={(e) => setAvailabilityFilter(e.target.value)}
-                                                    className="w-full appearance-none rounded-lg border border-gray-200 bg-white px-4 py-3 pr-10 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                                                    className="w-full appearance-none rounded-lg border border-gray-200 bg-white px-4 py-2 pr-10 text-sm text-gray-700 shadow-sm transition hover:border-gray-300 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
                                                 >
                                                     <option value="">All Status</option>
                                                     <option value="available">Available</option>

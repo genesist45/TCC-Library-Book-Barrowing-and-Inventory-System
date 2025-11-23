@@ -23,7 +23,7 @@ return new class extends Migration
             $table->date('return_date');
             $table->time('return_time')->default('12:00:00');
             $table->text('notes')->nullable();
-            $table->enum('status', ['Pending', 'Approved', 'Disapproved'])->default('Pending');
+            $table->enum('status', ['Pending', 'Approved', 'Disapproved', 'Returned'])->default('Pending');
             $table->timestamps();
         });
     }

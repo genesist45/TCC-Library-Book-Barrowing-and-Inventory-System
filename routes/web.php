@@ -40,6 +40,8 @@ Route::get('/books/{id}', [BookSearchController::class, 'show'])->name('books.sh
 Route::get('/books/{id}/borrow', [BookSearchController::class, 'createBorrowRequest'])->name('books.borrow-request.create');
 Route::post('/books/borrow-request', [BookSearchController::class, 'storeBorrowRequest'])->name('books.borrow-request.store');
 
+// API endpoint for getting catalog item details (for modal)
+Route::get('/api/catalog-items/{id}', [BookSearchController::class, 'getBookDetails'])->name('api.catalog-items.show');
 
 
 // API endpoint for member lookup by member number
@@ -103,6 +105,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     
     // Category Management
     Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('book-catalog', [CatalogItemController::class, 'bookCatalog'])->name('book-catalog');
         Route::resource('categories', CategoryController::class)->except(['create', 'edit']);
         Route::resource('authors', AuthorController::class)->except(['create', 'edit']);
         Route::resource('publishers', PublisherController::class)->except(['create', 'edit']);

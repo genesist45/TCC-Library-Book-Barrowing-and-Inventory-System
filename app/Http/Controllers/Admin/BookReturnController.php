@@ -79,6 +79,12 @@ class BookReturnController extends Controller
             $catalogItem->update(['status' => 'Available']);
         }
 
+        // Update the BookRequest status to 'Returned'
+        $bookRequest = BookRequest::find($validated['book_request_id']);
+        if ($bookRequest) {
+            $bookRequest->update(['status' => 'Returned']);
+        }
+
         return redirect()->route('admin.book-returns.index');
     }
 

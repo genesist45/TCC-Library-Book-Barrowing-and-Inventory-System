@@ -1,20 +1,6 @@
 import { Eye, Pencil, Trash2 } from 'lucide-react';
-import { TableRowSkeleton } from '@/components/common/Loading';
-
-interface BookReturn {
-    id: number;
-    return_date: string;
-    return_time: string;
-    status: 'Returned' | 'Pending';
-    member?: {
-        id: number;
-        name: string;
-    };
-    catalog_item?: {
-        id: number;
-        title: string;
-    };
-}
+import { TableSkeleton } from '@/components/common/Loading';
+import { BookReturn } from '@/types';
 
 interface BookReturnTableProps {
     bookReturns: BookReturn[];
@@ -66,9 +52,7 @@ export default function BookReturnTable({
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white dark:divide-[#3a3a3a] dark:bg-[#2a2a2a]">
                     {isLoading ? (
-                        Array.from({ length: 5 }).map((_, i) => (
-                            <TableRowSkeleton key={i} columns={6} />
-                        ))
+                        <TableSkeleton rowCount={bookReturns.length} columns={6} />
                     ) : bookReturns.length === 0 ? (
                         <tr>
                             <td colSpan={6} className="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">

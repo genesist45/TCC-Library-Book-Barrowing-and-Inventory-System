@@ -73,7 +73,7 @@ export default function MemberTable({ members, onDelete, isLoading = false }: Me
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white transition-colors duration-300 dark:divide-[#3a3a3a] dark:bg-[#2a2a2a]">
                     {isLoading ? (
-                        Array.from({ length: 5 }).map((_, index) => (
+                        Array.from({ length: members.length > 0 ? members.length : 5 }).map((_, index) => (
                             <MemberTableRowSkeleton key={index} />
                         ))
                     ) : (
@@ -112,22 +112,20 @@ export default function MemberTable({ members, onDelete, isLoading = false }: Me
                                     </div>
                                 </td>
                                 <td className="hidden whitespace-nowrap px-3 py-2 md:table-cell md:px-4">
-                                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                        member.type === 'Privileged'
-                                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
-                                            : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                                    }`}>
+                                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${member.type === 'Privileged'
+                                        ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
+                                        : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                                        }`}>
                                         {member.type}
                                     </span>
                                 </td>
                                 <td className="hidden whitespace-nowrap px-3 py-2 lg:table-cell lg:px-4">
-                                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                        member.status === 'Active'
-                                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                                            : member.status === 'Suspended'
+                                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${member.status === 'Active'
+                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                        : member.status === 'Suspended'
                                             ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
                                             : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
-                                    }`}>
+                                        }`}>
                                         {member.status}
                                     </span>
                                 </td>
@@ -135,21 +133,21 @@ export default function MemberTable({ members, onDelete, isLoading = false }: Me
                                     <div className="flex items-center justify-center gap-1 sm:gap-2">
                                         <button
                                             onClick={() => router.visit(route('admin.members.show', member.id))}
-                                            className="rounded p-1 text-blue-600 transition-colors duration-300 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30"
+                                            className="flex items-center justify-center rounded-lg bg-blue-100 p-1.5 text-blue-600 transition hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
                                             title="View"
                                         >
                                             <Eye size={16} className="sm:h-4 sm:w-4" />
                                         </button>
                                         <button
                                             onClick={() => router.visit(route('admin.members.edit', member.id))}
-                                            className="rounded p-1 text-green-600 transition-colors duration-300 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/30"
+                                            className="flex items-center justify-center rounded-lg bg-amber-100 p-1.5 text-amber-600 transition hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50"
                                             title="Edit"
                                         >
                                             <Pencil size={16} className="sm:h-4 sm:w-4" />
                                         </button>
                                         <button
                                             onClick={() => onDelete(member)}
-                                            className="rounded p-1 text-red-600 transition-colors duration-300 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
+                                            className="flex items-center justify-center rounded-lg bg-red-100 p-1.5 text-red-600 transition hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
                                             title="Delete"
                                         >
                                             <Trash2 size={16} className="sm:h-4 sm:w-4" />

@@ -1,12 +1,4 @@
-interface BookReturn {
-    id: number;
-    member?: {
-        name: string;
-    };
-    catalog_item?: {
-        title: string;
-    };
-}
+import { BookReturn } from '@/types';
 
 interface BookReturnDeleteModalProps {
     show: boolean;

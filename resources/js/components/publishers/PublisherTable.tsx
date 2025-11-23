@@ -12,15 +12,15 @@ function PublisherTableRowSkeleton() {
                 <div className="flex items-center gap-2">
                     <div className="text-sm space-y-1.5">
                         <div className={`${shimmerClass} h-4 w-40 rounded`} />
-                        <div className="flex items-center gap-2">
-                            <div className={`${shimmerClass} h-3 w-24 rounded`} />
-                            <div className={`${shimmerClass} h-4 w-12 rounded-full`} />
-                        </div>
+                        <div className={`${shimmerClass} h-3 w-24 rounded`} />
                     </div>
                 </div>
             </td>
             <td className="hidden whitespace-nowrap px-3 py-2 sm:table-cell sm:px-4">
                 <div className={`${shimmerClass} h-4 w-24 rounded`} />
+            </td>
+            <td className="hidden whitespace-nowrap px-3 py-2 sm:table-cell sm:px-4">
+                <div className={`${shimmerClass} h-5 w-16 rounded-full`} />
             </td>
             <td className="hidden whitespace-nowrap px-3 py-2 sm:table-cell sm:px-4">
                 <div className={`${shimmerClass} h-5 w-16 rounded-full`} />
@@ -72,6 +72,9 @@ export default function PublisherTable({ publishers, onView, onEdit, onDelete, i
                         <th className="hidden px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:table-cell sm:px-4">
                             Items Count
                         </th>
+                        <th className="hidden px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:table-cell sm:px-4">
+                            Status
+                        </th>
                         <th className="px-3 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:px-4">
                             Actions
                         </th>
@@ -79,7 +82,7 @@ export default function PublisherTable({ publishers, onView, onEdit, onDelete, i
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white transition-colors duration-300 dark:divide-[#3a3a3a] dark:bg-[#2a2a2a]">
                     {isLoading ? (
-                        Array.from({ length: 5 }).map((_, index) => (
+                        Array.from({ length: publishers.length > 0 ? publishers.length : 5 }).map((_, index) => (
                             <PublisherTableRowSkeleton key={index} />
                         ))
                     ) : (
@@ -94,15 +97,8 @@ export default function PublisherTable({ publishers, onView, onEdit, onDelete, i
                                             <div className="font-medium text-gray-900 transition-colors duration-300 dark:text-gray-100">
                                                 {publisher.name}
                                             </div>
-                                            <div className="flex items-center gap-2 text-xs text-gray-500 transition-colors duration-300 dark:text-gray-400">
-                                                <span className="sm:hidden">{publisher.country}</span>
-                                                <span className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
-                                                    publisher.is_published
-                                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                                                        : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
-                                                }`}>
-                                                    {publisher.is_published ? 'Active' : 'Inactive'}
-                                                </span>
+                                            <div className="text-xs text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:hidden">
+                                                {publisher.country}
                                             </div>
                                         </div>
                                     </div>
@@ -115,25 +111,33 @@ export default function PublisherTable({ publishers, onView, onEdit, onDelete, i
                                         {publisher.items_count} items
                                     </span>
                                 </td>
+                                <td className="hidden whitespace-nowrap px-3 py-2 text-sm sm:table-cell sm:px-4">
+                                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${publisher.is_published
+                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                        : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                                        }`}>
+                                        {publisher.is_published ? 'Active' : 'Inactive'}
+                                    </span>
+                                </td>
                                 <td className="whitespace-nowrap px-3 py-2 text-center text-sm sm:px-4">
                                     <div className="flex items-center justify-center gap-1 sm:gap-2">
                                         <button
                                             onClick={() => onView(publisher)}
-                                            className="rounded p-1 text-blue-600 transition-colors duration-300 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30"
+                                            className="flex items-center justify-center rounded-lg bg-blue-100 p-1.5 text-blue-600 transition hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
                                             title="View"
                                         >
                                             <Eye size={16} className="sm:h-4 sm:w-4" />
                                         </button>
                                         <button
                                             onClick={() => onEdit(publisher)}
-                                            className="rounded p-1 text-green-600 transition-colors duration-300 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/30"
+                                            className="flex items-center justify-center rounded-lg bg-amber-100 p-1.5 text-amber-600 transition hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50"
                                             title="Edit"
                                         >
                                             <Pencil size={16} className="sm:h-4 sm:w-4" />
                                         </button>
                                         <button
                                             onClick={() => onDelete(publisher)}
-                                            className="rounded p-1 text-red-600 transition-colors duration-300 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
+                                            className="flex items-center justify-center rounded-lg bg-red-100 p-1.5 text-red-600 transition hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
                                             title="Delete"
                                         >
                                             <Trash2 size={16} className="sm:h-4 sm:w-4" />

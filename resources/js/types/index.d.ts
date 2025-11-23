@@ -93,6 +93,37 @@ export interface BookRequest {
     catalog_item?: CatalogItem;
 }
 
+export interface BookReturn {
+    id: number;
+    book_request_id: number;
+    member_id: number;
+    catalog_item_id: number;
+    return_date: string;
+    return_time: string;
+    condition_on_return: 'Good' | 'Damaged' | 'Lost';
+    remarks?: string;
+    penalty_amount: number;
+    status: 'Returned' | 'Pending';
+    processed_by: number;
+    created_at: string;
+    member?: {
+        id: number;
+        name: string;
+        member_no: string;
+    };
+    catalog_item?: {
+        id: number;
+        title: string;
+    };
+    book_request?: {
+        id: number;
+    };
+    processor?: {
+        id: number;
+        name: string;
+    };
+}
+
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>,
 > = T & {

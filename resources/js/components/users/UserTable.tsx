@@ -1,6 +1,6 @@
 import { Eye, Pencil, Trash2 } from 'lucide-react';
 import defaultUserImage from '@/assets/images/avatars/default-user.png';
-import { TableRowSkeleton } from '@/components/common/Loading';
+import { TableSkeleton } from '@/components/common/Loading';
 
 interface User {
     id: number;
@@ -50,9 +50,7 @@ export default function UserTable({ users, onView, onEdit, onDelete, isLoading =
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white transition-colors duration-300 dark:divide-[#3a3a3a] dark:bg-[#2a2a2a]">
                     {isLoading ? (
-                        Array.from({ length: users.length || 5 }).map((_, index) => (
-                            <TableRowSkeleton key={index} />
-                        ))
+                        <TableSkeleton rowCount={users.length} columns={6} />
                     ) : (
                         users.map((user, index) => (
                             <tr key={user.id} className="transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]">
@@ -91,8 +89,8 @@ export default function UserTable({ users, onView, onEdit, onDelete, isLoading =
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-2 text-sm sm:px-4">
                                     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium sm:px-2.5 ${user.role === 'admin'
-                                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
-                                            : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                                        ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
+                                        : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
                                         }`}>
                                         {user.role === 'admin' ? 'Ad' : 'St'}
                                         <span className="hidden sm:inline">
@@ -107,21 +105,21 @@ export default function UserTable({ users, onView, onEdit, onDelete, isLoading =
                                     <div className="flex items-center justify-center gap-1 sm:gap-2">
                                         <button
                                             onClick={() => onView(user)}
-                                            className="rounded p-1 text-blue-600 transition-colors duration-300 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30"
+                                            className="flex items-center justify-center rounded-lg bg-blue-100 p-1.5 text-blue-600 transition hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
                                             title="View"
                                         >
                                             <Eye size={16} className="sm:h-4 sm:w-4" />
                                         </button>
                                         <button
                                             onClick={() => onEdit(user)}
-                                            className="rounded p-1 text-green-600 transition-colors duration-300 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/30"
+                                            className="flex items-center justify-center rounded-lg bg-amber-100 p-1.5 text-amber-600 transition hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50"
                                             title="Edit"
                                         >
                                             <Pencil size={16} className="sm:h-4 sm:w-4" />
                                         </button>
                                         <button
                                             onClick={() => onDelete(user)}
-                                            className="rounded p-1 text-red-600 transition-colors duration-300 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
+                                            className="flex items-center justify-center rounded-lg bg-red-100 p-1.5 text-red-600 transition hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
                                             title="Delete"
                                         >
                                             <Trash2 size={16} className="sm:h-4 sm:w-4" />

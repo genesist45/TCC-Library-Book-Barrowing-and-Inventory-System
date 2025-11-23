@@ -111,4 +111,14 @@ class CatalogItemController extends Controller
             ->route('admin.catalog-items.index')
             ->with('success', 'Catalog item deleted successfully.');
     }
+
+    public function bookCatalog(): Response
+    {
+        return Inertia::render('admin/BookCatalog', [
+            'catalogItems' => CatalogItem::with(['category', 'publisher', 'authors'])
+                ->where('is_active', true)
+                ->orderBy('created_at', 'desc')
+                ->get()
+        ]);
+    }
 }

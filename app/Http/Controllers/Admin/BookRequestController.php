@@ -59,7 +59,7 @@ class BookRequestController extends Controller
             'return_date' => 'required|date',
             'return_time' => 'required|date_format:H:i',
             'notes' => 'nullable|string',
-            'status' => 'required|in:Pending,Approved,Disapproved',
+            'status' => 'required|in:Pending,Approved,Disapproved,Returned',
         ]);
 
         // Get the original book request before updating
@@ -80,6 +80,13 @@ class BookRequestController extends Controller
         $dateTimeChanged = ($oldReturnDate !== $validated['return_date'] || 
                            $oldReturnTime !== $validated['return_time']) && 
                            $validated['status'] === 'Approved';
+        
+        // Check if trying to approve or disapprove a pending request when book is borrowed
+        if ($statusChanged && ($validated['status'] === 'Approved' || $validated['status'] === 'Disapproved')) {
+            if ($oldStatus === 'Pending' && $bookRequest->catalogItem->status === 'Borrowed') {
+                return redirect()->back()->with('error', 'This book is already borrowed and cannot be approved or declined.');
+            }
+        }
         
         // Handle status change to "Approved"
         if ($statusChanged && $validated['status'] === 'Approved') {
@@ -161,6 +168,12 @@ class BookRequestController extends Controller
     public function approve($id)
     {
         $bookRequest = \App\Models\BookRequest::with(['catalogItem.authors', 'catalogItem.publisher'])->findOrFail($id);
+
+        // Check if the book is already borrowed
+        if ($bookRequest->catalogItem->status === 'Borrowed') {
+            return back()->with('error', 'This book is already borrowed and cannot be approved or declined.');
+        }
+
         $bookRequest->update(['status' => 'Approved']);
 
         // Mark the book as "Borrowed"
@@ -179,6 +192,13 @@ class BookRequestController extends Controller
     {
         $bookRequest = \App\Models\BookRequest::with(['catalogItem.authors', 'catalogItem.publisher'])->findOrFail($id);
         
+        // Check if the book is already borrowed (and this request is not the one holding it)
+        // If the request is already Approved, we might be disapproving it to return the book, so we allow that.
+        // But if it's Pending and book is Borrowed, we block it.
+        if ($bookRequest->status === 'Pending' && $bookRequest->catalogItem->status === 'Borrowed') {
+            return back()->with('error', 'This book is already borrowed and cannot be approved or declined.');
+        }
+
         // If it was previously approved, mark the book as "Available" again
         if ($bookRequest->status === 'Approved') {
             $bookRequest->catalogItem->update(['status' => 'Available']);

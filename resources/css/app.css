@@ -67,6 +67,31 @@
     .animate-fade-in {
         animation: fade-in 0.3s ease-out;
     }
+
+    /* Smooth scrolling for all scrollable containers */
+    * {
+        scroll-behavior: smooth;
+    }
+
+    /* Custom scrollbar styles for webkit browsers */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #c7c7c7;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
 }
 
 @keyframes slide-in {

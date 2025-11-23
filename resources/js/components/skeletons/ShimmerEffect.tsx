@@ -17,7 +17,7 @@ export function HeaderSkeleton({ sidebarCollapsed = false }: { sidebarCollapsed?
                 <div className="flex items-center">
                     {/* Desktop sidebar toggle */}
                     <div className={`${shimmerClass} hidden lg:block h-8 w-8 rounded-md`} />
-                    
+
                     {/* Mobile menu button */}
                     <div className={`${shimmerClass} h-8 w-8 rounded-md lg:hidden`} />
                 </div>
@@ -26,7 +26,7 @@ export function HeaderSkeleton({ sidebarCollapsed = false }: { sidebarCollapsed?
                 <div className="flex items-center gap-1">
                     {/* Notification bell */}
                     <div className={`${shimmerClass} h-8 w-8 rounded-md`} />
-                    
+
                     {/* Dark mode toggle */}
                     <div className={`${shimmerClass} h-8 w-8 rounded-md`} />
                 </div>
@@ -40,14 +40,12 @@ export function SidebarSkeleton({ collapsed = false }: { collapsed?: boolean }) 
     const menuItems = 2; // Exact number of menu items in actual sidebar
 
     return (
-        <aside className={`fixed left-0 top-0 z-50 h-screen bg-white shadow-lg transition-all duration-300 dark:bg-[#2a2a2a] ${
-            collapsed ? 'w-20' : 'w-64'
-        }`}>
+        <aside className={`fixed left-0 top-0 z-50 h-screen bg-white shadow-lg transition-all duration-300 dark:bg-[#2a2a2a] ${collapsed ? 'w-20' : 'w-64'
+            }`}>
             <div className="flex h-full flex-col">
                 {/* Logo area */}
-                <div className={`flex h-14 items-center overflow-hidden transition-all duration-300 ${
-                    !collapsed ? 'px-5' : 'justify-center px-3'
-                }`}>
+                <div className={`flex h-14 items-center overflow-hidden transition-all duration-300 ${!collapsed ? 'px-5' : 'justify-center px-3'
+                    }`}>
                     <div className={`${shimmerClass} ${collapsed ? 'h-8 w-8' : 'h-10 w-32'} rounded`} />
                 </div>
 
@@ -55,35 +53,31 @@ export function SidebarSkeleton({ collapsed = false }: { collapsed?: boolean }) 
                 <hr className="border-gray-200 dark:border-[#3a3a3a]" />
 
                 {/* Menu items */}
-                <nav className={`flex-1 space-y-1 overflow-y-auto py-4 transition-all duration-300 ${
-                    collapsed ? 'px-2' : 'px-3'
-                }`}>
+                <nav className={`flex-1 space-y-1 overflow-y-auto py-4 transition-all duration-300 ${collapsed ? 'px-2' : 'px-3'
+                    }`}>
                     {/* Menu label */}
                     {!collapsed && (
                         <div className={`mb-3 px-3 ${shimmerClass} h-3 w-12 rounded`} />
                     )}
-                    
+
                     {/* Menu items - exactly 2 items */}
                     {Array.from({ length: menuItems }).map((_, index) => (
-                        <div key={index} className={`flex items-center rounded-lg py-2.5 transition-all duration-300 ${
-                            !collapsed ? 'gap-3 px-3' : 'justify-center'
-                        }`}>
+                        <div key={index} className={`flex items-center rounded-lg py-2.5 transition-all duration-300 ${!collapsed ? 'gap-3 px-3' : 'justify-center'
+                            }`}>
                             <div className={`${shimmerClass} h-5 w-5 rounded`} />
                             {!collapsed && (
-                                <div className={`${shimmerClass} h-4 rounded`} 
-                                     style={{ width: index === 0 ? '70px' : '45px' }} />
+                                <div className={`${shimmerClass} h-4 rounded`}
+                                    style={{ width: index === 0 ? '70px' : '45px' }} />
                             )}
                         </div>
                     ))}
                 </nav>
 
                 {/* Account Section in Footer */}
-                <div className={`pt-1 pb-3 transition-all duration-300 ${
-                    collapsed ? 'px-3' : 'px-4'
-                }`}>
-                    <div className={`flex w-full items-center overflow-hidden rounded-lg py-2 ${
-                        !collapsed ? 'gap-3 px-2' : 'justify-center px-0'
+                <div className={`pt-1 pb-3 transition-all duration-300 ${collapsed ? 'px-3' : 'px-4'
                     }`}>
+                    <div className={`flex w-full items-center overflow-hidden rounded-lg py-2 ${!collapsed ? 'gap-3 px-2' : 'justify-center px-0'
+                        }`}>
                         <div className={`${shimmerClass} h-8 w-8 rounded-full border-2 border-transparent`} />
                         {!collapsed && (
                             <div className="flex flex-1 items-center justify-between gap-2">
@@ -165,14 +159,14 @@ export function ModalSkeleton({ maxWidth = '2xl' }: { maxWidth?: 'sm' | 'md' | '
             <div className={`bg-white rounded-lg shadow-xl w-full ${maxWidthClass} mx-4 p-6 space-y-4 transition-all duration-300 dark:bg-[#2a2a2a]`}>
                 {/* Modal Title */}
                 <div className={`${shimmerClass} h-6 w-32 rounded`} />
-                
+
                 {/* Form Fields */}
                 <div className="space-y-3 pt-2">
                     <div className={`${shimmerClass} h-10 w-full rounded-lg`} />
                     <div className={`${shimmerClass} h-10 w-full rounded-lg`} />
                     <div className={`${shimmerClass} h-10 w-full rounded-lg`} />
                 </div>
-                
+
                 {/* Action Buttons */}
                 <div className="flex justify-end gap-2 pt-4 border-t border-gray-100 transition-colors duration-300 dark:border-[#3a3a3a]">
                     <div className={`${shimmerClass} h-10 w-20 rounded-md`} />
@@ -187,38 +181,30 @@ export function ModalSkeleton({ maxWidth = '2xl' }: { maxWidth?: 'sm' | 'md' | '
 export function TableRowSkeleton({ columns = 6 }: { columns?: number }) {
     return (
         <tr className="border-b border-gray-200 transition-colors duration-300 dark:border-[#3a3a3a]">
-            {/* ID Column */}
-            <td className="whitespace-nowrap px-4 py-2">
-                <div className={`${shimmerClass} h-4 w-8 rounded`} />
-            </td>
-            {/* Name Column with Avatar */}
-            <td className="whitespace-nowrap px-4 py-2">
-                <div className="flex items-center gap-2">
-                    <div className={`${shimmerClass} h-7 w-7 rounded-full`} />
-                    <div className={`${shimmerClass} h-4 w-32 rounded`} />
-                </div>
-            </td>
-            {/* Email Column */}
-            <td className="whitespace-nowrap px-4 py-2">
-                <div className={`${shimmerClass} h-4 w-48 rounded`} />
-            </td>
-            {/* Role Column - Badge Style */}
-            <td className="whitespace-nowrap px-4 py-2">
-                <div className={`${shimmerClass} h-5 w-16 rounded-full`} />
-            </td>
-            {/* Created At Column */}
-            <td className="whitespace-nowrap px-4 py-2">
-                <div className={`${shimmerClass} h-4 w-24 rounded`} />
-            </td>
-            {/* Actions Column */}
-            <td className="whitespace-nowrap px-4 py-2 text-center">
-                <div className="flex items-center justify-center gap-2">
-                    <div className={`${shimmerClass} h-6 w-6 rounded`} />
-                    <div className={`${shimmerClass} h-6 w-6 rounded`} />
-                    <div className={`${shimmerClass} h-6 w-6 rounded`} />
-                </div>
-            </td>
+            {Array.from({ length: columns }).map((_, index) => (
+                <td key={index} className="whitespace-nowrap px-4 py-2">
+                    {/* First column usually ID (short), Last column usually Actions (short), others random width */}
+                    <div className={`${shimmerClass} h-4 rounded ${index === 0 ? 'w-8' :
+                            index === columns - 1 ? 'w-20 mx-auto' :
+                                'w-full max-w-[150px]'
+                        }`} style={{ width: index !== 0 && index !== columns - 1 ? `${Math.floor(Math.random() * 40 + 60)}%` : undefined }} />
+                </td>
+            ))}
         </tr>
     );
 }
 
+
+// Table Skeleton that accepts dynamic row count
+export function TableSkeleton({ rowCount = 5, columns = 6 }: { rowCount?: number; columns?: number }) {
+    // Ensure we always show at least 1 row, default to 5 if 0 passed (unless explicitly 0 is desired, but usually for loading we want some rows)
+    const count = rowCount > 0 ? rowCount : 5;
+
+    return (
+        <>
+            {Array.from({ length: count }).map((_, index) => (
+                <TableRowSkeleton key={index} columns={columns} />
+            ))}
+        </>
+    );
+}

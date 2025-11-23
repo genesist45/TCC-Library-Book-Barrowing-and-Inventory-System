@@ -3,6 +3,7 @@ import { useForm } from '@inertiajs/react';
 import axios from 'axios';
 import SearchableSelect from '@/components/common/SearchableSelect';
 import { toast } from 'sonner';
+import { BookReturn } from '@/types';
 
 interface AvailableRequest {
     id: number;
@@ -11,19 +12,6 @@ interface AvailableRequest {
     catalog_item_id: number;
     member_name: string;
     book_title: string;
-}
-
-interface BookReturn {
-    id: number;
-    book_request_id: number;
-    member_id: number;
-    catalog_item_id: number;
-    return_date: string;
-    return_time: string;
-    condition_on_return: 'Good' | 'Damaged' | 'Lost';
-    remarks?: string;
-    penalty_amount: number;
-    status: 'Returned' | 'Pending';
 }
 
 interface BookReturnFormProps {
