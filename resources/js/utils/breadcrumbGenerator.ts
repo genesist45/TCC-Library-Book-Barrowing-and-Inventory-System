@@ -68,6 +68,12 @@ export function generateBreadcrumbs(currentRoute: string): BreadcrumbItem[] {
         return breadcrumbs;
     }
 
+    // Book Returns routes
+    if (currentRoute.startsWith('admin.book-returns')) {
+        breadcrumbs.push({ label: 'Book Returns', active: true });
+        return breadcrumbs;
+    }
+
     // Catalog Items routes
     if (currentRoute.startsWith('admin.catalog-items')) {
         breadcrumbs.push({ label: 'Catalog Items', href: route('admin.catalog-items.index') });
@@ -82,6 +88,12 @@ export function generateBreadcrumbs(currentRoute: string): BreadcrumbItem[] {
             breadcrumbs[breadcrumbs.length - 1].active = true;
         }
 
+        return breadcrumbs;
+    }
+
+    // Book Catalog routes
+    if (currentRoute.startsWith('admin.book-catalog')) {
+        breadcrumbs.push({ label: 'Book Catalog', active: true });
         return breadcrumbs;
     }
 

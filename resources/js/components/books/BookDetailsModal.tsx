@@ -106,6 +106,7 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         post(route('books.borrow-request.store'), {
+            preserveScroll: true,
             onSuccess: () => {
                 toast.success('Book request submitted successfully!');
                 reset();
@@ -144,19 +145,19 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-            <div className="relative w-full max-w-4xl animate-fade-in rounded-3xl bg-white shadow-2xl max-h-[90vh] overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-500/75 p-2 sm:p-4 transition-colors duration-200 dark:bg-black/60">
+            <div className="relative w-full max-w-4xl animate-fade-in rounded-2xl sm:rounded-3xl bg-white shadow-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col overflow-hidden dark:bg-[#2a2a2a]">
                 {/* Close Button */}
                 <button
                     onClick={onClose}
-                    className="absolute right-6 top-6 z-10 rounded-full bg-white p-2.5 text-gray-400 shadow-lg ring-2 ring-gray-100 transition hover:bg-gray-50 hover:text-gray-600 hover:ring-gray-200"
+                    className="absolute right-3 top-3 sm:right-6 sm:top-6 z-10 rounded-full bg-white p-2 sm:p-2.5 text-gray-400 shadow-lg ring-2 ring-gray-100 transition hover:bg-gray-50 hover:text-gray-600 hover:ring-gray-200 dark:bg-[#2a2a2a] dark:ring-[#3a3a3a] dark:hover:bg-[#3a3a3a] dark:hover:text-gray-300"
                 >
-                    <X className="h-6 w-6" />
+                    <X className="h-5 w-5 sm:h-6 sm:w-6" />
                 </button>
 
-                <div className="flex flex-col md:flex-row max-h-[90vh]">
+                <div className="flex flex-col md:flex-row overflow-hidden">
                     {/* Left Side - Book Image */}
-                    <div className="relative flex flex-col items-center justify-start rounded-l-3xl bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-8 md:w-1/3 overflow-y-auto no-scrollbar">
+                    <div className={`relative flex flex-col items-center justify-start rounded-l-2xl sm:rounded-l-3xl bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-4 sm:p-8 md:w-1/3 overflow-y-auto ${showRequestForm ? 'hidden md:flex' : 'flex'}`}>
                         <div className="w-full">
                             <div className="overflow-hidden rounded-md shadow-2xl ring-1 ring-black/5">
                                 {book.cover_image ? (
@@ -205,18 +206,18 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                     <div className="hidden md:block w-px bg-gradient-to-b from-transparent via-gray-200 to-transparent"></div>
 
                     {/* Right Side - Content */}
-                    <div className="flex-1 overflow-hidden">
+                    <div className="flex-1 flex flex-col overflow-hidden">
                         {/* Book Details View */}
                         <div
                             className={`grid transition-[grid-template-rows,opacity,transform] duration-500 ease-in-out ${showRequestForm ? 'grid-rows-[0fr] opacity-0 -translate-x-4 pointer-events-none' : 'grid-rows-[1fr] opacity-100 translate-x-0'
                                 }`}
                         >
                             <div className="overflow-hidden">
-                                <div className="p-8">
-                                    <h2 className="text-2xl font-bold leading-tight text-gray-900">{book.title}</h2>
+                                <div className="p-4 sm:p-8 overflow-y-auto">
+                                    <h2 className="text-xl sm:text-2xl font-bold leading-tight text-gray-900">{book.title}</h2>
 
                                     {book.authors && book.authors.length > 0 && (
-                                        <p className="mt-2 text-base text-gray-600">
+                                        <p className="mt-2 text-sm sm:text-base text-gray-600">
                                             By {book.authors.map((a) => a.name).join(', ')}
                                         </p>
                                     )}
@@ -305,9 +306,9 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                                 }`}
                         >
                             <div className="overflow-hidden">
-                                <div className="p-6">
+                                <div className="p-4 sm:p-6 overflow-y-auto">
                                     <div className="mb-3">
-                                        <h2 className="text-2xl font-bold text-gray-900">Borrow Request</h2>
+                                        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Borrow Request</h2>
                                         <p className="mt-1 text-sm text-gray-600">
                                             Fill out the form to request borrowing this book
                                         </p>
@@ -358,99 +359,42 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
 
                                             {/* Member Information - Display as text when valid */}
                                             {memberValidation.isValid ? (
-                                                <>
-                                                    {/* Full Name - Display */}
-                                                    <div>
-                                                        <label className="block text-xs font-medium text-gray-500">Full Name</label>
-                                                        <div className="mt-1 rounded-lg bg-gradient-to-br from-indigo-50 to-purple-50 px-3 py-2 text-sm font-medium text-gray-900">
-                                                            {data.full_name}
+                                                <div className="sm:col-span-2 rounded-lg border border-indigo-200 bg-indigo-50 p-3 dark:border-indigo-900/30 dark:bg-indigo-900/10">
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        {/* Full Name */}
+                                                        <div>
+                                                            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Name</label>
+                                                            <div className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                                                {data.full_name}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Email */}
+                                                        <div>
+                                                            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Email</label>
+                                                            <div className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                                                                {data.email}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Quota */}
+                                                        <div>
+                                                            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Quota</label>
+                                                            <div className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                                                {data.quota}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Phone */}
+                                                        <div>
+                                                            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Phone</label>
+                                                            <div className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                                                {data.phone || '—'}
+                                                            </div>
                                                         </div>
                                                     </div>
-
-                                                    {/* Email - Display */}
-                                                    <div>
-                                                        <label className="block text-xs font-medium text-gray-500">Email</label>
-                                                        <div className="mt-1 rounded-lg bg-gradient-to-br from-indigo-50 to-purple-50 px-3 py-2 text-sm font-medium text-gray-900">
-                                                            {data.email}
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Quota - Display */}
-                                                    <div>
-                                                        <label className="block text-xs font-medium text-gray-500">Quota</label>
-                                                        <div className="mt-1 rounded-lg bg-gradient-to-br from-indigo-50 to-purple-50 px-3 py-2 text-sm font-medium text-gray-900">
-                                                            {data.quota}
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Phone - Display */}
-                                                    <div>
-                                                        <label className="block text-xs font-medium text-gray-500">Phone</label>
-                                                        <div className="mt-1 rounded-lg bg-gradient-to-br from-indigo-50 to-purple-50 px-3 py-2 text-sm font-medium text-gray-900">
-                                                            {data.phone || '—'}
-                                                        </div>
-                                                    </div>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    {/* Full Name - Input */}
-                                                    <div>
-                                                        <label className="block text-xs font-medium text-gray-700">
-                                                            Full Name <span className="text-red-500">*</span>
-                                                        </label>
-                                                        <input
-                                                            type="text"
-                                                            value={data.full_name}
-                                                            onChange={(e) => setData('full_name', e.target.value)}
-                                                            className="mt-1 w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                                            required
-                                                        />
-                                                        {errors.full_name && <p className="mt-0.5 text-xs text-red-600">{errors.full_name}</p>}
-                                                    </div>
-
-                                                    {/* Email - Input */}
-                                                    <div>
-                                                        <label className="block text-xs font-medium text-gray-700">
-                                                            Email <span className="text-red-500">*</span>
-                                                        </label>
-                                                        <input
-                                                            type="email"
-                                                            value={data.email}
-                                                            onChange={(e) => setData('email', e.target.value)}
-                                                            className="mt-1 w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                                            required
-                                                        />
-                                                        {errors.email && <p className="mt-0.5 text-xs text-red-600">{errors.email}</p>}
-                                                    </div>
-
-                                                    {/* Quota - Input */}
-                                                    <div>
-                                                        <label className="block text-xs font-medium text-gray-700">
-                                                            Quota <span className="text-red-500">*</span>
-                                                        </label>
-                                                        <input
-                                                            type="number"
-                                                            value={data.quota}
-                                                            onChange={(e) => setData('quota', e.target.value)}
-                                                            className="mt-1 w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                                            required
-                                                        />
-                                                        {errors.quota && <p className="mt-0.5 text-xs text-red-600">{errors.quota}</p>}
-                                                    </div>
-
-                                                    {/* Phone - Input */}
-                                                    <div>
-                                                        <label className="block text-xs font-medium text-gray-700">Phone</label>
-                                                        <input
-                                                            type="tel"
-                                                            value={data.phone}
-                                                            onChange={(e) => setData('phone', e.target.value)}
-                                                            className="mt-1 w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                                        />
-                                                        {errors.phone && <p className="mt-0.5 text-xs text-red-600">{errors.phone}</p>}
-                                                    </div>
-                                                </>
-                                            )}
+                                                </div>
+                                            ) : null}
 
                                             {/* Return Schedule Section */}
                                             <div className="sm:col-span-2">
