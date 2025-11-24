@@ -8,6 +8,7 @@ import Checkbox from '@/components/forms/Checkbox';
 import PrimaryButton from '@/components/buttons/PrimaryButton';
 import SecondaryButton from '@/components/buttons/SecondaryButton';
 import { Member } from '@/types';
+import { toast } from 'react-toastify';
 
 interface EditMemberProps {
     member: Member;
@@ -79,7 +80,14 @@ export default function EditMember({ member }: EditMemberProps) {
             allow_login: true,
         });
 
-        patch(route('admin.members.update', member.id));
+        patch(route('admin.members.update', member.id), {
+            onSuccess: () => {
+                toast.success('Member updated successfully!');
+            },
+            onError: () => {
+                toast.error('Failed to update member');
+            },
+        });
     };
 
     return (

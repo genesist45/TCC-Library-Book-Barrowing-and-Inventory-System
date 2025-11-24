@@ -7,6 +7,7 @@ import InputError from '@/components/forms/InputError';
 import Checkbox from '@/components/forms/Checkbox';
 import PrimaryButton from '@/components/buttons/PrimaryButton';
 import SecondaryButton from '@/components/buttons/SecondaryButton';
+import { toast } from 'react-toastify';
 
 export default function AddMember() {
     const { data, setData, post, processing, errors, clearErrors } = useForm({
@@ -59,7 +60,14 @@ export default function AddMember() {
             allow_login: true,
         });
 
-        post(route('admin.members.store'));
+        post(route('admin.members.store'), {
+            onSuccess: () => {
+                toast.success('Member added successfully!');
+            },
+            onError: () => {
+                toast.error('Failed to add member');
+            },
+        });
     };
 
     return (
