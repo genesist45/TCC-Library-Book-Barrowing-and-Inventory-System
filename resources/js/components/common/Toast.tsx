@@ -1,7 +1,10 @@
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function Toast() {
+    const { theme } = useTheme();
+
     return (
         <>
             <style>{`
@@ -25,11 +28,6 @@ export default function Toast() {
                     margin: 0 !important;
                     font-size: 0.8125rem !important;
                     font-weight: 500 !important;
-                    color: #111827 !important;
-                }
-                
-                .dark .custom-toast-container .Toastify__toast-body {
-                    color: #f3f4f6 !important;
                 }
                 
                 .custom-toast-container .Toastify__toast-icon {
@@ -56,7 +54,7 @@ export default function Toast() {
                 pauseOnFocusLoss
                 draggable
                 pauseOnHover
-                theme="light"
+                theme={theme}
                 className="custom-toast-container"
                 toastClassName="bg-white dark:bg-[#2a2a2a] shadow-lg border border-gray-200 dark:border-[#3a3a3a] rounded-lg"
                 progressClassName="bg-blue-600"
