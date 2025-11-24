@@ -6,7 +6,7 @@ export default function Toast() {
         <>
             <style>{`
                 .custom-toast-container {
-                    top: 84px !important;
+                    top: 88px !important;
                     right: 2rem !important;
                     width: auto !important;
                     max-width: 350px !important;
@@ -14,7 +14,7 @@ export default function Toast() {
                 
                 @media (min-width: 1024px) {
                     .custom-toast-container {
-                        top: 92px !important;
+                        top: 96px !important;
                     }
                 }
                 
@@ -29,6 +29,13 @@ export default function Toast() {
                 .custom-toast-container .Toastify__toast-body {
                     padding: 0 !important;
                     margin: 0 !important;
+                    font-size: 0.875rem !important;
+                    font-weight: 500 !important;
+                    color: #111827 !important;
+                }
+                
+                .dark .custom-toast-container .Toastify__toast-body {
+                    color: #f3f4f6 !important;
                 }
                 
                 .custom-toast-container .Toastify__toast-icon {
@@ -58,7 +65,6 @@ export default function Toast() {
                 theme="light"
                 className="custom-toast-container"
                 toastClassName="bg-white dark:bg-[#2a2a2a] shadow-lg border border-gray-200 dark:border-[#3a3a3a] rounded-lg"
-                bodyClassName="text-sm font-medium text-gray-900 dark:text-gray-100"
                 progressClassName="bg-blue-600"
             />
         </>
