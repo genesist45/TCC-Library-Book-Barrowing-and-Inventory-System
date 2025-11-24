@@ -29,10 +29,10 @@ export default function UserDeleteModal({
     onCancel,
 }: UserDeleteModalProps) {
     return (
-        <Modal show={show} onClose={onCancel}>
-            <div className="p-6">
+        <Modal show={show} onClose={onCancel} maxWidth="md">
+            <div className="p-4">
                 <h2 className="text-lg font-medium text-gray-900 transition-colors duration-200 dark:text-gray-100">Delete User</h2>
-                <p className="mt-4 text-sm text-gray-600 transition-colors duration-200 dark:text-gray-400">
+                <p className="mt-2 text-sm text-gray-600 transition-colors duration-200 dark:text-gray-400">
                     Are you sure you want to delete{' '}
                     <strong className="transition-colors duration-200 dark:text-gray-200">
                         {user?.first_name} {user?.last_name}
@@ -40,7 +40,7 @@ export default function UserDeleteModal({
                     ? This action cannot be undone.
                 </p>
 
-                <div className="mt-6 flex justify-end gap-3">
+                <div className="mt-4 flex justify-end gap-2">
                     <SecondaryButton onClick={onCancel}>Cancel</SecondaryButton>
                     <DangerButton onClick={onConfirm} disabled={processing}>
                         Delete User

@@ -189,7 +189,7 @@ export default function Index({ users }: { users: User[] }) {
             </div>
 
             {/* User Modals - Always mounted for smooth transitions */}
-            <Modal show={showAddModal} onClose={closeModals} maxWidth="xl">
+            <Modal show={showAddModal} onClose={closeModals} maxWidth="md">
                 <UserForm
                     mode="add"
                     data={data}
@@ -201,7 +201,7 @@ export default function Index({ users }: { users: User[] }) {
                 />
             </Modal>
 
-            <Modal show={showEditModal} onClose={closeModals} maxWidth="xl">
+            <Modal show={showEditModal} onClose={closeModals} maxWidth="md">
                 <UserForm
                     mode="edit"
                     data={data}

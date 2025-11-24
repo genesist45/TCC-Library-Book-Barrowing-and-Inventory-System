@@ -245,67 +245,67 @@ export default function UserForm({
                 }
             </p>
 
-            <div className="mt-3 grid grid-cols-2 gap-3">
+            <div className="mt-2 grid grid-cols-2 gap-2">
                 <div>
                     <InputLabel htmlFor="first_name" value="First Name" />
                     <TextInput
                         id="first_name"
                         type="text"
-                        className="mt-1 block w-full"
+                        className="mt-0.5 block w-full"
                         value={data.first_name || ''}
                         onChange={(e) => handleChange('first_name', e.target.value)}
                     />
-                    <InputError message={touched.first_name ? localErrors.first_name : ''} className="mt-1" />
+                    <InputError message={touched.first_name ? localErrors.first_name : ''} className="mt-0.5" />
                 </div>
                 <div>
                     <InputLabel htmlFor="last_name" value="Last Name" />
                     <TextInput
                         id="last_name"
                         type="text"
-                        className="mt-1 block w-full"
+                        className="mt-0.5 block w-full"
                         value={data.last_name || ''}
                         onChange={(e) => handleChange('last_name', e.target.value)}
                     />
-                    <InputError message={touched.last_name ? localErrors.last_name : ''} className="mt-1" />
+                    <InputError message={touched.last_name ? localErrors.last_name : ''} className="mt-0.5" />
                 </div>
             </div>
 
-            <div className="mt-2">
+            <div className="mt-1.5">
                 <InputLabel htmlFor="username" value="Username" />
                 <TextInput
                     id="username"
                     type="text"
-                    className="mt-1 block w-full"
+                    className="mt-0.5 block w-full"
                     value={data.username}
                     onChange={(e) => handleChange('username', e.target.value)}
                 />
-                <InputError message={touched.username ? localErrors.username : ''} className="mt-1" />
+                <InputError message={touched.username ? localErrors.username : ''} className="mt-0.5" />
             </div>
 
-            <div className="mt-2">
+            <div className="mt-1.5">
                 <InputLabel htmlFor="email" value="Email" />
                 <TextInput
                     id="email"
                     type="email"
-                    className="mt-1 block w-full"
+                    className="mt-0.5 block w-full"
                     value={data.email}
                     onChange={(e) => handleChange('email', e.target.value)}
                 />
                 {touched.email && localErrors.email && (
-                    <InputError message={localErrors.email} className="mt-1" />
+                    <InputError message={localErrors.email} className="mt-0.5" />
                 )}
                 {touched.email && !localErrors.email && backendEmailError && (
                     <div className={`transition-opacity duration-300 ${showEmailError ? 'opacity-100' : 'opacity-0'}`}>
-                        <InputError message={backendEmailError} className="mt-1" />
+                        <InputError message={backendEmailError} className="mt-0.5" />
                     </div>
                 )}
             </div>
 
-            <div className="mt-2">
+            <div className="mt-1.5">
                 <InputLabel htmlFor="role" value="Role" />
                 <select
                     id="role"
-                    className="mt-1 block w-full rounded-md border-gray-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-indigo-600 dark:focus:ring-indigo-600"
+                    className="mt-0.5 block h-9 w-full rounded-md border-gray-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-indigo-600 dark:focus:ring-indigo-600"
                     value={data.role || ''}
                     onChange={(e) => {
                         onChange('role', e.target.value);
@@ -318,10 +318,10 @@ export default function UserForm({
                     <option value="staff">Staff</option>
                     <option value="admin">Admin</option>
                 </select>
-                <InputError message={touched.role ? (localErrors.role || errors.role) : ''} className="mt-1" />
+                <InputError message={touched.role ? (localErrors.role || errors.role) : ''} className="mt-0.5" />
             </div>
 
-            <div className="mt-2">
+            <div className="mt-1.5">
                 <InputLabel
                     htmlFor="password"
                     value={mode === 'edit' ? 'Password (leave blank to keep current)' : 'Password'}
@@ -329,26 +329,26 @@ export default function UserForm({
                 <TextInput
                     id="password"
                     type="password"
-                    className="mt-1 block w-full"
+                    className="mt-0.5 block w-full"
                     value={data.password}
                     onChange={(e) => handleChange('password', e.target.value)}
                 />
-                <InputError message={touched.password ? (localErrors.password || errors.password) : ''} className="mt-1" />
+                <InputError message={touched.password ? (localErrors.password || errors.password) : ''} className="mt-0.5" />
             </div>
 
-            <div className="mt-2">
+            <div className="mt-1.5">
                 <InputLabel htmlFor="password_confirmation" value="Confirm Password" />
                 <TextInput
                     id="password_confirmation"
                     type="password"
-                    className="mt-1 block w-full"
+                    className="mt-0.5 block w-full"
                     value={data.password_confirmation}
                     onChange={(e) => handleChange('password_confirmation', e.target.value)}
                 />
-                <InputError message={touched.password_confirmation ? (localErrors.password_confirmation || errors.password_confirmation) : ''} className="mt-1" />
+                <InputError message={touched.password_confirmation ? (localErrors.password_confirmation || errors.password_confirmation) : ''} className="mt-0.5" />
             </div>
 
-            <div className="mt-3 flex justify-end gap-3">
+            <div className="mt-2.5 flex justify-end gap-2">
                 <SecondaryButton type="button" onClick={onCancel}>
                     Cancel
                 </SecondaryButton>
