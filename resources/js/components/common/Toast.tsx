@@ -6,16 +6,10 @@ export default function Toast() {
         <>
             <style>{`
                 .custom-toast-container {
-                    top: 88px !important;
+                    bottom: 1.5rem !important;
                     right: 2rem !important;
                     width: auto !important;
                     max-width: 350px !important;
-                }
-                
-                @media (min-width: 1024px) {
-                    .custom-toast-container {
-                        top: 96px !important;
-                    }
                 }
                 
                 .custom-toast-container .Toastify__toast {
@@ -29,7 +23,7 @@ export default function Toast() {
                 .custom-toast-container .Toastify__toast-body {
                     padding: 0 !important;
                     margin: 0 !important;
-                    font-size: 0.875rem !important;
+                    font-size: 0.8125rem !important;
                     font-weight: 500 !important;
                     color: #111827 !important;
                 }
@@ -53,7 +47,7 @@ export default function Toast() {
                 }
             `}</style>
             <ToastContainer
-                position="top-right"
+                position="bottom-right"
                 autoClose={3000}
                 hideProgressBar={false}
                 newestOnTop={false}
