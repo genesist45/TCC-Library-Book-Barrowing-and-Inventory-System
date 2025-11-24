@@ -23,7 +23,7 @@ class BookReturn extends Model
     ];
 
     protected $casts = [
-        'return_date' => 'date',
+        'return_date' => 'date:Y-m-d',
         'penalty_amount' => 'decimal:2',
     ];
 
