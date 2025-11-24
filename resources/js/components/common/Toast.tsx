@@ -6,7 +6,7 @@ export default function Toast() {
         <>
             <style>{`
                 .custom-toast-container {
-                    top: 68px !important;
+                    top: 84px !important;
                     right: 2rem !important;
                     width: auto !important;
                     max-width: 350px !important;
@@ -14,7 +14,7 @@ export default function Toast() {
                 
                 @media (min-width: 1024px) {
                     .custom-toast-container {
-                        top: 80px !important;
+                        top: 92px !important;
                     }
                 }
                 
