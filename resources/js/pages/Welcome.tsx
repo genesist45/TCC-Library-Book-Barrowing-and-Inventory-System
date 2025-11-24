@@ -6,7 +6,7 @@ import BookCard from '@/components/books/BookCard';
 import BookDetailsModal from '@/components/books/BookDetailsModal';
 import { useState, useEffect } from 'react';
 import { Search, BookOpen } from 'lucide-react';
-import { Toaster } from 'sonner';
+import Toast from '@/components/common/Toast';
 import axios from 'axios';
 
 interface SearchResult {
@@ -396,7 +396,7 @@ export default function Welcome({ auth, popularBooks = [] }: PageProps<{ popular
                 />
             )}
 
-            <Toaster position="bottom-right" richColors toastOptions={{ style: { zIndex: 9999 } }} />
+            <Toast />
         </>
     );
 }

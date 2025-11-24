@@ -3,7 +3,8 @@ import { Head, router, usePage } from '@inertiajs/react';
 import PublicHeader from '@/components/common/PublicHeader';
 import { useEffect } from 'react';
 import { BookOpen } from 'lucide-react';
-import { toast, Toaster } from 'sonner';
+import { toast } from 'sonner';
+import Toast from '@/components/common/Toast';
 
 interface Props extends PageProps {
     catalogItem: CatalogItem;
@@ -134,7 +135,7 @@ export default function BookDetails({ auth, catalogItem }: Props) {
                     </div>
                 </main>
             </div>
-            <Toaster position="top-right" richColors />
+            <Toast />
         </>
     );
 }

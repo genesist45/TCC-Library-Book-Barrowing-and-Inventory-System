@@ -3,7 +3,8 @@ import { Head, useForm, usePage, router } from '@inertiajs/react';
 import PublicHeader from '@/components/common/PublicHeader';
 import { useState, useEffect } from 'react';
 import { BookOpen, Calendar, Clock, ArrowLeft } from 'lucide-react';
-import { toast, Toaster } from 'sonner';
+import { toast } from 'sonner';
+import Toast from '@/components/common/Toast';
 import axios from 'axios';
 
 interface Props extends PageProps {
@@ -362,7 +363,7 @@ export default function BorrowRequest({ auth, catalogItem }: Props) {
                     </div>
                 </main>
             </div>
-            <Toaster position="top-right" richColors />
+            <Toast />
         </>
     );
 }

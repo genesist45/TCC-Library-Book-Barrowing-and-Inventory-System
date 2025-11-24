@@ -62,7 +62,7 @@ export default function Authenticated({ children }: PropsWithChildren) {
     return (
         <div className="min-h-screen bg-gray-50 transition-colors duration-300 dark:bg-[#1a1a1a]">
             <Suspense fallback={null}>
-                <Toast sidebarCollapsed={sidebarCollapsed} />
+                <Toast />
             </Suspense>
             
             {/* Sidebar for desktop */}

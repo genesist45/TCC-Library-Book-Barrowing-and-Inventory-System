@@ -1,60 +1,28 @@
 import { Toaster } from 'sonner';
-import { useLayoutEffect } from 'react';
-import '@/assets/css/toast.css';
 
-interface ToastProps {
-    sidebarCollapsed?: boolean;
-}
-
-export default function Toast({ sidebarCollapsed = false }: ToastProps) {
-    // Use useLayoutEffect to update position synchronously before paint
-    useLayoutEffect(() => {
-        const updateToastPosition = () => {
-            // Check if we're on mobile (< 1024px)
-            const isMobile = window.innerWidth < 1024;
-            
-            if (isMobile) {
-                // On mobile, CSS handles positioning with left/right padding
-                return;
-            }
-            
-            // Desktop positioning logic
-            let rightPosition: string;
-            
-            if (sidebarCollapsed) {
-                // When collapsed: content is full-width with px-8 (2rem) padding
-                // Toast should align with the right padding
-                // Adjusted by 105px to keep right edge fixed when width reduced from 355px to 250px
-                rightPosition = 'calc(2rem - 105px)'; // Matches the px-8 padding
-            } else {
-                // When expanded: content uses max-w-7xl (80rem) centered
-                // Calculate centered position with sidebar offset
-                // Adjusted by 105px to keep right edge fixed when width reduced from 355px to 250px
-                const sidebarWidth = '16rem';
-                rightPosition = `calc((100vw - ${sidebarWidth} - 80rem) / 2 + 2rem - 105px)`;
-            }
-            
-            document.documentElement.style.setProperty('--toast-right-position', rightPosition);
-        };
-        
-        updateToastPosition();
-        
-        // Update on window resize
-        window.addEventListener('resize', updateToastPosition);
-        return () => window.removeEventListener('resize', updateToastPosition);
-    }, [sidebarCollapsed]);
-
+export default function Toast() {
     return (
         <Toaster 
             position="top-right" 
             closeButton 
             duration={3000}
             toastOptions={{
-                className: 'custom-toast',
-                unstyled: false,
+                classNames: {
+                    toast: 'bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#3a3a3a] shadow-lg rounded-lg',
+                    title: 'text-gray-900 dark:text-gray-100 font-medium',
+                    description: 'text-gray-600 dark:text-gray-400',
+                    actionButton: 'bg-indigo-600 text-white',
+                    cancelButton: 'bg-gray-200 dark:bg-gray-700',
+                    closeButton: 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400',
+                    success: 'border-green-200 dark:border-green-800',
+                    error: 'border-red-200 dark:border-red-800',
+                    warning: 'border-yellow-200 dark:border-yellow-800',
+                    info: 'border-blue-200 dark:border-blue-800',
+                },
             }}
             visibleToasts={5}
             expand={false}
+            richColors
         />
     );
 }
