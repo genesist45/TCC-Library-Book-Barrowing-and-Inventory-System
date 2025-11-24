@@ -3,7 +3,7 @@ import { Head, router, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import PublisherTable from '@/components/publishers/PublisherTable';
 import PublisherPageHeader from '@/components/publishers/PublisherPageHeader';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import Modal from '@/components/modals/Modal';
 import PublisherForm from '@/components/publishers/PublisherForm';
 import PublisherViewModal from '@/components/publishers/PublisherViewModal';

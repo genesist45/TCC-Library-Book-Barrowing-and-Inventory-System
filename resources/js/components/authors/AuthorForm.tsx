@@ -5,7 +5,7 @@ import TextInput from '@/components/forms/TextInput';
 import InputError from '@/components/forms/InputError';
 import PrimaryButton from '@/components/buttons/PrimaryButton';
 import SecondaryButton from '@/components/buttons/SecondaryButton';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 
 interface Author {
     id: number;

@@ -3,7 +3,7 @@ import { Head, usePage, router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import AuthorTable from '@/components/authors/AuthorTable';
 import AuthorPageHeader from '@/components/authors/AuthorPageHeader';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import Modal from '@/components/modals/Modal';
 import AuthorForm from '@/components/authors/AuthorForm';
 import AuthorViewModal from '@/components/authors/AuthorViewModal';

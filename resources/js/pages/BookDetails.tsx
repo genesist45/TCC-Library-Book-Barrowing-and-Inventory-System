@@ -3,7 +3,7 @@ import { Head, router, usePage } from '@inertiajs/react';
 import PublicHeader from '@/components/common/PublicHeader';
 import { useEffect } from 'react';
 import { BookOpen } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import Toast from '@/components/common/Toast';
 
 interface Props extends PageProps {

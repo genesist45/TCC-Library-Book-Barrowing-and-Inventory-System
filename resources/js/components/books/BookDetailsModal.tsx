@@ -2,7 +2,7 @@ import { CatalogItem } from '@/types';
 import { useState, useEffect } from 'react';
 import { X, BookOpen, Calendar, Clock } from 'lucide-react';
 import { useForm, usePage } from '@inertiajs/react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import axios from 'axios';
 
 interface BookDetailsModalProps {

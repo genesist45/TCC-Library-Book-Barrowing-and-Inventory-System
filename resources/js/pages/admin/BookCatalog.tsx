@@ -6,7 +6,7 @@ import { CatalogItem } from '@/types';
 import BookCard from '@/components/books/BookCard';
 import BorrowBookModal from '@/components/books/BorrowBookModal';
 import { router } from '@inertiajs/react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 
 interface BookCatalogProps {
     catalogItems: CatalogItem[];

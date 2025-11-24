@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import CatalogItemTable from '@/components/catalog-items/CatalogItemTable';
 import CatalogItemPageHeader from '@/components/catalog-items/CatalogItemPageHeader';
 import CatalogItemDeleteModal from '@/components/catalog-items/CatalogItemDeleteModal';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import { PageProps, CatalogItem } from '@/types';
 
 interface Props extends PageProps {

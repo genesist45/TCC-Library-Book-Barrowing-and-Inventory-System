@@ -3,7 +3,7 @@ import { Head, router, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import CategoryTable from '@/components/categories/CategoryTable';
 import CategoryPageHeader from '@/components/categories/CategoryPageHeader';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import Modal from '@/components/modals/Modal';
 import CategoryForm from '@/components/categories/CategoryForm';
 import CategoryViewModal from '@/components/categories/CategoryViewModal';

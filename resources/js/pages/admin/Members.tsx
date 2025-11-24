@@ -3,7 +3,7 @@ import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import MemberTable from '@/components/members/MemberTable';
 import MemberPageHeader from '@/components/members/MemberPageHeader';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import MemberDeleteModal from '@/components/members/MemberDeleteModal';
 import { Member, PageProps as InertiaPageProps } from '@/types';
 

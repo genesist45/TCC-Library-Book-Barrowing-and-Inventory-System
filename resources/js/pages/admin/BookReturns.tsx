@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import Modal from '@/components/modals/Modal';
 import BookReturnTable from '@/components/book-returns/BookReturnTable';
 import BookReturnPageHeader from '@/components/book-returns/BookReturnPageHeader';

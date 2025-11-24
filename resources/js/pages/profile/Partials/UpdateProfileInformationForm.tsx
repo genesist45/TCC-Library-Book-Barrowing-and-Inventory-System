@@ -9,7 +9,7 @@ import { Link, useForm, usePage, router } from '@inertiajs/react';
 import { FormEventHandler, useRef, useState, useEffect } from 'react';
 import { Upload, Trash2 } from 'lucide-react';
 import defaultUserImage from '@/assets/images/avatars/default-user.png';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 
 export default function UpdateProfileInformation({
     mustVerifyEmail,

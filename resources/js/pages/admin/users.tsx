@@ -3,7 +3,7 @@ import { Head, useForm, router } from '@inertiajs/react';
 import { FormEventHandler, useState } from 'react';
 import UserTable from '@/components/users/UserTable';
 import UserPageHeader from '@/components/users/UserPageHeader';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import Modal from '@/components/modals/Modal';
 import UserForm from '@/components/users/UserForm';
 import UserViewModal from '@/components/users/UserViewModal';

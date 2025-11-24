@@ -3,7 +3,7 @@ import { Head, useForm, usePage, router } from '@inertiajs/react';
 import PublicHeader from '@/components/common/PublicHeader';
 import { useState, useEffect } from 'react';
 import { BookOpen, Calendar, Clock, ArrowLeft } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import Toast from '@/components/common/Toast';
 import axios from 'axios';
 

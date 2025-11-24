@@ -3,7 +3,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { X, Calendar, Clock, BookOpen } from 'lucide-react';
 import { useForm } from '@inertiajs/react';
 import { CatalogItem } from '@/types';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import axios from 'axios';
 
 interface BorrowBookModalProps {

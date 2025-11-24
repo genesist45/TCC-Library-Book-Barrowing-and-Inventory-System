@@ -8,7 +8,7 @@ import PrimaryButton from '@/components/buttons/PrimaryButton';
 import SecondaryButton from '@/components/buttons/SecondaryButton';
 import { Upload, X } from 'lucide-react';
 import { PageProps, Category, Publisher, Author, CatalogItem } from '@/types';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import SearchableMultiSelect from '@/components/common/SearchableMultiSelect';
 
 interface Props extends PageProps {
