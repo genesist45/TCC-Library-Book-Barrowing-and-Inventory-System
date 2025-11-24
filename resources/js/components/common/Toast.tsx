@@ -14,10 +14,9 @@ export default function Toast() {
             draggable
             pauseOnHover
             theme="light"
-            toastClassName={() =>
-                "relative flex p-3 min-h-14 rounded-lg justify-between overflow-hidden cursor-pointer bg-white dark:bg-[#2a2a2a] shadow-lg border border-gray-200 dark:border-[#3a3a3a] mb-2"
-            }
-            bodyClassName={() => "flex items-center text-sm font-medium text-gray-900 dark:text-gray-100"}
+            className="mt-16"
+            toastClassName="bg-white dark:bg-[#2a2a2a] shadow-lg border border-gray-200 dark:border-[#3a3a3a] rounded-lg mb-2 min-h-14"
+            bodyClassName="text-sm font-medium text-gray-900 dark:text-gray-100 p-3"
             progressClassName="bg-blue-600"
         />
     );
