@@ -17,6 +17,7 @@ class StoreMemberRequest extends FormRequest
             'member_no' => ['required', 'string', 'max:255', 'unique:members,member_no'],
             'name' => ['required', 'string', 'max:255'],
             'type' => ['required', 'in:Regular,Privileged'],
+            'borrower_category' => ['required', 'in:Student,Faculty'],
             'status' => ['required', 'in:Active,Inactive,Suspended'],
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:255'],

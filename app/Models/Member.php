@@ -10,6 +10,7 @@ class Member extends Model
         'member_no',
         'name',
         'type',
+        'borrower_category',
         'status',
         'email',
         'phone',

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('member_no')->unique();
             $table->string('name');
             $table->enum('type', ['Regular', 'Privileged'])->default('Regular');
+            $table->enum('borrower_category', ['Student', 'Faculty'])->default('Student');
             $table->enum('status', ['Active', 'Inactive', 'Suspended'])->default('Active');
             $table->string('email')->nullable();
             $table->string('phone')->nullable();

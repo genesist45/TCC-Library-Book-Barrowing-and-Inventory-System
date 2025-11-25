@@ -19,9 +19,21 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
         message: string;
     }>({ isValid: null, isChecking: false, message: '' });
 
-    const [timeError, setTimeError] = useState<string>('');
     const [dateError, setDateError] = useState<string>('');
     const [daysRemaining, setDaysRemaining] = useState<number>(0);
+    const [borrowerCategory, setBorrowerCategory] = useState<'Student' | 'Faculty' | null>(null);
+
+    const getMaxBorrowDays = (category: 'Student' | 'Faculty' | null): number => {
+        if (category === 'Faculty') return 5;
+        if (category === 'Student') return 2;
+        return 2;
+    };
+
+    const calculateReturnDate = (category: 'Student' | 'Faculty'): string => {
+        const date = new Date();
+        date.setDate(date.getDate() + getMaxBorrowDays(category));
+        return date.toISOString().split('T')[0];
+    };
 
     const { data, setData, post, processing, errors, reset } = useForm({
         member_id: '',
@@ -46,24 +58,28 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
                     .get(`/api/members/${data.member_id}`)
                     .then((response) => {
                         const memberData = response.data;
+                        const category = memberData.borrower_category || 'Student';
+                        setBorrowerCategory(category);
 
-                        // Auto-fill form fields from member data
+                        // Auto-fill form fields from member data and set return date based on borrower category
                         setData((prevData) => ({
                             ...prevData,
                             full_name: memberData.name || '',
                             email: memberData.email || '',
                             quota: memberData.booking_quota?.toString() || '',
                             phone: memberData.phone || '',
+                            return_date: calculateReturnDate(category),
                         }));
 
                         setMemberValidation({
                             isValid: true,
                             isChecking: false,
-                            message: 'Valid member number - Fields auto-filled',
+                            message: `Valid member (${category}) - Return date set to ${getMaxBorrowDays(category)} days`,
                         });
                     })
                     .catch(() => {
                         // Clear auto-filled fields if member not found
+                        setBorrowerCategory(null);
                         setData((prevData) => ({
                             ...prevData,
                             full_name: '',
@@ -83,6 +99,7 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
             return () => clearTimeout(timer);
         } else {
             // Clear fields when member_id is empty
+            setBorrowerCategory(null);
             setData((prevData) => ({
                 ...prevData,
                 full_name: '',
@@ -94,35 +111,7 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
         }
     }, [data.member_id]);
 
-    // Validate return time
-    const validateReturnTime = (time: string): boolean => {
-        if (!time) return false;
-
-        const [hours, minutes] = time.split(':').map(Number);
-        const timeInMinutes = hours * 60 + minutes;
-
-        // Morning: 7:00 AM - 11:00 AM (420 - 660 minutes)
-        const morningStart = 7 * 60; // 420
-        const morningEnd = 11 * 60; // 660
-
-        // Afternoon: 1:00 PM - 4:00 PM (780 - 960 minutes)
-        const afternoonStart = 13 * 60; // 780
-        const afternoonEnd = 16 * 60; // 960
-
-        const isValidTime =
-            (timeInMinutes >= morningStart && timeInMinutes <= morningEnd) ||
-            (timeInMinutes >= afternoonStart && timeInMinutes <= afternoonEnd);
-
-        if (!isValidTime) {
-            setTimeError('Time must be between 7:00-11:00 AM or 1:00-4:00 PM');
-        } else {
-            setTimeError('');
-        }
-
-        return isValidTime;
-    };
-
-    // Validate return date (within 7 days)
+    // Validate return date based on borrower category
     const validateReturnDate = (date: string): boolean => {
         if (!date) return false;
 
@@ -131,8 +120,9 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
         today.setHours(0, 0, 0, 0);
         selectedDate.setHours(0, 0, 0, 0);
 
+        const maxDays = getMaxBorrowDays(borrowerCategory);
         const maxDate = new Date(today);
-        maxDate.setDate(maxDate.getDate() + 7);
+        maxDate.setDate(maxDate.getDate() + maxDays);
 
         const diffTime = selectedDate.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -143,7 +133,8 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
         }
 
         if (selectedDate > maxDate) {
-            setDateError('Return date must be within 7 days from today');
+            const categoryLabel = borrowerCategory === 'Faculty' ? 'Faculty' : 'Student';
+            setDateError(`${categoryLabel} return date must be within ${maxDays} days from today`);
             return false;
         }
 
@@ -151,19 +142,12 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
         return true;
     };
 
-    // Validate time when it changes
+    // Validate date when it changes or borrower category changes
     useEffect(() => {
-        if (data.return_time) {
-            validateReturnTime(data.return_time);
-        }
-    }, [data.return_time]);
-
-    // Validate date when it changes
-    useEffect(() => {
-        if (data.return_date) {
+        if (data.return_date && borrowerCategory) {
             validateReturnDate(data.return_date);
         }
-    }, [data.return_date]);
+    }, [data.return_date, borrowerCategory]);
 
     // Calculate days remaining when return_date changes
     useEffect(() => {
@@ -188,7 +172,7 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
                 toast.success('Borrow request submitted successfully!');
                 reset();
                 setMemberValidation({ isValid: null, isChecking: false, message: '' });
-                setTimeError('');
+                setBorrowerCategory(null);
                 setDateError('');
                 setDaysRemaining(0);
                 onClose();
@@ -203,7 +187,7 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
     const handleClose = () => {
         reset();
         setMemberValidation({ isValid: null, isChecking: false, message: '' });
-        setTimeError('');
+        setBorrowerCategory(null);
         setDateError('');
         setDaysRemaining(0);
         onClose();
@@ -212,9 +196,9 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
     // Get today's date in YYYY-MM-DD format
     const today = new Date().toISOString().split('T')[0];
 
-    // Get max date (7 days from today)
+    // Get max date based on borrower category
     const maxDate = new Date();
-    maxDate.setDate(maxDate.getDate() + 7);
+    maxDate.setDate(maxDate.getDate() + getMaxBorrowDays(borrowerCategory));
     const maxDateString = maxDate.toISOString().split('T')[0];
 
     return (
@@ -336,16 +320,20 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
                                                         <p className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-gray-100">{data.full_name}</p>
                                                     </div>
                                                     <div>
+                                                        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Borrower Category</label>
+                                                        <p className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                                            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${borrowerCategory === 'Faculty' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'}`}>
+                                                                {borrowerCategory} ({getMaxBorrowDays(borrowerCategory)} days)
+                                                            </span>
+                                                        </p>
+                                                    </div>
+                                                    <div>
                                                         <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Email</label>
                                                         <p className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-gray-100">{data.email}</p>
                                                     </div>
                                                     <div>
                                                         <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Quota</label>
                                                         <p className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-gray-100">{data.quota}</p>
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Phone</label>
-                                                        <p className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-gray-100">{data.phone || '—'}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -403,18 +391,10 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
                                                         type="time"
                                                         value={data.return_time}
                                                         onChange={(e) => setData('return_time', e.target.value)}
-                                                        className={`w-full rounded-md py-1.5 pl-8 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-[#2a2a2a] dark:text-gray-100 ${timeError
-                                                                ? 'border-red-500 focus:border-red-500 focus:ring-red-500 dark:border-red-500'
-                                                                : 'border-gray-300 dark:border-[#3a3a3a]'
-                                                            }`}
+                                                        className="w-full rounded-md py-1.5 pl-8 text-sm shadow-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-gray-100"
                                                         required
                                                     />
                                                 </div>
-                                                {timeError ? (
-                                                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">{timeError}</p>
-                                                ) : (
-                                                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Allowed: 7:00-11:00 AM, 1:00-4:00 PM</p>
-                                                )}
                                             </div>
                                         </div>
 
@@ -442,7 +422,7 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
                                         </button>
                                         <button
                                             type="submit"
-                                            disabled={processing || !memberValidation.isValid || !!timeError || !!dateError}
+                                            disabled={processing || !memberValidation.isValid || !!dateError}
                                             className="rounded-md bg-indigo-600 px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             {processing ? 'Submitting...' : 'Confirm Request'}

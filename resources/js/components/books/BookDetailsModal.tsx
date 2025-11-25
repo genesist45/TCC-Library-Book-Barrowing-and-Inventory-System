@@ -1,7 +1,7 @@
 import { CatalogItem } from '@/types';
 import { useState, useEffect } from 'react';
 import { X, BookOpen, Calendar, Clock } from 'lucide-react';
-import { useForm, usePage } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 
@@ -12,25 +12,63 @@ interface BookDetailsModalProps {
 }
 
 export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsModalProps) {
-    const { auth } = usePage().props as any;
     const [showRequestForm, setShowRequestForm] = useState(false);
     const [memberValidation, setMemberValidation] = useState<{
         isValid: boolean | null;
         isChecking: boolean;
         message: string;
     }>({ isValid: null, isChecking: false, message: '' });
+    const [borrowerCategory, setBorrowerCategory] = useState<'Student' | 'Faculty' | null>(null);
+    const [dateError, setDateError] = useState<string>('');
+    const [daysRemaining, setDaysRemaining] = useState<number | null>(null);
 
-    // Get today's date and 1 month from today
+    const getMaxBorrowDays = (category: 'Student' | 'Faculty' | null): number => {
+        if (category === 'Faculty') return 5;
+        if (category === 'Student') return 2;
+        return 2;
+    };
+
+    const calculateReturnDate = (category: 'Student' | 'Faculty'): string => {
+        const date = new Date();
+        date.setDate(date.getDate() + getMaxBorrowDays(category));
+        return date.toISOString().split('T')[0];
+    };
+
+    // Get today's date
     const today = new Date().toISOString().split('T')[0];
+
+    // Get max date based on borrower category
     const maxDate = new Date();
-    maxDate.setMonth(maxDate.getMonth() + 1);
+    maxDate.setDate(maxDate.getDate() + getMaxBorrowDays(borrowerCategory));
     const maxDateString = maxDate.toISOString().split('T')[0];
 
-    // Format dates for display
-    const todayFormatted = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    const maxDateFormatted = maxDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    // Validate return date based on borrower category
+    const validateReturnDate = (date: string): boolean => {
+        if (!date) return false;
 
-    const [daysRemaining, setDaysRemaining] = useState<number | null>(null);
+        const selectedDate = new Date(date);
+        const todayDate = new Date();
+        todayDate.setHours(0, 0, 0, 0);
+        selectedDate.setHours(0, 0, 0, 0);
+
+        const maxDays = getMaxBorrowDays(borrowerCategory);
+        const maxAllowedDate = new Date(todayDate);
+        maxAllowedDate.setDate(maxAllowedDate.getDate() + maxDays);
+
+        if (selectedDate < todayDate) {
+            setDateError('Return date cannot be in the past');
+            return false;
+        }
+
+        if (selectedDate > maxAllowedDate) {
+            const categoryLabel = borrowerCategory === 'Faculty' ? 'Faculty' : 'Student';
+            setDateError(`${categoryLabel} return date must be within ${maxDays} days from today`);
+            return false;
+        }
+
+        setDateError('');
+        return true;
+    };
 
     const { data, setData, post, processing, errors, reset } = useForm({
         member_id: '',
@@ -41,7 +79,7 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
         phone: '',
         address: '',
         return_date: today,
-        return_time: '07:00',
+        return_time: '13:00',
         notes: '',
     });
 
@@ -55,24 +93,28 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                     .get(`/api/members/${data.member_id}`)
                     .then((response) => {
                         const memberData = response.data;
+                        const category = memberData.borrower_category || 'Student';
+                        setBorrowerCategory(category);
 
-                        // Auto-fill form fields from member data
+                        // Auto-fill form fields from member data and set return date based on borrower category
                         setData((prevData) => ({
                             ...prevData,
                             full_name: memberData.name || '',
                             email: memberData.email || '',
                             quota: memberData.booking_quota?.toString() || '',
                             phone: memberData.phone || '',
+                            return_date: calculateReturnDate(category),
                         }));
 
                         setMemberValidation({
                             isValid: true,
                             isChecking: false,
-                            message: 'Valid member number - Fields auto-filled',
+                            message: `Valid member (${category}) - Return date set to ${getMaxBorrowDays(category)} days`,
                         });
                     })
                     .catch(() => {
                         // Clear auto-filled fields if member not found
+                        setBorrowerCategory(null);
                         setData((prevData) => ({
                             ...prevData,
                             full_name: '',
@@ -92,6 +134,7 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
             return () => clearTimeout(timer);
         } else {
             // Clear fields when member_id is empty
+            setBorrowerCategory(null);
             setData((prevData) => ({
                 ...prevData,
                 full_name: '',
@@ -111,10 +154,19 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                 toast.success('Book request submitted successfully!');
                 reset();
                 setShowRequestForm(false);
+                setBorrowerCategory(null);
+                setDateError('');
                 onClose();
             },
         });
     };
+
+    // Validate date when it changes or borrower category changes
+    useEffect(() => {
+        if (data.return_date && borrowerCategory) {
+            validateReturnDate(data.return_date);
+        }
+    }, [data.return_date, borrowerCategory]);
 
     // Calculate days remaining when return_date changes
     useEffect(() => {
@@ -138,7 +190,9 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
             setShowRequestForm(false);
             reset();
             setMemberValidation({ isValid: null, isChecking: false, message: '' });
-            setDaysRemaining(0); // Reset to 0 days (today)
+            setBorrowerCategory(null);
+            setDaysRemaining(0);
+            setDateError('');
         }
     }, [isOpen]);
 
@@ -369,6 +423,16 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                                                             </div>
                                                         </div>
 
+                                                        {/* Borrower Category */}
+                                                        <div>
+                                                            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Borrower Category</label>
+                                                            <div className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                                                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${borrowerCategory === 'Faculty' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'}`}>
+                                                                    {borrowerCategory} ({getMaxBorrowDays(borrowerCategory)} days)
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
                                                         {/* Email */}
                                                         <div>
                                                             <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Email</label>
@@ -382,14 +446,6 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                                                             <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Quota</label>
                                                             <div className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-gray-100">
                                                                 {data.quota}
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Phone */}
-                                                        <div>
-                                                            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Phone</label>
-                                                            <div className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                                                                {data.phone || '—'}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -413,17 +469,22 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                                                                 onChange={(e) => setData('return_date', e.target.value)}
                                                                 min={today}
                                                                 max={maxDateString}
-                                                                className="h-8 w-full rounded-md border-gray-300 py-1 pl-8 pr-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-gray-100"
+                                                                className={`h-8 w-full rounded-md py-1 pl-8 pr-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-[#2a2a2a] dark:text-gray-100 ${dateError
+                                                                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500 dark:border-red-500'
+                                                                    : 'border-gray-300 dark:border-[#3a3a3a]'
+                                                                }`}
                                                                 required
                                                             />
                                                         </div>
-                                                        {daysRemaining !== null && (
-                                                            <p className="mt-1 text-xs font-medium text-indigo-600">
+                                                        {dateError ? (
+                                                            <p className="mt-1 text-xs text-red-600 dark:text-red-400">{dateError}</p>
+                                                        ) : daysRemaining !== null ? (
+                                                            <p className="mt-1 text-xs font-medium text-indigo-600 dark:text-indigo-400">
                                                                 {daysRemaining === 0 ? 'Due today' :
                                                                     daysRemaining === 1 ? '1 day remaining' :
                                                                         `${daysRemaining} days remaining`}
                                                             </p>
-                                                        )}
+                                                        ) : null}
                                                         {errors.return_date && <p className="mt-0.5 text-xs text-red-600">{errors.return_date}</p>}
                                                     </div>
 
@@ -438,11 +499,10 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                                                                 type="time"
                                                                 value={data.return_time}
                                                                 onChange={(e) => setData('return_time', e.target.value)}
-                                                                className="h-8 w-full rounded-md border-gray-300 py-1 pl-8 pr-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-gray-100"
+                                                                className="h-8 w-full rounded-md py-1 pl-8 pr-2 text-sm shadow-sm border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-gray-100"
                                                                 required
                                                             />
                                                         </div>
-                                                        <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Allowed: 7:00-11:00 AM, 1:00-4:00 PM</p>
                                                         {errors.return_time && <p className="mt-0.5 text-xs text-red-600">{errors.return_time}</p>}
                                                     </div>
                                                 </div>
@@ -486,7 +546,7 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                                             </button>
                                             <button
                                                 type="submit"
-                                                disabled={processing}
+                                                disabled={processing || !memberValidation.isValid || !!dateError}
                                                 className="rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-1.5 text-sm font-semibold text-white shadow-md transition-all hover:scale-[1.02] hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
                                             >
                                                 {processing ? 'Submitting...' : 'Submit Request'}

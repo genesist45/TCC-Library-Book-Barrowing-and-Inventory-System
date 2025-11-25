@@ -62,6 +62,7 @@ export interface Member {
     member_no: string;
     name: string;
     type: 'Regular' | 'Privileged';
+    borrower_category: 'Student' | 'Faculty';
     status: 'Active' | 'Inactive' | 'Suspended';
     email?: string;
     phone?: string;

@@ -14,6 +14,7 @@ export default function AddMember() {
         member_no: '',
         name: '',
         type: 'Regular',
+        borrower_category: '',
         status: 'Active',
         email: '',
         phone: '',
@@ -27,6 +28,7 @@ export default function AddMember() {
         member_no: true,
         name: true,
         type: true,
+        borrower_category: true,
         status: true,
         email: true,
         phone: true,
@@ -51,6 +53,7 @@ export default function AddMember() {
             member_no: true,
             name: true,
             type: true,
+            borrower_category: true,
             status: true,
             email: true,
             phone: true,
@@ -139,6 +142,21 @@ export default function AddMember() {
                                         <option value="Suspended">Suspended</option>
                                     </select>
                                     <InputError message={showErrors.status ? errors.status : ''} className="mt-1" />
+                                </div>
+
+                                <div>
+                                    <InputLabel htmlFor="borrower_category" value="Borrower Category" required />
+                                    <select
+                                        id="borrower_category"
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-indigo-600 dark:focus:ring-indigo-600"
+                                        value={data.borrower_category}
+                                        onChange={(e) => handleChange('borrower_category', e.target.value)}
+                                    >
+                                        <option value="">Select a borrower</option>
+                                        <option value="Student">Student</option>
+                                        <option value="Faculty">Faculty</option>
+                                    </select>
+                                    <InputError message={showErrors.borrower_category ? errors.borrower_category : ''} className="mt-1" />
                                 </div>
 
                                 <div>
