@@ -19,8 +19,8 @@ A modern library management system built with **Laravel 12**, **Breeze**, **Iner
 |--------------|----------------------|-----------------|
 | **Front-end** | React 18, TypeScript, Inertia.js 2.0, Tailwind CSS 3, Vite 7 | User interface, styling, and build tools |
 | **Back-end** | PHP 8.2+, Laravel 12, Laravel Breeze | Server-side logic, authentication, and API |
-| **Database** | SQLite, MySQL | Data storage and management |
-| **Others** | Git, Composer, npm, Lucide React, Sonner | Version control, package management, and development tools |
+| **Database** | PostgreSQL | Data storage and management |
+| **Others** | Git, Composer, npm, Lucide React, React Toastify, html5-qrcode | Version control, package management, icons, notifications, and QR scanning |
 
 ## 📦 Installation
 
