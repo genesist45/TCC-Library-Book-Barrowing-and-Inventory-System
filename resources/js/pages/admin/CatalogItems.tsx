@@ -209,13 +209,13 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
                                 Title
                             </th>
                             <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
-                                Type
+                                Material Type
                             </th>
                             <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
                                 Authors
                             </th>
                             <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
-                                Publisher
+                                Publication Details
                             </th>
                             <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
                                 Year

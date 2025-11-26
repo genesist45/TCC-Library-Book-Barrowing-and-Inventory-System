@@ -126,8 +126,21 @@ export default function CatalogItemEdit({ catalogItem, categories, publishers, a
                                             <InputError message={errors.title} className="mt-1" />
                                         </div>
 
+                                        <div className="sm:col-span-2">
+                                            <InputLabel htmlFor="authors" value="Authors" />
+                                            <div className="mt-1">
+                                                <SearchableMultiSelect
+                                                    options={authors}
+                                                    selectedIds={data.author_ids}
+                                                    onChange={handleAuthorsChange}
+                                                    placeholder="Search authors..."
+                                                />
+                                            </div>
+                                            <InputError message={errors.author_ids} className="mt-1" />
+                                        </div>
+
                                         <div>
-                                            <InputLabel htmlFor="type" value="Type" required />
+                                            <InputLabel htmlFor="type" value="Material Type" required />
                                             <select
                                                 id="type"
                                                 value={data.type}
@@ -172,7 +185,7 @@ export default function CatalogItemEdit({ catalogItem, categories, publishers, a
                                         </div>
 
                                         <div>
-                                            <InputLabel htmlFor="publisher_id" value="Publisher" />
+                                            <InputLabel htmlFor="publisher_id" value="Publication Details" />
                                             <select
                                                 id="publisher_id"
                                                 value={data.publisher_id}
@@ -192,26 +205,6 @@ export default function CatalogItemEdit({ catalogItem, categories, publishers, a
                                             <InputError message={errors.publisher_id} className="mt-1" />
                                         </div>
 
-                                    </div>
-                                </div>
-
-                                {/* Authors Section */}
-                                <div>
-                                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Authors</h3>
-                                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Select the authors of this item</p>
-                                    <div className="mt-4">
-                                        <div className="sm:col-span-2">
-                                            <InputLabel htmlFor="authors" value="Authors" />
-                                            <div className="mt-1">
-                                                <SearchableMultiSelect
-                                                    options={authors}
-                                                    selectedIds={data.author_ids}
-                                                    onChange={handleAuthorsChange}
-                                                    placeholder="Search authors..."
-                                                />
-                                            </div>
-                                            <InputError message={errors.author_ids} className="mt-1" />
-                                        </div>
                                     </div>
                                 </div>
 
@@ -391,11 +384,20 @@ export default function CatalogItemEdit({ catalogItem, categories, publishers, a
                                                 )}
                                             </div>
                                             <div className="mt-3">
-                                                <img
-                                                    src={coverImagePreview || '/images/book-placeholder.png'}
-                                                    alt={coverImagePreview ? 'Cover preview' : 'No cover image'}
-                                                    className="h-48 w-auto rounded-md border border-gray-300 object-cover shadow-sm dark:border-gray-700"
-                                                />
+                                                {coverImagePreview ? (
+                                                    <img
+                                                        src={coverImagePreview}
+                                                        alt="Cover preview"
+                                                        className="h-48 w-auto rounded-md border border-gray-300 object-cover shadow-sm dark:border-gray-700"
+                                                    />
+                                                ) : (
+                                                    <div className="flex h-48 w-32 items-center justify-center rounded-md border border-gray-300 bg-gray-100 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                                                        <div className="text-center">
+                                                            <div className="mb-2 text-4xl font-bold text-gray-300 dark:text-gray-600">N/A</div>
+                                                            <p className="text-xs text-gray-400 dark:text-gray-500">No Cover Image</p>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Recommended: JPG, PNG (Max 2MB)</p>
                                             <InputError message={errors.cover_image} className="mt-1" />

@@ -83,6 +83,8 @@ class CatalogItemController extends Controller
                 Storage::disk('public')->delete($catalogItem->cover_image);
             }
             $data['cover_image'] = $request->file('cover_image')->store('catalog_covers', 'public');
+        } else {
+            unset($data['cover_image']);
         }
 
         $authorIds = $data['author_ids'] ?? [];

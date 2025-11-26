@@ -48,10 +48,8 @@ export default function CatalogItemView({ catalogItem }: Props) {
                                         ) : (
                                             <div className="flex h-48 w-32 items-center justify-center bg-gray-100 dark:bg-gray-800">
                                                 <div className="text-center">
-                                                    <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700">
-                                                        <span className="text-xl text-gray-400">📚</span>
-                                                    </div>
-                                                    <p className="text-xs text-gray-500 dark:text-gray-400">No image</p>
+                                                    <div className="mb-2 text-4xl font-bold text-gray-300 dark:text-gray-600">N/A</div>
+                                                    <p className="text-xs text-gray-400 dark:text-gray-500">No Cover Image</p>
                                                 </div>
                                             </div>
                                         )}
@@ -66,32 +64,8 @@ export default function CatalogItemView({ catalogItem }: Props) {
                                             <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{catalogItem.title}</p>
                                         </div>
 
-                                        <div>
-                                            <label className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Type</label>
-                                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{catalogItem.type}</p>
-                                        </div>
-
-                                        <div>
-                                            <label className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Category</label>
-                                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                                {catalogItem.category?.name || '-'}
-                                            </p>
-                                        </div>
-
-                                        <div>
-                                            <label className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Publisher</label>
-                                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                                {catalogItem.publisher?.name || '-'}
-                                            </p>
-                                        </div>
-
-                                        <div>
-                                            <label className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Year</label>
-                                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{catalogItem.year || '-'}</p>
-                                        </div>
-
                                         {catalogItem.authors && catalogItem.authors.length > 0 && (
-                                            <div className="sm:col-span-2 lg:col-span-2">
+                                            <div className="sm:col-span-2 lg:col-span-3">
                                                 <label className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Authors</label>
                                                 <div className="mt-1 flex flex-wrap gap-2">
                                                     {catalogItem.authors.map((author) => (
@@ -105,6 +79,30 @@ export default function CatalogItemView({ catalogItem }: Props) {
                                                 </div>
                                             </div>
                                         )}
+
+                                        <div>
+                                            <label className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Material Type</label>
+                                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{catalogItem.type}</p>
+                                        </div>
+
+                                        <div>
+                                            <label className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Category</label>
+                                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                                {catalogItem.category?.name || '-'}
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <label className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Publication Details</label>
+                                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                                {catalogItem.publisher?.name || '-'}
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <label className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Year</label>
+                                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{catalogItem.year || '-'}</p>
+                                        </div>
 
                                         <div>
                                             <label className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">ISBN</label>
