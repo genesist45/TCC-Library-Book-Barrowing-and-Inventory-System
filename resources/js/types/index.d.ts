@@ -34,6 +34,7 @@ export interface Author {
 
 export interface CatalogItem {
     id: number;
+    accession_no: string;
     title: string;
     type: string;
     category_id?: number;

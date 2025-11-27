@@ -11,6 +11,9 @@ function CatalogItemTableRowSkeleton() {
                 <div className={`${shimmerClass} h-4 w-12 rounded`} />
             </td>
             <td className="whitespace-nowrap px-3 py-2 sm:px-4">
+                <div className={`${shimmerClass} h-4 w-24 rounded`} />
+            </td>
+            <td className="whitespace-nowrap px-3 py-2 sm:px-4">
                 <div className="text-sm space-y-1.5">
                     <div className={`${shimmerClass} h-4 w-48 rounded`} />
                     <div className={`${shimmerClass} h-3 w-20 rounded sm:hidden`} />
@@ -60,6 +63,9 @@ export default function CatalogItemTable({ items, onView, onEdit, onDelete, isLo
                             ID
                         </th>
                         <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:px-4">
+                            Accession No.
+                        </th>
+                        <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:px-4">
                             Title
                         </th>
                         <th className="hidden px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:table-cell sm:px-4">
@@ -92,6 +98,9 @@ export default function CatalogItemTable({ items, onView, onEdit, onDelete, isLo
                             <tr key={item.id} className="transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]">
                                 <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:px-4">
                                     {item.id}
+                                </td>
+                                <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:px-4">
+                                    {item.accession_no}
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-2 sm:px-4">
                                     <div className="text-sm">

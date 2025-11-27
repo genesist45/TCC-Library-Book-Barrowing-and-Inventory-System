@@ -64,6 +64,11 @@ export default function CatalogItemView({ catalogItem }: Props) {
                                             <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{catalogItem.title}</p>
                                         </div>
 
+                                        <div>
+                                            <label className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Accession No.</label>
+                                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{catalogItem.accession_no || '-'}</p>
+                                        </div>
+
                                         {catalogItem.authors && catalogItem.authors.length > 0 && (
                                             <div className="sm:col-span-2 lg:col-span-3">
                                                 <label className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Authors</label>

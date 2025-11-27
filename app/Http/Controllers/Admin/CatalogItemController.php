@@ -32,12 +32,18 @@ class CatalogItemController extends Controller
             'categories' => Category::where('is_published', true)->orderBy('name')->get(['id', 'name']),
             'publishers' => Publisher::where('is_published', true)->orderBy('name')->get(['id', 'name']),
             'authors' => Author::where('is_published', true)->orderBy('name')->get(['id', 'name']),
+            'nextAccessionNo' => CatalogItem::getNextAccessionNo(),
         ]);
     }
 
     public function store(StoreCatalogItemRequest $request): RedirectResponse
     {
         $data = $request->validated();
+        
+        // Auto-generate accession_no if not provided
+        if (empty($data['accession_no'])) {
+            $data['accession_no'] = CatalogItem::getNextAccessionNo();
+        }
         
         if ($request->hasFile('cover_image')) {
             $data['cover_image'] = $request->file('cover_image')->store('catalog_covers', 'public');

@@ -15,15 +15,18 @@ interface Props extends PageProps {
     categories: Category[];
     publishers: Publisher[];
     authors: Author[];
+    nextAccessionNo: string;
 }
 
 export default function CatalogItemAdd({
     categories,
     publishers,
     authors,
+    nextAccessionNo,
 }: Props) {
     const { data, setData, post, processing, errors, clearErrors } = useForm({
         title: "",
+        accession_no: nextAccessionNo,
         type: "",
         category_id: "",
         publisher_id: "",
@@ -140,6 +143,34 @@ export default function CatalogItemAdd({
                                             />
                                             <InputError
                                                 message={errors.title}
+                                                className="mt-1"
+                                            />
+                                        </div>
+
+                                        <div className="sm:col-span-2">
+                                            <InputLabel
+                                                htmlFor="accession_no"
+                                                value="Accession No."
+                                                required
+                                            />
+                                            <TextInput
+                                                id="accession_no"
+                                                type="text"
+                                                className="mt-1 block w-full bg-gray-50 dark:bg-gray-700"
+                                                value={data.accession_no}
+                                                onChange={(e) => {
+                                                    setData(
+                                                        "accession_no",
+                                                        e.target.value,
+                                                    );
+                                                    clearErrors("accession_no");
+                                                }}
+                                            />
+                                            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                                Auto-generated unique 7-digit number (editable if needed)
+                                            </p>
+                                            <InputError
+                                                message={errors.accession_no}
                                                 className="mt-1"
                                             />
                                         </div>

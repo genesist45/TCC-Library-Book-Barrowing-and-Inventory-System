@@ -26,6 +26,7 @@ export default function CatalogItemEdit({
 }: Props) {
     const { data, setData, post, processing, errors, clearErrors } = useForm({
         title: catalogItem.title || "",
+        accession_no: catalogItem.accession_no || "",
         type: catalogItem.type || "",
         category_id: catalogItem.category_id?.toString() || "",
         publisher_id: catalogItem.publisher_id?.toString() || "",
@@ -154,6 +155,34 @@ export default function CatalogItemEdit({
                                                 message={errors.title}
                                                 className="mt-1"
                                             />
+                                        </div>
+
+                                        <div className="sm:col-span-2">
+                                            <InputLabel
+                                                htmlFor="accession_no"
+                                                value="Accession No."
+                                                required
+                                            />
+                                            <TextInput
+                                                id="accession_no"
+                                                type="text"
+                                                className="mt-1 block w-full bg-gray-50 dark:bg-gray-700"
+                                                value={data.accession_no}
+                                                onChange={(e) => {
+                                                    setData(
+                                                        "accession_no",
+                                                        e.target.value,
+                                                    );
+                                                    clearErrors("accession_no");
+                                                }}
+                                            />
+                                            <InputError
+                                                message={errors.accession_no}
+                                                className="mt-1"
+                                            />
+                                            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                                Unique 7-digit number (editable if needed)
+                                            </p>
                                         </div>
 
                                         <div className="sm:col-span-2">

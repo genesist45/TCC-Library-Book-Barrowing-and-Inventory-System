@@ -206,6 +206,9 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
                                 ID
                             </th>
                             <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
+                                Accession No.
+                            </th>
+                            <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
                                 Title
                             </th>
                             <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
@@ -236,6 +239,9 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
                             <tr key={item.id}>
                                 <td className="border border-gray-300 px-3 py-2 text-xs">
                                     {item.id}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2 text-xs font-medium">
+                                    {item.accession_no}
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2 text-xs font-medium">
                                     {item.title}
