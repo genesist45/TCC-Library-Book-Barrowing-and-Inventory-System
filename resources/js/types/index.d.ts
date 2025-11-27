@@ -4,7 +4,7 @@ export interface User {
     last_name: string;
     name: string; // Full name accessor
     email: string;
-    role: 'admin' | 'staff';
+    role: "admin" | "staff";
     email_verified_at?: string;
     profile_picture?: string;
 }
@@ -47,11 +47,16 @@ export interface CatalogItem {
     series?: string;
     edition?: string;
     year?: string;
+    place_of_publication?: string;
+    extent?: string;
+    other_physical_details?: string;
+    dimensions?: string;
+    location?: string;
     url?: string;
     description?: string;
     cover_image?: string;
     is_active: boolean;
-    status: 'Available' | 'Borrowed';
+    status: "Available" | "Borrowed";
     created_at: string;
     updated_at: string;
     authors?: Author[];
@@ -61,9 +66,9 @@ export interface Member {
     id: number;
     member_no: string;
     name: string;
-    type: 'Regular' | 'Privileged';
-    borrower_category: 'Student' | 'Faculty';
-    status: 'Active' | 'Inactive' | 'Suspended';
+    type: "Regular" | "Privileged";
+    borrower_category: "Student" | "Faculty";
+    status: "Active" | "Inactive" | "Suspended";
     email?: string;
     phone?: string;
     address?: string;
@@ -86,7 +91,7 @@ export interface BookRequest {
     return_date: string;
     return_time: string;
     notes?: string;
-    status: 'Pending' | 'Approved' | 'Disapproved';
+    status: "Pending" | "Approved" | "Disapproved";
     created_at: string;
     updated_at: string;
     member?: Member;
@@ -101,10 +106,10 @@ export interface BookReturn {
     catalog_item_id: number;
     return_date: string;
     return_time: string;
-    condition_on_return: 'Good' | 'Damaged' | 'Lost';
+    condition_on_return: "Good" | "Damaged" | "Lost";
     remarks?: string;
     penalty_amount: number;
-    status: 'Returned' | 'Pending';
+    status: "Returned" | "Pending";
     processed_by: number;
     created_at: string;
     member?: {

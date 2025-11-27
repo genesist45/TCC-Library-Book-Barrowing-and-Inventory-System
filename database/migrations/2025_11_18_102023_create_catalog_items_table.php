@@ -24,8 +24,13 @@ return new class extends Migration
             $table->string('series')->nullable();
             $table->string('edition')->nullable();
             $table->string('year')->nullable();
+            $table->string('place_of_publication')->nullable();
+            $table->string('extent')->nullable();
+            $table->string('other_physical_details')->nullable();
+            $table->string('dimensions')->nullable();
             $table->string('url')->nullable();
             $table->text('description')->nullable();
+            $table->enum('location', ['Filipianna', 'Circulation', 'Theses', 'Fiction', 'Reserve'])->nullable();
             $table->string('cover_image')->nullable();
             $table->boolean('is_active')->default(true);
             $table->enum('status', ['Available', 'Borrowed'])->default('Available');
