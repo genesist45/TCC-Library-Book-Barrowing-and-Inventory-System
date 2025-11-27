@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\BookRequestController;
 use App\Http\Controllers\Admin\BookReturnController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CatalogItemController;
+use App\Http\Controllers\Admin\CatalogItemCopyController;
 use App\Http\Controllers\Admin\EmailReminderController;
 use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\PublisherController;
@@ -111,6 +112,13 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
         Route::resource('publishers', PublisherController::class)->except(['create', 'edit']);
         Route::resource('catalog-items', CatalogItemController::class);
         Route::resource('members', MemberController::class);
+        
+        // Catalog Item Copies
+        Route::post('catalog-items/{catalogItem}/copies', [CatalogItemCopyController::class, 'store'])->name('catalog-items.copies.store');
+        Route::get('copies/generate-accession-no', [CatalogItemCopyController::class, 'generateAccessionNo'])->name('copies.generate-accession-no');
+        Route::post('copies/validate-accession-no', [CatalogItemCopyController::class, 'validateAccessionNo'])->name('copies.validate-accession-no');
+        Route::put('copies/{copy}', [CatalogItemCopyController::class, 'update'])->name('copies.update');
+        Route::delete('copies/{copy}', [CatalogItemCopyController::class, 'destroy'])->name('copies.destroy');
         
         // Book Requests (Circulations)
         Route::post('book-requests/{id}/approve', [BookRequestController::class, 'approve'])->name('book-requests.approve');

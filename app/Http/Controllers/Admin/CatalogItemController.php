@@ -21,6 +21,7 @@ class CatalogItemController extends Controller
     {
         return Inertia::render('admin/CatalogItems', [
             'catalogItems' => CatalogItem::with(['category', 'publisher', 'authors'])
+                ->withCount('copies')
                 ->orderBy('created_at', 'desc')
                 ->get()
         ]);
@@ -66,7 +67,7 @@ class CatalogItemController extends Controller
     public function show(CatalogItem $catalogItem): Response
     {
         return Inertia::render('admin/catalog-items/View', [
-            'catalogItem' => $catalogItem->load(['category', 'publisher', 'authors'])
+            'catalogItem' => $catalogItem->load(['category', 'publisher', 'authors', 'copies'])
         ]);
     }
 

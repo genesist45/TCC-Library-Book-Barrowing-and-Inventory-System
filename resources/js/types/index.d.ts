@@ -32,6 +32,18 @@ export interface Author {
     is_active: boolean;
 }
 
+export interface CatalogItemCopy {
+    id: number;
+    catalog_item_id: number;
+    accession_no: string;
+    copy_no: number;
+    branch?: string;
+    location?: string;
+    status: "Available" | "Borrowed" | "Reserved" | "Lost" | "Under Repair";
+    created_at: string;
+    updated_at: string;
+}
+
 export interface CatalogItem {
     id: number;
     accession_no: string;
@@ -61,6 +73,8 @@ export interface CatalogItem {
     created_at: string;
     updated_at: string;
     authors?: Author[];
+    copies?: CatalogItemCopy[];
+    copies_count?: number;
 }
 
 export interface Member {

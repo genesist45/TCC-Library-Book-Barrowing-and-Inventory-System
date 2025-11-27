@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import CatalogItemTable from '@/components/catalog-items/CatalogItemTable';
 import CatalogItemPageHeader from '@/components/catalog-items/CatalogItemPageHeader';
 import CatalogItemDeleteModal from '@/components/catalog-items/CatalogItemDeleteModal';
+import CopyBookModal from '@/components/catalog-items/CopyBookModal';
+import CopySuccessModal from '@/components/catalog-items/CopySuccessModal';
 import { toast } from 'react-toastify';
 import { PageProps, CatalogItem } from '@/types';
 
@@ -17,6 +19,8 @@ interface Props extends PageProps {
 
 export default function CatalogItems({ catalogItems, flash }: Props) {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showCopyModal, setShowCopyModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -41,6 +45,11 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
 
     const handleEditItem = (item: CatalogItem) => {
         router.visit(route('admin.catalog-items.edit', item.id));
+    };
+
+    const handleCopyItem = (item: CatalogItem) => {
+        setSelectedItem(item);
+        setShowCopyModal(true);
     };
 
     const handleDeleteItem = (item: CatalogItem) => {
@@ -73,6 +82,26 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
                 setIsRefreshing(false);
             },
         });
+    };
+
+    const handleCopySuccess = (copy: any) => {
+        setShowCopyModal(false);
+        setShowSuccessModal(true);
+    };
+
+    const handleCloseCopyModal = () => {
+        setShowCopyModal(false);
+    };
+
+    const handleCloseSuccessModal = () => {
+        setShowSuccessModal(false);
+        setSelectedItem(null);
+        handleRefresh();
+    };
+
+    const handleAddAnotherCopy = () => {
+        setShowSuccessModal(false);
+        setShowCopyModal(true);
     };
 
     const closeModal = () => {
@@ -168,6 +197,7 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
                         <CatalogItemTable
                             items={filteredItems}
                             onView={handleViewItem}
+                            onCopy={handleCopyItem}
                             onEdit={handleEditItem}
                             onDelete={handleDeleteItem}
                             isLoading={isRefreshing}
@@ -224,6 +254,9 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
                                 Year
                             </th>
                             <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
+                                Copies
+                            </th>
+                            <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
                                 ISBN
                             </th>
                             <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
@@ -261,6 +294,9 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
                                     {item.year || '-'}
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2 text-xs">
+                                    {item.copies_count || 0}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2 text-xs">
                                     {item.isbn || item.isbn13 || '-'}
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2 text-xs">
@@ -274,6 +310,20 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
                     </tbody>
                 </table>
             </div>
+
+            <CopyBookModal
+                show={showCopyModal}
+                item={selectedItem}
+                onClose={handleCloseCopyModal}
+                onSuccess={handleCopySuccess}
+            />
+
+            <CopySuccessModal
+                show={showSuccessModal}
+                catalogItemId={selectedItem?.id || null}
+                onClose={handleCloseSuccessModal}
+                onAddAnother={handleAddAnotherCopy}
+            />
 
             <CatalogItemDeleteModal
                 show={showDeleteModal}

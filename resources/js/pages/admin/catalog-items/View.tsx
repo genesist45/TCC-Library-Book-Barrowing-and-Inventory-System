@@ -4,6 +4,7 @@ import SecondaryButton from '@/components/buttons/SecondaryButton';
 import PrimaryButton from '@/components/buttons/PrimaryButton';
 import { Pencil } from 'lucide-react';
 import { PageProps, CatalogItem } from '@/types';
+import RelatedCopiesTable from '@/components/catalog-items/RelatedCopiesTable';
 
 interface Props extends PageProps {
     catalogItem: CatalogItem;
@@ -16,6 +17,10 @@ export default function CatalogItemView({ catalogItem }: Props) {
 
     const handleEdit = () => {
         router.visit(route('admin.catalog-items.edit', catalogItem.id));
+    };
+
+    const handleRefresh = () => {
+        router.reload({ only: ['catalogItem'] });
     };
 
     return (
@@ -180,6 +185,17 @@ export default function CatalogItemView({ catalogItem }: Props) {
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+
+                            {/* Related Copies Section */}
+                            <div className="mt-8 border-t border-gray-200 pt-8 dark:border-[#3a3a3a]">
+                                <h3 className="mb-4 text-lg font-semibold text-gray-900 transition-colors duration-300 dark:text-gray-100">
+                                    Related Copies
+                                </h3>
+                                <RelatedCopiesTable 
+                                    copies={catalogItem.copies || []} 
+                                    onRefresh={handleRefresh}
+                                />
                             </div>
 
                             <div className="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-[#3a3a3a]">

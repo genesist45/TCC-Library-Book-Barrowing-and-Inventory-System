@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CatalogItem extends Model
 {
@@ -50,6 +51,11 @@ class CatalogItem extends Model
     public function authors(): BelongsToMany
     {
         return $this->belongsToMany(Author::class, "author_catalog_item");
+    }
+
+    public function copies(): HasMany
+    {
+        return $this->hasMany(CatalogItemCopy::class);
     }
 
     /**
