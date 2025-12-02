@@ -35,6 +35,27 @@ return new class extends Migration
             $table->string('cover_image')->nullable();
             $table->boolean('is_active')->default(true);
             $table->enum('status', ['Available', 'Borrowed'])->default('Available');
+            
+            $table->string('volume')->nullable();
+            $table->string('page_duration')->nullable();
+            $table->text('abstract')->nullable();
+            $table->text('biblio_info')->nullable();
+            $table->enum('url_visibility', ['Public', 'Staff Only'])->nullable();
+            $table->string('library_branch')->nullable();
+            
+            $table->string('issn')->nullable();
+            $table->string('frequency')->nullable();
+            $table->string('journal_type')->nullable();
+            $table->string('issue_type')->nullable();
+            $table->string('issue_period')->nullable();
+            
+            $table->string('granting_institution')->nullable();
+            $table->string('degree_qualification')->nullable();
+            $table->string('supervisor')->nullable();
+            $table->date('thesis_date')->nullable();
+            $table->string('thesis_period')->nullable();
+            $table->string('publication_type')->nullable();
+            
             $table->timestamps();
         });
     }
