@@ -22,9 +22,17 @@ class PublisherController extends Controller
         ]);
     }
 
-    public function store(StorePublisherRequest $request): RedirectResponse
+    public function store(StorePublisherRequest $request): RedirectResponse|JsonResponse
     {
-        Publisher::create($request->validated());
+        $publisher = Publisher::create($request->validated());
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Publisher created successfully.',
+                'publisher' => $publisher
+            ]);
+        }
 
         return redirect()
             ->route('admin.publishers.index')

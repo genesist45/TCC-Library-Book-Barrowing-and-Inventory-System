@@ -22,9 +22,17 @@ class AuthorController extends Controller
         ]);
     }
 
-    public function store(StoreAuthorRequest $request): RedirectResponse
+    public function store(StoreAuthorRequest $request): RedirectResponse|JsonResponse
     {
-        Author::create($request->validated());
+        $author = Author::create($request->validated());
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Author created successfully.',
+                'author' => $author
+            ]);
+        }
 
         return redirect()
             ->route('admin.authors.index')

@@ -28,9 +28,17 @@ class CategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreCategoryRequest $request): RedirectResponse
+    public function store(StoreCategoryRequest $request): RedirectResponse|JsonResponse
     {
-        Category::create($request->validated());
+        $category = Category::create($request->validated());
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Category created successfully.',
+                'category' => $category
+            ]);
+        }
 
         return redirect()
             ->route('admin.categories.index')
