@@ -6,10 +6,12 @@ import TextInput from "@/components/forms/TextInput";
 import InputError from "@/components/forms/InputError";
 import PrimaryButton from "@/components/buttons/PrimaryButton";
 import SecondaryButton from "@/components/buttons/SecondaryButton";
-import { Upload, X } from "lucide-react";
+import { Upload, X, Plus } from "lucide-react";
 import { PageProps, Category, Publisher, Author, CatalogItem } from "@/types";
 import { toast } from "react-toastify";
 import SearchableMultiSelect from "@/components/common/SearchableMultiSelect";
+import Modal from "@/components/modals/Modal";
+import axios from "axios";
 
 interface Props extends PageProps {
     catalogItem: CatalogItem;
@@ -47,6 +49,23 @@ export default function CatalogItemEdit({
         location: catalogItem.location || "",
         cover_image: null as File | null,
         is_active: catalogItem.is_active ?? true,
+        volume: catalogItem.volume || "",
+        page_duration: catalogItem.page_duration || "",
+        abstract: catalogItem.abstract || "",
+        biblio_info: catalogItem.biblio_info || "",
+        url_visibility: catalogItem.url_visibility || "",
+        library_branch: catalogItem.library_branch || "",
+        issn: catalogItem.issn || "",
+        frequency: catalogItem.frequency || "",
+        journal_type: catalogItem.journal_type || "",
+        issue_type: catalogItem.issue_type || "",
+        issue_period: catalogItem.issue_period || "",
+        granting_institution: catalogItem.granting_institution || "",
+        degree_qualification: catalogItem.degree_qualification || "",
+        supervisor: catalogItem.supervisor || "",
+        thesis_date: catalogItem.thesis_date || "",
+        thesis_period: catalogItem.thesis_period || "",
+        publication_type: catalogItem.publication_type || "",
         _method: "PATCH",
     });
 
@@ -54,6 +73,16 @@ export default function CatalogItemEdit({
         null,
     );
     const [coverImageName, setCoverImageName] = useState<string>("");
+    
+    const [localCategories, setLocalCategories] = useState<Category[]>(categories);
+    const [localPublishers, setLocalPublishers] = useState<Publisher[]>(publishers);
+    const [localAuthors, setLocalAuthors] = useState<Author[]>(authors);
+    
+    const [showCategoryModal, setShowCategoryModal] = useState(false);
+    const [showPublisherModal, setShowPublisherModal] = useState(false);
+    const [showAuthorModal, setShowAuthorModal] = useState(false);
+    
+    const [activeTab, setActiveTab] = useState<'detail' | 'journal' | 'thesis'>('detail');
 
     useEffect(() => {
         if (catalogItem.cover_image) {
@@ -105,6 +134,73 @@ export default function CatalogItemEdit({
         clearErrors("author_ids");
     };
 
+    const handleCategoryAdded = async (name: string) => {
+        try {
+            const response = await axios.post(route('admin.categories.store'), {
+                name,
+                is_published: true,
+            });
+            
+            if (response.data) {
+                const newCategory = response.data.category;
+                setLocalCategories([...localCategories, newCategory]);
+                setData('category_id', newCategory.id.toString());
+                setShowCategoryModal(false);
+                toast.success('Category added successfully!');
+            }
+        } catch (error: any) {
+            if (error.response?.data?.errors) {
+                toast.error(error.response.data.errors.name?.[0] || 'Failed to add category');
+            }
+        }
+    };
+
+    const handlePublisherAdded = async (name: string, country: string) => {
+        try {
+            const response = await axios.post(route('admin.publishers.store'), {
+                name,
+                country,
+                is_published: true,
+            });
+            
+            if (response.data) {
+                const newPublisher = response.data.publisher;
+                setLocalPublishers([...localPublishers, newPublisher]);
+                setData('publisher_id', newPublisher.id.toString());
+                setShowPublisherModal(false);
+                toast.success('Publisher added successfully!');
+            }
+        } catch (error: any) {
+            if (error.response?.data?.errors) {
+                const errorMsg = error.response.data.errors.name?.[0] || error.response.data.errors.country?.[0] || 'Failed to add publisher';
+                toast.error(errorMsg);
+            }
+        }
+    };
+
+    const handleAuthorAdded = async (name: string, country: string) => {
+        try {
+            const response = await axios.post(route('admin.authors.store'), {
+                name,
+                country,
+                is_published: true,
+            });
+            
+            if (response.data) {
+                const newAuthor = response.data.author;
+                setLocalAuthors([...localAuthors, newAuthor]);
+                setData('author_ids', [...data.author_ids, newAuthor.id]);
+                setShowAuthorModal(false);
+                toast.success('Author added successfully!');
+            }
+        } catch (error: any) {
+            if (error.response?.data?.errors) {
+                const errorMsg = error.response.data.errors.name?.[0] || error.response.data.errors.country?.[0] || 'Failed to add author';
+                toast.error(errorMsg);
+            }
+        }
+    };
+
     return (
         <AuthenticatedLayout>
             <Head title={`Edit: ${data.title}`} />
@@ -132,7 +228,7 @@ export default function CatalogItemEdit({
                                         Essential details about the catalog item
                                     </p>
                                     <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                        <div className="sm:col-span-2">
+                                        <div>
                                             <InputLabel
                                                 htmlFor="title"
                                                 value="Title"
@@ -157,7 +253,7 @@ export default function CatalogItemEdit({
                                             />
                                         </div>
 
-                                        <div className="sm:col-span-2">
+                                        <div>
                                             <InputLabel
                                                 htmlFor="accession_no"
                                                 value="Accession No."
@@ -192,7 +288,7 @@ export default function CatalogItemEdit({
                                             />
                                             <div className="mt-1">
                                                 <SearchableMultiSelect
-                                                    options={authors}
+                                                    options={localAuthors}
                                                     selectedIds={
                                                         data.author_ids
                                                     }
@@ -202,6 +298,14 @@ export default function CatalogItemEdit({
                                                     placeholder="Search authors..."
                                                 />
                                             </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowAuthorModal(true)}
+                                                className="mt-2 flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                            >
+                                                <Plus className="h-3 w-3" />
+                                                Author not listed? Click here to add.
+                                            </button>
                                             <InputError
                                                 message={errors.author_ids}
                                                 className="mt-1"
@@ -276,7 +380,7 @@ export default function CatalogItemEdit({
                                                 <option value="">
                                                     Select Category
                                                 </option>
-                                                {categories.map((category) => (
+                                                {localCategories.map((category) => (
                                                     <option
                                                         key={category.id}
                                                         value={category.id}
@@ -285,6 +389,14 @@ export default function CatalogItemEdit({
                                                     </option>
                                                 ))}
                                             </select>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowCategoryModal(true)}
+                                                className="mt-2 flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                            >
+                                                <Plus className="h-3 w-3" />
+                                                Category not listed? Click here to add.
+                                            </button>
                                             <InputError
                                                 message={errors.category_id}
                                                 className="mt-1"
@@ -353,7 +465,7 @@ export default function CatalogItemEdit({
                                                 <option value="">
                                                     Select Publisher
                                                 </option>
-                                                {publishers.map((publisher) => (
+                                                {localPublishers.map((publisher) => (
                                                     <option
                                                         key={publisher.id}
                                                         value={publisher.id}
@@ -362,6 +474,14 @@ export default function CatalogItemEdit({
                                                     </option>
                                                 ))}
                                             </select>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPublisherModal(true)}
+                                                className="mt-2 flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                            >
+                                                <Plus className="h-3 w-3" />
+                                                Publisher not listed? Click here to add.
+                                            </button>
                                             <InputError
                                                 message={errors.publisher_id}
                                                 className="mt-1"
@@ -740,6 +860,359 @@ export default function CatalogItemEdit({
                                     </div>
                                 </div>
 
+                                {/* Specialized Fields Tabs Section */}
+                                <div>
+                                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                                        Specialized Fields
+                                    </h3>
+                                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                        Additional information for specific material types
+                                    </p>
+                                    
+                                    <div className="mt-4">
+                                        <div className="border-b border-gray-200 dark:border-gray-700">
+                                            <nav className="-mb-px flex space-x-8">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setActiveTab('detail')}
+                                                    className={`whitespace-nowrap border-b-2 py-2 px-1 text-sm font-medium transition-colors ${
+                                                        activeTab === 'detail'
+                                                            ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                                                            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                                                    }`}
+                                                >
+                                                    DETAIL
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setActiveTab('journal')}
+                                                    className={`whitespace-nowrap border-b-2 py-2 px-1 text-sm font-medium transition-colors ${
+                                                        activeTab === 'journal'
+                                                            ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                                                            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                                                    }`}
+                                                >
+                                                    JOURNAL
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setActiveTab('thesis')}
+                                                    className={`whitespace-nowrap border-b-2 py-2 px-1 text-sm font-medium transition-colors ${
+                                                        activeTab === 'thesis'
+                                                            ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                                                            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                                                    }`}
+                                                >
+                                                    THESIS
+                                                </button>
+                                            </nav>
+                                        </div>
+
+                                        <div className="mt-6">
+                                            {activeTab === 'detail' && (
+                                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                                    <div>
+                                                        <InputLabel htmlFor="volume" value="Volume" />
+                                                        <TextInput
+                                                            id="volume"
+                                                            type="text"
+                                                            className="mt-1 block w-full"
+                                                            value={data.volume}
+                                                            onChange={(e) => {
+                                                                setData("volume", e.target.value);
+                                                                clearErrors("volume");
+                                                            }}
+                                                            placeholder="e.g., Vol. 1"
+                                                        />
+                                                        <InputError message={errors.volume} className="mt-1" />
+                                                    </div>
+
+                                                    <div>
+                                                        <InputLabel htmlFor="page_duration" value="Page / Duration" />
+                                                        <TextInput
+                                                            id="page_duration"
+                                                            type="text"
+                                                            className="mt-1 block w-full"
+                                                            value={data.page_duration}
+                                                            onChange={(e) => {
+                                                                setData("page_duration", e.target.value);
+                                                                clearErrors("page_duration");
+                                                            }}
+                                                            placeholder="e.g., 320 pages or 90 minutes"
+                                                        />
+                                                        <InputError message={errors.page_duration} className="mt-1" />
+                                                    </div>
+
+                                                    <div className="sm:col-span-2">
+                                                        <InputLabel htmlFor="abstract" value="Abstract" />
+                                                        <textarea
+                                                            id="abstract"
+                                                            rows={3}
+                                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                                                            value={data.abstract}
+                                                            onChange={(e) => {
+                                                                setData("abstract", e.target.value);
+                                                                clearErrors("abstract");
+                                                            }}
+                                                            placeholder="Short summary of the content..."
+                                                        />
+                                                        <InputError message={errors.abstract} className="mt-1" />
+                                                    </div>
+
+                                                    <div className="sm:col-span-2">
+                                                        <InputLabel htmlFor="biblio_info" value="Biblio Information" />
+                                                        <textarea
+                                                            id="biblio_info"
+                                                            rows={3}
+                                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                                                            value={data.biblio_info}
+                                                            onChange={(e) => {
+                                                                setData("biblio_info", e.target.value);
+                                                                clearErrors("biblio_info");
+                                                            }}
+                                                            placeholder="Staff-only notes..."
+                                                        />
+                                                        <InputError message={errors.biblio_info} className="mt-1" />
+                                                    </div>
+
+                                                    <div>
+                                                        <InputLabel htmlFor="url_visibility" value="URL Visibility" />
+                                                        <select
+                                                            id="url_visibility"
+                                                            value={data.url_visibility}
+                                                            onChange={(e) => {
+                                                                setData("url_visibility", e.target.value);
+                                                                clearErrors("url_visibility");
+                                                            }}
+                                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                                                        >
+                                                            <option value="">Select Visibility</option>
+                                                            <option value="Public">Public</option>
+                                                            <option value="Staff Only">Staff Only</option>
+                                                        </select>
+                                                        <InputError message={errors.url_visibility} className="mt-1" />
+                                                    </div>
+
+                                                    <div>
+                                                        <InputLabel htmlFor="library_branch" value="Library Branch" />
+                                                        <TextInput
+                                                            id="library_branch"
+                                                            type="text"
+                                                            className="mt-1 block w-full"
+                                                            value={data.library_branch}
+                                                            onChange={(e) => {
+                                                                setData("library_branch", e.target.value);
+                                                                clearErrors("library_branch");
+                                                            }}
+                                                            placeholder="e.g., Main Library"
+                                                        />
+                                                        <InputError message={errors.library_branch} className="mt-1" />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {activeTab === 'journal' && (
+                                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                                    <div>
+                                                        <InputLabel htmlFor="issn" value="ISSN" />
+                                                        <TextInput
+                                                            id="issn"
+                                                            type="text"
+                                                            className="mt-1 block w-full"
+                                                            value={data.issn}
+                                                            onChange={(e) => {
+                                                                setData("issn", e.target.value);
+                                                                clearErrors("issn");
+                                                            }}
+                                                            placeholder="e.g., 1234-5678"
+                                                        />
+                                                        <InputError message={errors.issn} className="mt-1" />
+                                                    </div>
+
+                                                    <div>
+                                                        <InputLabel htmlFor="frequency" value="Frequency" />
+                                                        <select
+                                                            id="frequency"
+                                                            value={data.frequency}
+                                                            onChange={(e) => {
+                                                                setData("frequency", e.target.value);
+                                                                clearErrors("frequency");
+                                                            }}
+                                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                                                        >
+                                                            <option value="">Select Frequency</option>
+                                                            <option value="Daily">Daily</option>
+                                                            <option value="Weekly">Weekly</option>
+                                                            <option value="Monthly">Monthly</option>
+                                                            <option value="Quarterly">Quarterly</option>
+                                                            <option value="Annually">Annually</option>
+                                                            <option value="Biannually">Biannually</option>
+                                                        </select>
+                                                        <InputError message={errors.frequency} className="mt-1" />
+                                                    </div>
+
+                                                    <div>
+                                                        <InputLabel htmlFor="journal_type" value="Journal Type" />
+                                                        <TextInput
+                                                            id="journal_type"
+                                                            type="text"
+                                                            className="mt-1 block w-full"
+                                                            value={data.journal_type}
+                                                            onChange={(e) => {
+                                                                setData("journal_type", e.target.value);
+                                                                clearErrors("journal_type");
+                                                            }}
+                                                            placeholder="e.g., Academic, Trade"
+                                                        />
+                                                        <InputError message={errors.journal_type} className="mt-1" />
+                                                    </div>
+
+                                                    <div>
+                                                        <InputLabel htmlFor="issue_type" value="Issue Type" />
+                                                        <TextInput
+                                                            id="issue_type"
+                                                            type="text"
+                                                            className="mt-1 block w-full"
+                                                            value={data.issue_type}
+                                                            onChange={(e) => {
+                                                                setData("issue_type", e.target.value);
+                                                                clearErrors("issue_type");
+                                                            }}
+                                                            placeholder="e.g., Special Issue"
+                                                        />
+                                                        <InputError message={errors.issue_type} className="mt-1" />
+                                                    </div>
+
+                                                    <div className="sm:col-span-2">
+                                                        <InputLabel htmlFor="issue_period" value="Issue Period" />
+                                                        <TextInput
+                                                            id="issue_period"
+                                                            type="text"
+                                                            className="mt-1 block w-full"
+                                                            value={data.issue_period}
+                                                            onChange={(e) => {
+                                                                setData("issue_period", e.target.value);
+                                                                clearErrors("issue_period");
+                                                            }}
+                                                            placeholder="e.g., Summer, Q3"
+                                                        />
+                                                        <InputError message={errors.issue_period} className="mt-1" />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {activeTab === 'thesis' && (
+                                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                                    <div className="sm:col-span-2">
+                                                        <InputLabel htmlFor="granting_institution" value="Granting Institution" required={data.type === 'Thesis'} />
+                                                        <TextInput
+                                                            id="granting_institution"
+                                                            type="text"
+                                                            className="mt-1 block w-full"
+                                                            value={data.granting_institution}
+                                                            onChange={(e) => {
+                                                                setData("granting_institution", e.target.value);
+                                                                clearErrors("granting_institution");
+                                                            }}
+                                                            placeholder="e.g., University of the Philippines"
+                                                        />
+                                                        <InputError message={errors.granting_institution} className="mt-1" />
+                                                    </div>
+
+                                                    <div>
+                                                        <InputLabel htmlFor="degree_qualification" value="Degree / Qualification" required={data.type === 'Thesis'} />
+                                                        <select
+                                                            id="degree_qualification"
+                                                            value={data.degree_qualification}
+                                                            onChange={(e) => {
+                                                                setData("degree_qualification", e.target.value);
+                                                                clearErrors("degree_qualification");
+                                                            }}
+                                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                                                        >
+                                                            <option value="">Select Degree</option>
+                                                            <option value="Ph.D.">Ph.D.</option>
+                                                            <option value="M.A.">M.A.</option>
+                                                            <option value="M.S.">M.S.</option>
+                                                            <option value="MBA">MBA</option>
+                                                            <option value="Ed.D.">Ed.D.</option>
+                                                            <option value="Other">Other</option>
+                                                        </select>
+                                                        <InputError message={errors.degree_qualification} className="mt-1" />
+                                                    </div>
+
+                                                    <div>
+                                                        <InputLabel htmlFor="supervisor" value="Supervisor" />
+                                                        <TextInput
+                                                            id="supervisor"
+                                                            type="text"
+                                                            className="mt-1 block w-full"
+                                                            value={data.supervisor}
+                                                            onChange={(e) => {
+                                                                setData("supervisor", e.target.value);
+                                                                clearErrors("supervisor");
+                                                            }}
+                                                            placeholder="e.g., Dr. Juan Dela Cruz"
+                                                        />
+                                                        <InputError message={errors.supervisor} className="mt-1" />
+                                                    </div>
+
+                                                    <div>
+                                                        <InputLabel htmlFor="thesis_date" value="Date" />
+                                                        <TextInput
+                                                            id="thesis_date"
+                                                            type="date"
+                                                            className="mt-1 block w-full"
+                                                            value={data.thesis_date}
+                                                            onChange={(e) => {
+                                                                setData("thesis_date", e.target.value);
+                                                                clearErrors("thesis_date");
+                                                            }}
+                                                        />
+                                                        <InputError message={errors.thesis_date} className="mt-1" />
+                                                    </div>
+
+                                                    <div>
+                                                        <InputLabel htmlFor="thesis_period" value="Period" />
+                                                        <TextInput
+                                                            id="thesis_period"
+                                                            type="text"
+                                                            className="mt-1 block w-full"
+                                                            value={data.thesis_period}
+                                                            onChange={(e) => {
+                                                                setData("thesis_period", e.target.value);
+                                                                clearErrors("thesis_period");
+                                                            }}
+                                                            placeholder="e.g., 2023-2024"
+                                                        />
+                                                        <InputError message={errors.thesis_period} className="mt-1" />
+                                                    </div>
+
+                                                    <div className="sm:col-span-2">
+                                                        <InputLabel htmlFor="publication_type" value="Publication Type" />
+                                                        <select
+                                                            id="publication_type"
+                                                            value={data.publication_type}
+                                                            onChange={(e) => {
+                                                                setData("publication_type", e.target.value);
+                                                                clearErrors("publication_type");
+                                                            }}
+                                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                                                        >
+                                                            <option value="">Select Type</option>
+                                                            <option value="Master's Thesis">Master's Thesis</option>
+                                                            <option value="Doctoral Dissertation">Doctoral Dissertation</option>
+                                                            <option value="Undergraduate Thesis">Undergraduate Thesis</option>
+                                                            <option value="Research Paper">Research Paper</option>
+                                                        </select>
+                                                        <InputError message={errors.publication_type} className="mt-1" />
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
                                 {/* Cover Image Section */}
                                 <div>
                                     <div className="mt-4">
@@ -886,6 +1359,143 @@ export default function CatalogItemEdit({
                     </div>
                 </div>
             </div>
+
+            {/* Quick Add Modals */}
+            <Modal show={showCategoryModal} onClose={() => setShowCategoryModal(false)} maxWidth="md">
+                <div className="p-6">
+                    <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                        Quick Add Category
+                    </h2>
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        Add a new category quickly without leaving this page
+                    </p>
+                    <form onSubmit={async (e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.currentTarget);
+                        await handleCategoryAdded(formData.get('name') as string);
+                    }} className="mt-4 space-y-4">
+                        <div>
+                            <InputLabel htmlFor="quick_category_name" value="Category Name" required />
+                            <TextInput
+                                id="quick_category_name"
+                                name="name"
+                                type="text"
+                                className="mt-1 block w-full"
+                                placeholder="e.g., Science Fiction"
+                                required
+                            />
+                        </div>
+                        <div className="flex justify-end gap-3">
+                            <SecondaryButton type="button" onClick={() => setShowCategoryModal(false)}>
+                                Cancel
+                            </SecondaryButton>
+                            <PrimaryButton type="submit">
+                                Add Category
+                            </PrimaryButton>
+                        </div>
+                    </form>
+                </div>
+            </Modal>
+
+            <Modal show={showPublisherModal} onClose={() => setShowPublisherModal(false)} maxWidth="md">
+                <div className="p-6">
+                    <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                        Quick Add Publisher
+                    </h2>
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        Add a new publisher quickly without leaving this page
+                    </p>
+                    <form onSubmit={async (e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.currentTarget);
+                        await handlePublisherAdded(
+                            formData.get('name') as string,
+                            formData.get('country') as string
+                        );
+                    }} className="mt-4 space-y-4">
+                        <div>
+                            <InputLabel htmlFor="quick_publisher_name" value="Publisher Name" required />
+                            <TextInput
+                                id="quick_publisher_name"
+                                name="name"
+                                type="text"
+                                className="mt-1 block w-full"
+                                placeholder="e.g., Penguin Books"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <InputLabel htmlFor="quick_publisher_country" value="Country" required />
+                            <TextInput
+                                id="quick_publisher_country"
+                                name="country"
+                                type="text"
+                                className="mt-1 block w-full"
+                                placeholder="e.g., United States"
+                                required
+                            />
+                        </div>
+                        <div className="flex justify-end gap-3">
+                            <SecondaryButton type="button" onClick={() => setShowPublisherModal(false)}>
+                                Cancel
+                            </SecondaryButton>
+                            <PrimaryButton type="submit">
+                                Add Publisher
+                            </PrimaryButton>
+                        </div>
+                    </form>
+                </div>
+            </Modal>
+
+            <Modal show={showAuthorModal} onClose={() => setShowAuthorModal(false)} maxWidth="md">
+                <div className="p-6">
+                    <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                        Quick Add Author
+                    </h2>
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        Add a new author quickly without leaving this page
+                    </p>
+                    <form onSubmit={async (e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.currentTarget);
+                        await handleAuthorAdded(
+                            formData.get('name') as string,
+                            formData.get('country') as string
+                        );
+                    }} className="mt-4 space-y-4">
+                        <div>
+                            <InputLabel htmlFor="quick_author_name" value="Author Name" required />
+                            <TextInput
+                                id="quick_author_name"
+                                name="name"
+                                type="text"
+                                className="mt-1 block w-full"
+                                placeholder="e.g., J.K. Rowling"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <InputLabel htmlFor="quick_author_country" value="Country" required />
+                            <TextInput
+                                id="quick_author_country"
+                                name="country"
+                                type="text"
+                                className="mt-1 block w-full"
+                                placeholder="e.g., United Kingdom"
+                                required
+                            />
+                        </div>
+                        <div className="flex justify-end gap-3">
+                            <SecondaryButton type="button" onClick={() => setShowAuthorModal(false)}>
+                                Cancel
+                            </SecondaryButton>
+                            <PrimaryButton type="submit">
+                                Add Author
+                            </PrimaryButton>
+                        </div>
+                    </form>
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }
