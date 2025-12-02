@@ -23,19 +23,22 @@ class CatalogItemCopy extends Model
 
     public static function generateAccessionNo(): string
     {
-        do {
-            $accessionNo = str_pad(
-                (string) random_int(1000000, 9999999),
-                7,
-                '0',
-                STR_PAD_LEFT
-            );
-        } while (
-            self::where('accession_no', $accessionNo)->exists() ||
-            CatalogItem::where('accession_no', $accessionNo)->exists()
+        $maxFromCopies = self::max('accession_no');
+        $maxFromItems = CatalogItem::max('accession_no');
+
+        $maxAccessionNo = max(
+            (int) $maxFromCopies ?: 0,
+            (int) $maxFromItems ?: 0
         );
 
-        return $accessionNo;
+        $nextAccessionNo = $maxAccessionNo + 1;
+
+        return str_pad(
+            (string) $nextAccessionNo,
+            7,
+            '0',
+            STR_PAD_LEFT
+        );
     }
 
     public static function getNextCopyNo(int $catalogItemId): int
