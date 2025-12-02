@@ -39,6 +39,23 @@ class UpdateCatalogItemRequest extends FormRequest
             'description' => 'nullable|string',
             'cover_image' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
             'is_active' => 'boolean',
+            'volume' => 'nullable|string|max:100',
+            'page_duration' => 'nullable|string|max:100',
+            'abstract' => 'nullable|string',
+            'biblio_info' => 'nullable|string',
+            'url_visibility' => 'nullable|string|in:Public,Staff Only',
+            'library_branch' => 'nullable|string|max:255',
+            'issn' => 'nullable|string|max:20',
+            'frequency' => 'nullable|string|max:100',
+            'journal_type' => 'nullable|string|max:100',
+            'issue_type' => 'nullable|string|max:100',
+            'issue_period' => 'nullable|string|max:100',
+            'granting_institution' => 'required_if:type,Thesis|nullable|string|max:255',
+            'degree_qualification' => 'required_if:type,Thesis|nullable|string|max:255',
+            'supervisor' => 'nullable|string|max:255',
+            'thesis_date' => 'nullable|date',
+            'thesis_period' => 'nullable|string|max:100',
+            'publication_type' => 'nullable|string|max:100',
         ];
     }
 
@@ -67,6 +84,10 @@ class UpdateCatalogItemRequest extends FormRequest
             'cover_image.image' => 'Cover image must be an image file.',
             'cover_image.mimes' => 'Cover image must be a JPEG, JPG, or PNG file.',
             'cover_image.max' => 'Cover image size must not exceed 2MB.',
+            'url_visibility.in' => 'Invalid URL visibility option selected.',
+            'granting_institution.required_if' => 'Granting institution is required for thesis materials.',
+            'degree_qualification.required_if' => 'Degree/Qualification is required for thesis materials.',
+            'thesis_date.date' => 'Please enter a valid date.',
         ];
     }
 }

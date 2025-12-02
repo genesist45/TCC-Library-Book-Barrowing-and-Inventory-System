@@ -32,10 +32,28 @@ class CatalogItem extends Model
         "cover_image",
         "is_active",
         "status",
+        "volume",
+        "page_duration",
+        "abstract",
+        "biblio_info",
+        "url_visibility",
+        "library_branch",
+        "issn",
+        "frequency",
+        "journal_type",
+        "issue_type",
+        "issue_period",
+        "granting_institution",
+        "degree_qualification",
+        "supervisor",
+        "thesis_date",
+        "thesis_period",
+        "publication_type",
     ];
 
     protected $casts = [
         "is_active" => "boolean",
+        "thesis_date" => "date",
     ];
 
     public function category(): BelongsTo
