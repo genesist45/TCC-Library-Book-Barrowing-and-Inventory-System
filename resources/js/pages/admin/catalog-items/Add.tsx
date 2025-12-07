@@ -87,10 +87,18 @@ export default function CatalogItemAdd({
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
+        console.log("Submitting form data:", data);
         post(route("admin.catalog-items.store"), {
             forceFormData: true,
             onSuccess: () => {
                 toast.success("Catalog item created successfully!");
+            },
+            onError: (errors) => {
+                console.log("Validation errors:", errors);
+                const firstError = Object.values(errors)[0];
+                if (firstError) {
+                    toast.error(firstError as string);
+                }
             },
         });
     };
