@@ -13,7 +13,8 @@ class UpdateCatalogItemRequest extends FormRequest
 
     public function rules(): array
     {
-        $catalogItemId = $this->route('catalog_item');
+        $catalogItem = $this->route('catalog_item');
+        $catalogItemId = $catalogItem instanceof \App\Models\CatalogItem ? $catalogItem->id : $catalogItem;
         
         return [
             'accession_no' => 'required|string|size:7|unique:catalog_items,accession_no,' . $catalogItemId,
