@@ -45,6 +45,7 @@ export interface CatalogItemCopy {
 }
 
 export interface CatalogItem {
+    volume: string;
     id: number;
     accession_no: string;
     title: string;
@@ -75,6 +76,26 @@ export interface CatalogItem {
     authors?: Author[];
     copies?: CatalogItemCopy[];
     copies_count?: number;
+    // DETAIL fields
+    volume?: string;
+    page_duration?: string;
+    abstract?: string;
+    biblio_info?: string;
+    url_visibility?: string;
+    library_branch?: string;
+    // JOURNAL fields
+    issn?: string;
+    frequency?: string;
+    journal_type?: string;
+    issue_type?: string;
+    issue_period?: string;
+    // THESIS fields
+    granting_institution?: string;
+    degree_qualification?: string;
+    supervisor?: string;
+    thesis_date?: string;
+    thesis_period?: string;
+    publication_type?: string;
 }
 
 export interface Member {

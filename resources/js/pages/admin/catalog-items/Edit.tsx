@@ -20,13 +20,56 @@ interface Props extends PageProps {
     authors: Author[];
 }
 
+interface FormData {
+    title: string;
+    accession_no: string;
+    type: string;
+    category_id: string;
+    publisher_id: string;
+    author_ids: number[];
+    isbn: string;
+    isbn13: string;
+    call_no: string;
+    subject: string;
+    series: string;
+    edition: string;
+    year: string;
+    place_of_publication: string;
+    extent: string;
+    other_physical_details: string;
+    dimensions: string;
+    url: string;
+    description: string;
+    location: string;
+    cover_image: File | null;
+    is_active: boolean;
+    volume: string;
+    page_duration: string;
+    abstract: string;
+    biblio_info: string;
+    url_visibility: string;
+    library_branch: string;
+    issn: string;
+    frequency: string;
+    journal_type: string;
+    issue_type: string;
+    issue_period: string;
+    granting_institution: string;
+    degree_qualification: string;
+    supervisor: string;
+    thesis_date: string;
+    thesis_period: string;
+    publication_type: string;
+    _method: string;
+}
+
 export default function CatalogItemEdit({
     catalogItem,
     categories,
     publishers,
     authors,
 }: Props) {
-    const { data, setData, post, processing, errors, clearErrors } = useForm({
+    const { data, setData, post, processing, errors, clearErrors } = useForm<FormData>({
         title: catalogItem.title || "",
         accession_no: catalogItem.accession_no || "",
         type: catalogItem.type || "",
