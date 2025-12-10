@@ -276,13 +276,12 @@ export default function Sidebar({
                                     onClick={() => setShowAccountDropdown(false)}
                                 />
 
-                                {/* Dropdown Content - Fixed positioning to allow overflow beyond sidebar */}
+                                {/* Dropdown Content - Centered within sidebar */}
                                 <div
                                     className="fixed bottom-16 z-50 mb-1"
                                     style={{
-                                        left: '0.75rem',
-                                        width: isVisuallyExpanded ? 'calc(16rem - 1.5rem)' : '240px',
-                                        minWidth: '240px'
+                                        left: '12px',
+                                        width: isVisuallyExpanded ? 'calc(256px - 24px)' : '240px'
                                     }}
                                 >
                                     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">
