@@ -8,6 +8,7 @@ interface User {
     first_name: string;
     last_name: string;
     name: string;
+    username: string;
     email: string;
     role: 'admin' | 'staff';
     profile_picture?: string;
@@ -77,6 +78,14 @@ export default function UserViewModal({ show, user, onClose }: UserViewModalProp
                                 </div>
                             </div>
 
+                            {/* Username */}
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 transition-colors duration-200 dark:text-gray-300 sm:text-sm">
+                                    Username
+                                </label>
+                                <p className="mt-1.5 text-sm text-gray-900 transition-colors duration-200 dark:text-gray-100">{displayUser.username}</p>
+                            </div>
+
                             {/* Email */}
                             <div>
                                 <label className="block text-xs font-medium text-gray-700 transition-colors duration-200 dark:text-gray-300 sm:text-sm">
@@ -91,11 +100,10 @@ export default function UserViewModal({ show, user, onClose }: UserViewModalProp
                                     Role
                                 </label>
                                 <p className="mt-1.5">
-                                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                        displayUser.role === 'admin' 
+                                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${displayUser.role === 'admin'
                                             ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
                                             : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                                    }`}>
+                                        }`}>
                                         {displayUser.role.charAt(0).toUpperCase() + displayUser.role.slice(1)}
                                     </span>
                                 </p>

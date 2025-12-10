@@ -13,51 +13,87 @@ export function generateBreadcrumbs(currentRoute: string): BreadcrumbItem[] {
     }
 
     // Users routes (admin only)
-    if (currentRoute.startsWith('users.')) {
-        breadcrumbs.push({ label: 'Users', href: route('users.index') });
+    if (currentRoute.startsWith('users')) {
+        breadcrumbs.push({ label: 'Users', active: true });
+        return breadcrumbs;
+    }
 
-        if (currentRoute === 'users.index') {
+    // Authors routes
+    if (currentRoute.startsWith('admin.authors')) {
+        breadcrumbs.push({ label: 'Authors', active: true });
+        return breadcrumbs;
+    }
+
+    // Categories routes
+    if (currentRoute.startsWith('admin.categories')) {
+        breadcrumbs.push({ label: 'Categories', active: true });
+        return breadcrumbs;
+    }
+
+    // Publishers routes
+    if (currentRoute.startsWith('admin.publishers')) {
+        breadcrumbs.push({ label: 'Publishers', active: true });
+        return breadcrumbs;
+    }
+
+    // Members routes
+    if (currentRoute.startsWith('admin.members')) {
+        breadcrumbs.push({ label: 'Members', href: route('admin.members.index') });
+
+        if (currentRoute === 'admin.members.create') {
+            breadcrumbs.push({ label: 'Add New Member', active: true });
+        } else if (currentRoute === 'admin.members.edit') {
+            breadcrumbs.push({ label: 'Edit Member', active: true });
+        } else if (currentRoute === 'admin.members.show') {
+            breadcrumbs.push({ label: 'View Member', active: true });
+        } else {
             breadcrumbs[breadcrumbs.length - 1].active = true;
-        } else if (currentRoute === 'users.create') {
-            breadcrumbs.push({ label: 'Create User', active: true });
-        } else if (currentRoute === 'users.edit') {
-            breadcrumbs.push({ label: 'Edit User', active: true });
-        } else if (currentRoute === 'users.show') {
-            breadcrumbs.push({ label: 'View User', active: true });
         }
 
         return breadcrumbs;
     }
 
-    // Books routes
-    if (currentRoute.startsWith('books.')) {
-        breadcrumbs.push({ label: 'Books', href: route('books.index') });
+    // Book Requests routes
+    if (currentRoute.startsWith('admin.book-requests')) {
+        breadcrumbs.push({ label: 'Book Requests', href: route('admin.book-requests.index') });
 
-        if (currentRoute === 'books.index') {
+        if (currentRoute === 'admin.book-requests.edit') {
+            breadcrumbs.push({ label: 'Edit Request', active: true });
+        } else if (currentRoute === 'admin.book-requests.show') {
+            breadcrumbs.push({ label: 'View Request', active: true });
+        } else {
             breadcrumbs[breadcrumbs.length - 1].active = true;
-        } else if (currentRoute === 'books.create') {
-            breadcrumbs.push({ label: 'Add Book', active: true });
-        } else if (currentRoute === 'books.edit') {
-            breadcrumbs.push({ label: 'Edit Book', active: true });
-        } else if (currentRoute === 'books.show') {
-            breadcrumbs.push({ label: 'Book Details', active: true });
         }
 
         return breadcrumbs;
     }
 
-    // Borrowings routes
-    if (currentRoute.startsWith('borrowings.')) {
-        breadcrumbs.push({ label: 'Borrowings', href: route('borrowings.index') });
+    // Book Returns routes
+    if (currentRoute.startsWith('admin.book-returns')) {
+        breadcrumbs.push({ label: 'Book Returns', active: true });
+        return breadcrumbs;
+    }
 
-        if (currentRoute === 'borrowings.index') {
+    // Catalog Items routes
+    if (currentRoute.startsWith('admin.catalog-items')) {
+        breadcrumbs.push({ label: 'Catalog Items', href: route('admin.catalog-items.index') });
+
+        if (currentRoute === 'admin.catalog-items.create') {
+            breadcrumbs.push({ label: 'Add New Item', active: true });
+        } else if (currentRoute === 'admin.catalog-items.edit') {
+            breadcrumbs.push({ label: 'Edit Item', active: true });
+        } else if (currentRoute === 'admin.catalog-items.show') {
+            breadcrumbs.push({ label: 'View Item', active: true });
+        } else {
             breadcrumbs[breadcrumbs.length - 1].active = true;
-        } else if (currentRoute === 'borrowings.create') {
-            breadcrumbs.push({ label: 'New Borrowing', active: true });
-        } else if (currentRoute === 'borrowings.show') {
-            breadcrumbs.push({ label: 'Borrowing Details', active: true });
         }
 
+        return breadcrumbs;
+    }
+
+    // Book Catalog routes
+    if (currentRoute.startsWith('admin.book-catalog')) {
+        breadcrumbs.push({ label: 'Book Catalog', active: true });
         return breadcrumbs;
     }
 

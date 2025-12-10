@@ -15,7 +15,6 @@ export default function Authenticated({ children }: PropsWithChildren) {
 
     const [showingMobileSidebar, setShowingMobileSidebar] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
-    const [sidebarHovered, setSidebarHovered] = useState(false);
     
     // Initialize sidebar state from localStorage
     const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
@@ -57,13 +56,13 @@ export default function Authenticated({ children }: PropsWithChildren) {
         setShowingMobileSidebar(true);
     };
 
-    // Determine if sidebar should show expanded (either not collapsed or hovered while collapsed)
-    const showExpanded = !sidebarCollapsed || sidebarHovered;
+    // Determine if sidebar should show expanded (only based on collapsed state now)
+    const showExpanded = !sidebarCollapsed;
 
     return (
         <div className="min-h-screen bg-gray-50 transition-colors duration-300 dark:bg-[#1a1a1a]">
             <Suspense fallback={null}>
-                <Toast sidebarCollapsed={sidebarCollapsed} />
+                <Toast />
             </Suspense>
             
             {/* Sidebar for desktop */}
@@ -73,8 +72,7 @@ export default function Authenticated({ children }: PropsWithChildren) {
                         currentRoute={currentRoute} 
                         collapsed={sidebarCollapsed}
                         showExpanded={showExpanded}
-                        onMouseEnter={() => sidebarCollapsed && setSidebarHovered(true)}
-                        onMouseLeave={() => setSidebarHovered(false)}
+                        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
                         user={user}
                     />
                 </Suspense>

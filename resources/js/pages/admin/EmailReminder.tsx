@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head, useForm } from '@inertiajs/react';
 import { FormEventHandler, useState, useEffect } from 'react';
 import { Calendar, Clock, Mail, Send } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import InputLabel from '@/components/forms/InputLabel';
 import TextInput from '@/components/forms/TextInput';
 import InputError from '@/components/forms/InputError';

@@ -1,0 +1,33 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('catalog_item_copies', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('catalog_item_id')->constrained('catalog_items')->onDelete('cascade');
+            $table->string('accession_no', 7)->unique();
+            $table->integer('copy_no');
+            $table->string('branch')->nullable();
+            $table->enum('location', ['Filipianna', 'Circulation', 'Theses', 'Fiction', 'Reserve'])->nullable();
+            $table->enum('status', ['Available', 'Borrowed', 'Reserved', 'Lost', 'Under Repair'])->default('Available');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('catalog_item_copies');
+    }
+};

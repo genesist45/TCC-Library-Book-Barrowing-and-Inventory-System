@@ -7,42 +7,42 @@ import { useState } from 'react';
 
 interface LoginFormProps {
     data: {
-        email: string;
+        username: string;
         password: string;
         remember: boolean;
     };
     setData: (key: string, value: string | boolean) => void;
     processing: boolean;
     onSubmit: (e: React.FormEvent) => void;
-    onEmailChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onUsernameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onPasswordChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export default function LoginForm({ 
-    data, 
-    setData, 
-    processing, 
-    onSubmit, 
-    onEmailChange, 
-    onPasswordChange 
+export default function LoginForm({
+    data,
+    setData,
+    processing,
+    onSubmit,
+    onUsernameChange,
+    onPasswordChange
 }: LoginFormProps) {
     const [showPassword, setShowPassword] = useState(false);
 
     return (
         <form onSubmit={onSubmit} className="space-y-3">
-            {/* Email Field */}
+            {/* Username Field */}
             <div>
-                <InputLabel htmlFor="email" value="Email Address" className="text-sm font-semibold text-gray-700" />
+                <InputLabel htmlFor="username" value="Username" className="text-sm font-semibold text-gray-700" />
                 <TextInput
-                    id="email"
-                    type="email"
-                    name="email"
-                    value={data.email}
+                    id="username"
+                    type="text"
+                    name="username"
+                    value={data.username}
                     className="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                     autoComplete="username"
                     isFocused={true}
-                    placeholder="Enter your email"
-                    onChange={onEmailChange}
+                    placeholder="Enter your username"
+                    onChange={onUsernameChange}
                 />
             </div>
 
@@ -91,8 +91,8 @@ export default function LoginForm({
 
             {/* Submit Button */}
             <div>
-                <PrimaryButton 
-                    className="w-full justify-center rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" 
+                <PrimaryButton
+                    className="w-full justify-center rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     disabled={processing}
                 >
                     {processing ? 'Signing in...' : 'Sign In'}

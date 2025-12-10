@@ -1,61 +1,65 @@
-import { Toaster } from 'sonner';
-import { useLayoutEffect } from 'react';
-import '@/assets/css/toast.css';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useTheme } from '@/contexts/ThemeContext';
 
-interface ToastProps {
-    sidebarCollapsed?: boolean;
-}
-
-export default function Toast({ sidebarCollapsed = false }: ToastProps) {
-    // Use useLayoutEffect to update position synchronously before paint
-    useLayoutEffect(() => {
-        const updateToastPosition = () => {
-            // Check if we're on mobile (< 1024px)
-            const isMobile = window.innerWidth < 1024;
-            
-            if (isMobile) {
-                // On mobile, CSS handles positioning with left/right padding
-                return;
-            }
-            
-            // Desktop positioning logic
-            let rightPosition: string;
-            
-            if (sidebarCollapsed) {
-                // When collapsed: content is full-width with px-8 (2rem) padding
-                // Toast should align with the right padding
-                // Adjusted by 105px to keep right edge fixed when width reduced from 355px to 250px
-                rightPosition = 'calc(2rem - 105px)'; // Matches the px-8 padding
-            } else {
-                // When expanded: content uses max-w-7xl (80rem) centered
-                // Calculate centered position with sidebar offset
-                // Adjusted by 105px to keep right edge fixed when width reduced from 355px to 250px
-                const sidebarWidth = '16rem';
-                rightPosition = `calc((100vw - ${sidebarWidth} - 80rem) / 2 + 2rem - 105px)`;
-            }
-            
-            document.documentElement.style.setProperty('--toast-right-position', rightPosition);
-        };
-        
-        updateToastPosition();
-        
-        // Update on window resize
-        window.addEventListener('resize', updateToastPosition);
-        return () => window.removeEventListener('resize', updateToastPosition);
-    }, [sidebarCollapsed]);
+export default function Toast() {
+    const { theme } = useTheme();
 
     return (
-        <Toaster 
-            position="top-right" 
-            closeButton 
-            duration={3000}
-            toastOptions={{
-                className: 'custom-toast',
-                unstyled: false,
-            }}
-            visibleToasts={5}
-            expand={false}
-        />
+        <>
+            <style>{`
+                .custom-toast-container {
+                    bottom: 1.5rem !important;
+                    right: 2rem !important;
+                    width: auto !important;
+                    max-width: 350px !important;
+                }
+                
+                .custom-toast-container .Toastify__toast {
+                    min-height: auto !important;
+                    padding: 10px 14px !important;
+                    margin-bottom: 8px !important;
+                    min-width: 250px !important;
+                    max-width: 350px !important;
+                }
+                
+                .custom-toast-container .Toastify__toast-body {
+                    padding: 0 !important;
+                    margin: 0 !important;
+                    font-size: 0.8125rem !important;
+                    font-weight: 500 !important;
+                }
+                
+                .custom-toast-container .Toastify__toast-icon {
+                    width: 20px !important;
+                    margin-right: 10px !important;
+                }
+                
+                .custom-toast-container .Toastify__close-button {
+                    align-self: center !important;
+                    margin-left: 8px !important;
+                }
+                
+                .custom-toast-container .Toastify__progress-bar {
+                    height: 3px !important;
+                }
+            `}</style>
+            <ToastContainer
+                position="bottom-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme={theme}
+                className="custom-toast-container"
+                toastClassName="bg-white dark:bg-[#2a2a2a] shadow-lg border border-gray-200 dark:border-[#3a3a3a] rounded-lg"
+                progressClassName="bg-blue-600"
+            />
+        </>
     );
 }
 

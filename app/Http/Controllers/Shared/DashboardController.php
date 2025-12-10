@@ -18,7 +18,26 @@ class DashboardController extends Controller
 
         // Render different dashboard views based on role
         if ($user->role === 'admin') {
-            return Inertia::render('admin/Dashboard');
+            $lastMonth = now()->subMonth();
+
+            $stats = [
+                'members' => [
+                    'total' => \App\Models\Member::count(),
+                    'previous' => \App\Models\Member::where('created_at', '<', $lastMonth)->count(),
+                ],
+                'bookRequests' => [
+                    'total' => \App\Models\BookRequest::count(),
+                    'previous' => \App\Models\BookRequest::where('created_at', '<', $lastMonth)->count(),
+                ],
+                'catalogItems' => [
+                    'total' => \App\Models\CatalogItem::count(),
+                    'previous' => \App\Models\CatalogItem::where('created_at', '<', $lastMonth)->count(),
+                ],
+            ];
+
+            return Inertia::render('admin/Dashboard', [
+                'stats' => $stats,
+            ]);
         }
 
         // Default to staff dashboard

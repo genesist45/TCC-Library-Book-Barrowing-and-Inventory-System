@@ -9,6 +9,7 @@ export {
     PageSkeleton,
     ModalSkeleton,
     TableRowSkeleton,
+    TableSkeleton,
 } from '@/components/skeletons/ShimmerEffect';
 
 interface LoadingProps {
@@ -17,10 +18,10 @@ interface LoadingProps {
     fullScreen?: boolean;
 }
 
-export const Loading: FC<LoadingProps> = ({ 
-    text = 'Loading...', 
+export const Loading: FC<LoadingProps> = ({
+    text = 'Loading...',
     size = 'md',
-    fullScreen = false 
+    fullScreen = false
 }) => {
     const sizeClasses = {
         sm: 'h-6 w-6 border-2',

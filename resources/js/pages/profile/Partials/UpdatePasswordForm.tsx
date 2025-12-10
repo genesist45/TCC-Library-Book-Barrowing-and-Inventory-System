@@ -5,7 +5,7 @@ import TextInput from '@/components/forms/TextInput';
 import { Transition } from '@headlessui/react';
 import { useForm } from '@inertiajs/react';
 import { FormEventHandler, useRef } from 'react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 
 export default function UpdatePasswordForm({
     className = '',

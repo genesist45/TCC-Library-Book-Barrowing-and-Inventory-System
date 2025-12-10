@@ -6,7 +6,7 @@ import SecondaryButton from '@/components/buttons/SecondaryButton';
 import TextInput from '@/components/forms/TextInput';
 import { useForm } from '@inertiajs/react';
 import { FormEventHandler, useRef, useState } from 'react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 
 export default function DeleteUserForm({
     className = '',

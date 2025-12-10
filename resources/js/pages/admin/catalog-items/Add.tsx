@@ -1,0 +1,307 @@
+import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
+import { Head, useForm, router } from "@inertiajs/react";
+import { FormEventHandler, useState } from "react";
+import PrimaryButton from "@/components/buttons/PrimaryButton";
+import SecondaryButton from "@/components/buttons/SecondaryButton";
+import { PageProps, Category, Publisher, Author } from "@/types";
+import { toast } from "react-toastify";
+import axios from "axios";
+import {
+    BasicInformationSection,
+    PublicationDetailsSection,
+    PhysicalDescriptionSection,
+    AdditionalDetailsSection,
+    SpecializedFieldsTabs,
+    CoverImageSection,
+    StatusToggleSection,
+    QuickAddModals,
+} from "@/components/catalog-items/form-sections";
+
+interface Props extends PageProps {
+    categories: Category[];
+    publishers: Publisher[];
+    authors: Author[];
+    nextAccessionNo: string;
+}
+
+export default function CatalogItemAdd({
+    categories,
+    publishers,
+    authors,
+    nextAccessionNo,
+}: Props) {
+    const { data, setData, post, processing, errors, clearErrors } = useForm({
+        title: "",
+        accession_no: nextAccessionNo,
+        type: "",
+        category_id: "",
+        publisher_id: "",
+        author_ids: [] as number[],
+        isbn: "",
+        isbn13: "",
+        call_no: "",
+        subject: "",
+        series: "",
+        edition: "",
+        year: "",
+        place_of_publication: "",
+        extent: "",
+        other_physical_details: "",
+        dimensions: "",
+        url: "",
+        description: "",
+        location: "",
+        cover_image: null as File | null,
+        is_active: true,
+        volume: "",
+        page_duration: "",
+        abstract: "",
+        biblio_info: "",
+        url_visibility: "",
+        library_branch: "",
+        issn: "",
+        frequency: "",
+        journal_type: "",
+        issue_type: "",
+        issue_period: "",
+        granting_institution: "",
+        degree_qualification: "",
+        supervisor: "",
+        thesis_date: "",
+        thesis_period: "",
+        publication_type: "",
+    });
+
+    const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
+    const [coverImageName, setCoverImageName] = useState<string>("");
+
+    const [localCategories, setLocalCategories] = useState<Category[]>(categories);
+    const [localPublishers, setLocalPublishers] = useState<Publisher[]>(publishers);
+    const [localAuthors, setLocalAuthors] = useState<Author[]>(authors);
+
+    const [showCategoryModal, setShowCategoryModal] = useState(false);
+    const [showPublisherModal, setShowPublisherModal] = useState(false);
+    const [showAuthorModal, setShowAuthorModal] = useState(false);
+
+    const [activeTab, setActiveTab] = useState<'detail' | 'journal' | 'thesis'>('detail');
+
+    const handleSubmit: FormEventHandler = (e) => {
+        e.preventDefault();
+        console.log("Submitting form data:", data);
+        post(route("admin.catalog-items.store"), {
+            forceFormData: true,
+            onSuccess: () => {
+                toast.success("Catalog item created successfully!");
+            },
+            onError: (errors) => {
+                console.log("Validation errors:", errors);
+                const firstError = Object.values(errors)[0];
+                if (firstError) {
+                    toast.error(firstError as string);
+                }
+            },
+        });
+    };
+
+    const handleCancel = () => {
+        router.visit(route("admin.catalog-items.index"));
+    };
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setData("cover_image", file);
+            setCoverImageName(file.name);
+            clearErrors("cover_image");
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setCoverImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleRemoveImage = () => {
+        setData("cover_image", null);
+        setCoverImageName("");
+        setCoverImagePreview(null);
+    };
+
+    const handleCategoryAdded = async (name: string) => {
+        try {
+            const response = await axios.post(route('admin.categories.store'), {
+                name,
+                is_published: true,
+            });
+
+            if (response.data) {
+                const newCategory = response.data.category;
+                setLocalCategories([...localCategories, newCategory]);
+                setData('category_id', newCategory.id.toString());
+                setShowCategoryModal(false);
+                toast.success('Category added successfully!');
+            }
+        } catch (error: any) {
+            if (error.response?.data?.errors) {
+                toast.error(error.response.data.errors.name?.[0] || 'Failed to add category');
+            }
+        }
+    };
+
+    const handlePublisherAdded = async (name: string, country: string) => {
+        try {
+            const response = await axios.post(route('admin.publishers.store'), {
+                name,
+                country,
+                is_published: true,
+            });
+
+            if (response.data) {
+                const newPublisher = response.data.publisher;
+                setLocalPublishers([...localPublishers, newPublisher]);
+                setData('publisher_id', newPublisher.id.toString());
+                setShowPublisherModal(false);
+                toast.success('Publisher added successfully!');
+            }
+        } catch (error: any) {
+            if (error.response?.data?.errors) {
+                const errorMsg = error.response.data.errors.name?.[0] || error.response.data.errors.country?.[0] || 'Failed to add publisher';
+                toast.error(errorMsg);
+            }
+        }
+    };
+
+    const handleAuthorAdded = async (name: string, country: string) => {
+        try {
+            const response = await axios.post(route('admin.authors.store'), {
+                name,
+                country,
+                is_published: true,
+            });
+
+            if (response.data) {
+                const newAuthor = response.data.author;
+                setLocalAuthors([...localAuthors, newAuthor]);
+                setData('author_ids', [...data.author_ids, newAuthor.id]);
+                setShowAuthorModal(false);
+                toast.success('Author added successfully!');
+            }
+        } catch (error: any) {
+            if (error.response?.data?.errors) {
+                const errorMsg = error.response.data.errors.name?.[0] || error.response.data.errors.country?.[0] || 'Failed to add author';
+                toast.error(errorMsg);
+            }
+        }
+    };
+
+    const handleDataChange = (field: string, value: any) => {
+        setData(field as keyof typeof data, value);
+    };
+
+    const handleClearErrors = (field: string) => {
+        clearErrors(field as keyof typeof errors);
+    };
+
+    return (
+        <AuthenticatedLayout>
+            <Head title="Add Catalog Item" />
+
+            <div className="p-4 sm:p-6">
+                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                    <div className="rounded-lg border border-gray-200 bg-white shadow-sm transition-colors duration-300 dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">
+                        <div className="border-b border-gray-200 p-4 dark:border-[#3a3a3a] sm:p-6">
+                            <h2 className="text-xl font-semibold text-gray-900 transition-colors duration-300 dark:text-gray-100">
+                                Add New Catalog Item
+                            </h2>
+                            <p className="mt-1 text-sm text-gray-600 transition-colors duration-300 dark:text-gray-400">
+                                Fill in the information below to create a new catalog item
+                            </p>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="p-4 sm:p-6">
+                            <div className="space-y-8">
+                                <BasicInformationSection
+                                    data={data}
+                                    errors={errors}
+                                    categories={localCategories}
+                                    authors={localAuthors}
+                                    onDataChange={handleDataChange}
+                                    onClearErrors={handleClearErrors}
+                                    onShowCategoryModal={() => setShowCategoryModal(true)}
+                                    onShowAuthorModal={() => setShowAuthorModal(true)}
+                                />
+
+                                <PublicationDetailsSection
+                                    data={data}
+                                    errors={errors}
+                                    publishers={localPublishers}
+                                    onDataChange={handleDataChange}
+                                    onClearErrors={handleClearErrors}
+                                    onShowPublisherModal={() => setShowPublisherModal(true)}
+                                />
+
+                                <PhysicalDescriptionSection
+                                    data={data}
+                                    errors={errors}
+                                    onDataChange={handleDataChange}
+                                    onClearErrors={handleClearErrors}
+                                />
+
+                                <AdditionalDetailsSection
+                                    data={data}
+                                    errors={errors}
+                                    onDataChange={handleDataChange}
+                                    onClearErrors={handleClearErrors}
+                                />
+
+                                <SpecializedFieldsTabs
+                                    data={data}
+                                    errors={errors}
+                                    activeTab={activeTab}
+                                    onTabChange={setActiveTab}
+                                    onDataChange={handleDataChange}
+                                    onClearErrors={handleClearErrors}
+                                />
+
+                                <CoverImageSection
+                                    coverImagePreview={coverImagePreview}
+                                    coverImageName={coverImageName}
+                                    error={errors.cover_image}
+                                    onImageChange={handleImageChange}
+                                    onRemoveImage={handleRemoveImage}
+                                />
+
+                                <StatusToggleSection
+                                    isActive={data.is_active}
+                                    onToggle={() => setData("is_active", !data.is_active)}
+                                />
+                            </div>
+
+                            <div className="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-[#3a3a3a]">
+                                <SecondaryButton type="button" onClick={handleCancel}>
+                                    Cancel
+                                </SecondaryButton>
+                                <PrimaryButton disabled={processing}>
+                                    Add Catalog Item
+                                </PrimaryButton>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <QuickAddModals
+                showCategoryModal={showCategoryModal}
+                showPublisherModal={showPublisherModal}
+                showAuthorModal={showAuthorModal}
+                onCloseCategoryModal={() => setShowCategoryModal(false)}
+                onClosePublisherModal={() => setShowPublisherModal(false)}
+                onCloseAuthorModal={() => setShowAuthorModal(false)}
+                onCategoryAdded={handleCategoryAdded}
+                onPublisherAdded={handlePublisherAdded}
+                onAuthorAdded={handleAuthorAdded}
+            />
+        </AuthenticatedLayout>
+    );
+}
