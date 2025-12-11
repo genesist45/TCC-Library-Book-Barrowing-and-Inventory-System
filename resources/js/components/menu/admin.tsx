@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, ScanBarcode, Mail, LibraryBig, List, UserSquare2, Building2, Tags, RefreshCcw, UserCheck, BookCheck, Book, BookOpen } from 'lucide-react';
+import { LayoutDashboard, Users, ScanBarcode, Mail, LibraryBig, List, UserSquare2, Building2, Tags, RefreshCcw, UserCheck, BookCheck, Book } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 
 export interface MenuItem {
@@ -29,12 +29,6 @@ export const getAdminMenuItems = (currentRoute: string): MenuItem[] => {
             href: 'users.index',
             icon: Users,
             active: currentRoute === 'users.index' || currentRoute.startsWith('users.'),
-        },
-        {
-            name: 'Book Catalog',
-            icon: BookOpen,
-            href: 'admin.book-catalog',
-            active: currentRoute === 'admin.book-catalog',
         },
         {
             name: 'Circulations',

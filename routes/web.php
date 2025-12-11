@@ -106,7 +106,6 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     
     // Category Management
     Route::prefix('admin')->name('admin.')->group(function () {
-        Route::get('book-catalog', [CatalogItemController::class, 'bookCatalog'])->name('book-catalog');
         Route::resource('categories', CategoryController::class)->except(['create', 'edit']);
         Route::resource('authors', AuthorController::class)->except(['create', 'edit']);
         Route::resource('publishers', PublisherController::class)->except(['create', 'edit']);

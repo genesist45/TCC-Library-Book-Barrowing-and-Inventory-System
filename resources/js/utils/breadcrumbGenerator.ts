@@ -91,12 +91,6 @@ export function generateBreadcrumbs(currentRoute: string): BreadcrumbItem[] {
         return breadcrumbs;
     }
 
-    // Book Catalog routes
-    if (currentRoute.startsWith('admin.book-catalog')) {
-        breadcrumbs.push({ label: 'Book Catalog', active: true });
-        return breadcrumbs;
-    }
-
     // Profile routes
     if (currentRoute.startsWith('profile.')) {
         breadcrumbs.push({ label: 'Profile', active: true });
