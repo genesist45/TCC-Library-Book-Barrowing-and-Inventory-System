@@ -6,21 +6,51 @@ import PrimaryButton from "@/components/buttons/PrimaryButton";
 import { Pencil } from "lucide-react";
 import { PageProps, CatalogItem } from "@/types";
 import RelatedCopiesTable from "@/components/catalog-items/RelatedCopiesTable";
+import BorrowHistoryTable from "@/components/catalog-items/BorrowHistoryTable";
 import CopyBookModal from "@/components/catalog-items/CopyBookModal";
 import CopySuccessModal from "@/components/catalog-items/CopySuccessModal";
+import AddMultipleCopiesModal from "@/components/catalog-items/AddMultipleCopiesModal";
 import {
     CoverImageDisplay,
     CatalogItemDetailsGrid,
+    ViewDetailsTabs,
+    DetailViewContent,
+    JournalViewContent,
+    ThesisViewContent,
 } from "@/components/catalog-items/view-sections";
+import type { ViewTabType } from "@/components/catalog-items/view-sections";
 import { toast } from "react-toastify";
+
+interface BorrowRecord {
+    id: number;
+    member_id: number;
+    member_name: string;
+    member_no: string;
+    member_type: string;
+    email: string;
+    phone: string | null;
+    date_borrowed: string;
+    date_returned: string | null;
+    due_date: string;
+    status: string;
+    accession_no?: string;
+    copy_no?: number;
+}
 
 interface Props extends PageProps {
     catalogItem: CatalogItem;
+    borrowHistory?: BorrowRecord[];
 }
 
-export default function CatalogItemView({ catalogItem }: Props) {
+export default function CatalogItemView({
+    catalogItem,
+    borrowHistory = [],
+}: Props) {
+    const [activeTab, setActiveTab] = useState<ViewTabType>("item-info");
     const [showCopyModal, setShowCopyModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showMultipleCopiesModal, setShowMultipleCopiesModal] =
+        useState(false);
 
     const handleBack = () => {
         router.visit(route("admin.catalog-items.index"));
@@ -31,7 +61,7 @@ export default function CatalogItemView({ catalogItem }: Props) {
     };
 
     const handleRefresh = () => {
-        router.reload({ only: ["catalogItem"] });
+        router.reload({ only: ["catalogItem", "borrowHistory"] });
     };
 
     const handleAddCopy = () => {
@@ -58,6 +88,22 @@ export default function CatalogItemView({ catalogItem }: Props) {
         setShowCopyModal(true);
     };
 
+    const handleAddMultipleCopies = () => {
+        setShowMultipleCopiesModal(true);
+    };
+
+    const handleMultipleCopiesSuccess = () => {
+        setShowMultipleCopiesModal(false);
+        handleRefresh();
+    };
+
+    const handleCloseMultipleCopiesModal = () => {
+        setShowMultipleCopiesModal(false);
+    };
+
+    const copiesCount = catalogItem.copies?.length || 0;
+    const historyCount = borrowHistory.length;
+
     return (
         <AuthenticatedLayout>
             <Head title={`View: ${catalogItem.title}`} />
@@ -76,29 +122,64 @@ export default function CatalogItemView({ catalogItem }: Props) {
                         </div>
 
                         <div className="p-4 sm:p-6">
-                            <div className="flex flex-col items-center gap-6">
-                                <CoverImageDisplay
-                                    coverImage={catalogItem.cover_image}
-                                    title={catalogItem.title}
-                                />
+                            <ViewDetailsTabs
+                                activeTab={activeTab}
+                                onTabChange={setActiveTab}
+                                copiesCount={copiesCount}
+                                historyCount={historyCount}
+                            >
+                                {activeTab === "item-info" && (
+                                    <div className="flex flex-col items-center gap-6">
+                                        <CoverImageDisplay
+                                            coverImage={catalogItem.cover_image}
+                                            title={catalogItem.title}
+                                        />
 
-                                <div className="w-full max-w-4xl">
-                                    <CatalogItemDetailsGrid
+                                        <div className="w-full max-w-4xl">
+                                            <CatalogItemDetailsGrid
+                                                catalogItem={catalogItem}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {activeTab === "detail" && (
+                                    <DetailViewContent
                                         catalogItem={catalogItem}
                                     />
-                                </div>
-                            </div>
+                                )}
 
-                            <div className="mt-8 border-t border-gray-200 pt-8 dark:border-[#3a3a3a]">
-                                <h3 className="mb-4 text-lg font-semibold text-gray-900 transition-colors duration-300 dark:text-gray-100">
-                                    Related Copies
-                                </h3>
-                                <RelatedCopiesTable
-                                    copies={catalogItem.copies || []}
-                                    onRefresh={handleRefresh}
-                                    onAddCopy={handleAddCopy}
-                                />
-                            </div>
+                                {activeTab === "journal" && (
+                                    <JournalViewContent
+                                        catalogItem={catalogItem}
+                                    />
+                                )}
+
+                                {activeTab === "thesis" && (
+                                    <ThesisViewContent
+                                        catalogItem={catalogItem}
+                                    />
+                                )}
+
+                                {activeTab === "related-copies" && (
+                                    <RelatedCopiesTable
+                                        copies={catalogItem.copies || []}
+                                        catalogItemTitle={catalogItem.title}
+                                        onRefresh={handleRefresh}
+                                        onAddCopy={handleAddCopy}
+                                        onAddMultipleCopies={
+                                            handleAddMultipleCopies
+                                        }
+                                    />
+                                )}
+
+                                {activeTab === "borrow-history" && (
+                                    <BorrowHistoryTable
+                                        records={borrowHistory}
+                                        title="Borrow History"
+                                    />
+                                )}
+                            </ViewDetailsTabs>
 
                             <div className="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-[#3a3a3a]">
                                 <SecondaryButton onClick={handleBack}>
@@ -129,6 +210,13 @@ export default function CatalogItemView({ catalogItem }: Props) {
                 catalogItemId={catalogItem.id}
                 onClose={handleCloseSuccessModal}
                 onAddAnother={handleAddAnotherCopy}
+            />
+
+            <AddMultipleCopiesModal
+                show={showMultipleCopiesModal}
+                item={catalogItem}
+                onClose={handleCloseMultipleCopiesModal}
+                onSuccess={handleMultipleCopiesSuccess}
             />
         </AuthenticatedLayout>
     );

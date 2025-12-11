@@ -1,5 +1,10 @@
-export { default as DetailField } from './DetailField';
-export { default as CoverImageDisplay } from './CoverImageDisplay';
-export { default as AuthorBadges } from './AuthorBadges';
-export { default as StatusBadge } from './StatusBadge';
-export { default as CatalogItemDetailsGrid } from './CatalogItemDetailsGrid';
+export { default as DetailField } from "./DetailField";
+export { default as CoverImageDisplay } from "./CoverImageDisplay";
+export { default as AuthorBadges } from "./AuthorBadges";
+export { default as StatusBadge } from "./StatusBadge";
+export { default as CatalogItemDetailsGrid } from "./CatalogItemDetailsGrid";
+export { default as ViewDetailsTabs } from "./ViewDetailsTabs";
+export { default as DetailViewContent } from "./DetailViewContent";
+export { default as JournalViewContent } from "./JournalViewContent";
+export { default as ThesisViewContent } from "./ThesisViewContent";
+export type { ViewTabType } from "./ViewDetailsTabs";

@@ -17,12 +17,34 @@ import {
     QuickAddModals,
 } from "@/components/catalog-items/form-sections";
 import type { TabType } from "@/components/catalog-items/form-sections";
+import RelatedCopiesTable from "@/components/catalog-items/RelatedCopiesTable";
+import BorrowHistoryTable from "@/components/catalog-items/BorrowHistoryTable";
+import CopyBookModal from "@/components/catalog-items/CopyBookModal";
+import CopySuccessModal from "@/components/catalog-items/CopySuccessModal";
+import AddMultipleCopiesModal from "@/components/catalog-items/AddMultipleCopiesModal";
+
+interface BorrowRecord {
+    id: number;
+    member_id: number;
+    member_name: string;
+    member_no: string;
+    member_type: string;
+    email: string;
+    phone: string | null;
+    date_borrowed: string;
+    date_returned: string | null;
+    due_date: string;
+    status: string;
+    accession_no?: string;
+    copy_no?: number;
+}
 
 interface Props extends PageProps {
     catalogItem: CatalogItem;
     categories: Category[];
     publishers: Publisher[];
     authors: Author[];
+    borrowHistory?: BorrowRecord[];
 }
 
 export default function CatalogItemEdit({
@@ -30,6 +52,7 @@ export default function CatalogItemEdit({
     categories,
     publishers,
     authors,
+    borrowHistory = [],
 }: Props) {
     const { data, setData, post, processing, errors, clearErrors } = useForm({
         title: catalogItem.title || "",
@@ -74,11 +97,15 @@ export default function CatalogItemEdit({
         _method: "PATCH",
     });
 
-    const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
+    const [coverImagePreview, setCoverImagePreview] = useState<string | null>(
+        null,
+    );
     const [coverImageName, setCoverImageName] = useState<string>("");
 
-    const [localCategories, setLocalCategories] = useState<Category[]>(categories);
-    const [localPublishers, setLocalPublishers] = useState<Publisher[]>(publishers);
+    const [localCategories, setLocalCategories] =
+        useState<Category[]>(categories);
+    const [localPublishers, setLocalPublishers] =
+        useState<Publisher[]>(publishers);
     const [localAuthors, setLocalAuthors] = useState<Author[]>(authors);
 
     const [showCategoryModal, setShowCategoryModal] = useState(false);
@@ -87,11 +114,58 @@ export default function CatalogItemEdit({
 
     const [activeTab, setActiveTab] = useState<TabType>("item-info");
 
+    // Copy modal states
+    const [showCopyModal, setShowCopyModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showMultipleCopiesModal, setShowMultipleCopiesModal] =
+        useState(false);
+
     useEffect(() => {
         if (catalogItem.cover_image) {
             setCoverImagePreview(`/storage/${catalogItem.cover_image}`);
         }
     }, [catalogItem.cover_image]);
+
+    const handleRefresh = () => {
+        router.reload({ only: ["catalogItem", "borrowHistory"] });
+    };
+
+    const handleAddCopy = () => {
+        setShowCopyModal(true);
+    };
+
+    const handleCopySuccess = () => {
+        setShowCopyModal(false);
+        setShowSuccessModal(true);
+        toast.success("Copy added successfully");
+        handleRefresh();
+    };
+
+    const handleCloseCopyModal = () => {
+        setShowCopyModal(false);
+    };
+
+    const handleCloseSuccessModal = () => {
+        setShowSuccessModal(false);
+    };
+
+    const handleAddAnotherCopy = () => {
+        setShowSuccessModal(false);
+        setShowCopyModal(true);
+    };
+
+    const handleAddMultipleCopies = () => {
+        setShowMultipleCopiesModal(true);
+    };
+
+    const handleMultipleCopiesSuccess = () => {
+        setShowMultipleCopiesModal(false);
+        handleRefresh();
+    };
+
+    const handleCloseMultipleCopiesModal = () => {
+        setShowMultipleCopiesModal(false);
+    };
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -134,7 +208,7 @@ export default function CatalogItemEdit({
 
     const handleCategoryAdded = async (name: string) => {
         try {
-            const response = await axios.post(route('admin.categories.store'), {
+            const response = await axios.post(route("admin.categories.store"), {
                 name,
                 is_published: true,
             });
@@ -142,20 +216,23 @@ export default function CatalogItemEdit({
             if (response.data) {
                 const newCategory = response.data.category;
                 setLocalCategories([...localCategories, newCategory]);
-                setData('category_id', newCategory.id.toString());
+                setData("category_id", newCategory.id.toString());
                 setShowCategoryModal(false);
-                toast.success('Category added successfully!');
+                toast.success("Category added successfully!");
             }
         } catch (error: any) {
             if (error.response?.data?.errors) {
-                toast.error(error.response.data.errors.name?.[0] || 'Failed to add category');
+                toast.error(
+                    error.response.data.errors.name?.[0] ||
+                        "Failed to add category",
+                );
             }
         }
     };
 
     const handlePublisherAdded = async (name: string, country: string) => {
         try {
-            const response = await axios.post(route('admin.publishers.store'), {
+            const response = await axios.post(route("admin.publishers.store"), {
                 name,
                 country,
                 is_published: true,
@@ -164,13 +241,16 @@ export default function CatalogItemEdit({
             if (response.data) {
                 const newPublisher = response.data.publisher;
                 setLocalPublishers([...localPublishers, newPublisher]);
-                setData('publisher_id', newPublisher.id.toString());
+                setData("publisher_id", newPublisher.id.toString());
                 setShowPublisherModal(false);
-                toast.success('Publisher added successfully!');
+                toast.success("Publisher added successfully!");
             }
         } catch (error: any) {
             if (error.response?.data?.errors) {
-                const errorMsg = error.response.data.errors.name?.[0] || error.response.data.errors.country?.[0] || 'Failed to add publisher';
+                const errorMsg =
+                    error.response.data.errors.name?.[0] ||
+                    error.response.data.errors.country?.[0] ||
+                    "Failed to add publisher";
                 toast.error(errorMsg);
             }
         }
@@ -178,7 +258,7 @@ export default function CatalogItemEdit({
 
     const handleAuthorAdded = async (name: string, country: string) => {
         try {
-            const response = await axios.post(route('admin.authors.store'), {
+            const response = await axios.post(route("admin.authors.store"), {
                 name,
                 country,
                 is_published: true,
@@ -187,13 +267,16 @@ export default function CatalogItemEdit({
             if (response.data) {
                 const newAuthor = response.data.author;
                 setLocalAuthors([...localAuthors, newAuthor]);
-                setData('author_ids', [...data.author_ids, newAuthor.id]);
+                setData("author_ids", [...data.author_ids, newAuthor.id]);
                 setShowAuthorModal(false);
-                toast.success('Author added successfully!');
+                toast.success("Author added successfully!");
             }
         } catch (error: any) {
             if (error.response?.data?.errors) {
-                const errorMsg = error.response.data.errors.name?.[0] || error.response.data.errors.country?.[0] || 'Failed to add author';
+                const errorMsg =
+                    error.response.data.errors.name?.[0] ||
+                    error.response.data.errors.country?.[0] ||
+                    "Failed to add author";
                 toast.error(errorMsg);
             }
         }
@@ -206,6 +289,14 @@ export default function CatalogItemEdit({
     const handleClearErrors = (field: string) => {
         clearErrors(field as keyof typeof errors);
     };
+
+    const copiesCount = catalogItem.copies?.length || 0;
+    const historyCount = borrowHistory.length;
+
+    // Check if current tab is a form tab (needs form wrapper)
+    const isFormTab = ["item-info", "detail", "journal", "thesis"].includes(
+        activeTab,
+    );
 
     return (
         <AuthenticatedLayout>
@@ -223,78 +314,145 @@ export default function CatalogItemEdit({
                             </p>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-4 sm:p-6">
+                        <div className="p-4 sm:p-6">
                             <CatalogFormTabs
                                 activeTab={activeTab}
                                 onTabChange={setActiveTab}
+                                showExtraTabs={true}
+                                copiesCount={copiesCount}
+                                historyCount={historyCount}
                             >
-                                {activeTab === "item-info" && (
-                                    <ItemInfoTabContent
-                                        data={data}
-                                        errors={errors}
-                                        categories={localCategories}
-                                        authors={localAuthors}
-                                        publishers={localPublishers}
-                                        onDataChange={handleDataChange}
-                                        onClearErrors={handleClearErrors}
-                                        onShowCategoryModal={() => setShowCategoryModal(true)}
-                                        onShowAuthorModal={() => setShowAuthorModal(true)}
-                                        onShowPublisherModal={() => setShowPublisherModal(true)}
-                                    />
-                                )}
+                                {isFormTab ? (
+                                    <form onSubmit={handleSubmit}>
+                                        {activeTab === "item-info" && (
+                                            <ItemInfoTabContent
+                                                data={data}
+                                                errors={errors}
+                                                categories={localCategories}
+                                                authors={localAuthors}
+                                                publishers={localPublishers}
+                                                onDataChange={handleDataChange}
+                                                onClearErrors={
+                                                    handleClearErrors
+                                                }
+                                                onShowCategoryModal={() =>
+                                                    setShowCategoryModal(true)
+                                                }
+                                                onShowAuthorModal={() =>
+                                                    setShowAuthorModal(true)
+                                                }
+                                                onShowPublisherModal={() =>
+                                                    setShowPublisherModal(true)
+                                                }
+                                            />
+                                        )}
 
-                                {activeTab === "detail" && (
-                                    <DetailTabContent
-                                        data={data}
-                                        errors={errors}
-                                        onDataChange={handleDataChange}
-                                        onClearErrors={handleClearErrors}
-                                    />
-                                )}
+                                        {activeTab === "detail" && (
+                                            <DetailTabContent
+                                                data={data}
+                                                errors={errors}
+                                                onDataChange={handleDataChange}
+                                                onClearErrors={
+                                                    handleClearErrors
+                                                }
+                                            />
+                                        )}
 
-                                {activeTab === "journal" && (
-                                    <JournalTabContent
-                                        data={data}
-                                        errors={errors}
-                                        onDataChange={handleDataChange}
-                                        onClearErrors={handleClearErrors}
-                                    />
-                                )}
+                                        {activeTab === "journal" && (
+                                            <JournalTabContent
+                                                data={data}
+                                                errors={errors}
+                                                onDataChange={handleDataChange}
+                                                onClearErrors={
+                                                    handleClearErrors
+                                                }
+                                            />
+                                        )}
 
-                                {activeTab === "thesis" && (
-                                    <ThesisTabContent
-                                        data={data}
-                                        errors={errors}
-                                        onDataChange={handleDataChange}
-                                        onClearErrors={handleClearErrors}
-                                    />
+                                        {activeTab === "thesis" && (
+                                            <ThesisTabContent
+                                                data={data}
+                                                errors={errors}
+                                                onDataChange={handleDataChange}
+                                                onClearErrors={
+                                                    handleClearErrors
+                                                }
+                                            />
+                                        )}
+
+                                        <div className="mt-8 space-y-8">
+                                            <CoverImageSection
+                                                coverImagePreview={
+                                                    coverImagePreview
+                                                }
+                                                coverImageName={
+                                                    coverImageName ||
+                                                    (catalogItem.cover_image
+                                                        ? "Current cover"
+                                                        : "")
+                                                }
+                                                error={errors.cover_image}
+                                                onImageChange={
+                                                    handleImageChange
+                                                }
+                                                onRemoveImage={
+                                                    handleRemoveImage
+                                                }
+                                            />
+
+                                            <StatusToggleSection
+                                                isActive={data.is_active}
+                                                onToggle={() =>
+                                                    setData(
+                                                        "is_active",
+                                                        !data.is_active,
+                                                    )
+                                                }
+                                            />
+                                        </div>
+
+                                        <div className="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-[#3a3a3a]">
+                                            <SecondaryButton
+                                                type="button"
+                                                onClick={handleCancel}
+                                            >
+                                                Cancel
+                                            </SecondaryButton>
+                                            <PrimaryButton
+                                                disabled={processing}
+                                            >
+                                                Update Catalog Item
+                                            </PrimaryButton>
+                                        </div>
+                                    </form>
+                                ) : (
+                                    <>
+                                        {activeTab === "related-copies" && (
+                                            <RelatedCopiesTable
+                                                copies={
+                                                    catalogItem.copies || []
+                                                }
+                                                catalogItemTitle={
+                                                    catalogItem.title
+                                                }
+                                                onRefresh={handleRefresh}
+                                                onAddCopy={handleAddCopy}
+                                                onAddMultipleCopies={
+                                                    handleAddMultipleCopies
+                                                }
+                                            />
+                                        )}
+
+                                        {activeTab === "borrow-history" && (
+                                            <BorrowHistoryTable
+                                                records={borrowHistory}
+                                                title="Borrow History"
+                                            />
+                                        )}
+                                    </>
                                 )}
                             </CatalogFormTabs>
-
-                            <div className="mt-8 space-y-8">
-                                <CoverImageSection
-                                    coverImagePreview={coverImagePreview}
-                                    coverImageName={coverImageName || (catalogItem.cover_image ? "Current cover" : "")}
-                                    error={errors.cover_image}
-                                    onImageChange={handleImageChange}
-                                    onRemoveImage={handleRemoveImage}
-                                />
-
-                                <StatusToggleSection
-                                    isActive={data.is_active}
-                                    onToggle={() => setData("is_active", !data.is_active)}
-                                />
-                            </div>
-
-                            <div className="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-[#3a3a3a]">
-                                <SecondaryButton type="button" onClick={handleCancel}>
-                                    Cancel
-                                </SecondaryButton>
-                                <PrimaryButton disabled={processing}>
-                                    Update Catalog Item
-                                </PrimaryButton>
-                            </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -309,6 +467,27 @@ export default function CatalogItemEdit({
                 onCategoryAdded={handleCategoryAdded}
                 onPublisherAdded={handlePublisherAdded}
                 onAuthorAdded={handleAuthorAdded}
+            />
+
+            <CopyBookModal
+                show={showCopyModal}
+                item={catalogItem}
+                onClose={handleCloseCopyModal}
+                onSuccess={handleCopySuccess}
+            />
+
+            <CopySuccessModal
+                show={showSuccessModal}
+                catalogItemId={catalogItem.id}
+                onClose={handleCloseSuccessModal}
+                onAddAnother={handleAddAnotherCopy}
+            />
+
+            <AddMultipleCopiesModal
+                show={showMultipleCopiesModal}
+                item={catalogItem}
+                onClose={handleCloseMultipleCopiesModal}
+                onSuccess={handleMultipleCopiesSuccess}
             />
         </AuthenticatedLayout>
     );

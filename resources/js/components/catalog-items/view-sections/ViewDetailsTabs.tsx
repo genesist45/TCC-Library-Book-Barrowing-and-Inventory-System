@@ -8,7 +8,7 @@ import {
     History,
 } from "lucide-react";
 
-export type TabType =
+export type ViewTabType =
     | "item-info"
     | "detail"
     | "journal"
@@ -17,54 +17,36 @@ export type TabType =
     | "borrow-history";
 
 interface Tab {
-    id: TabType;
+    id: ViewTabType;
     label: string;
     icon: typeof Info;
-    isExtra?: boolean;
 }
 
-const BASE_TABS: Tab[] = [
+const TABS: Tab[] = [
     { id: "item-info", label: "ITEM INFO", icon: Info },
     { id: "detail", label: "DETAIL", icon: FileText },
     { id: "journal", label: "JOURNAL", icon: BookOpen },
     { id: "thesis", label: "THESIS", icon: GraduationCap },
+    { id: "related-copies", label: "RELATED COPIES", icon: Copy },
+    { id: "borrow-history", label: "BORROW HISTORY", icon: History },
 ];
 
-const EXTRA_TABS: Tab[] = [
-    {
-        id: "related-copies",
-        label: "RELATED COPIES",
-        icon: Copy,
-        isExtra: true,
-    },
-    {
-        id: "borrow-history",
-        label: "BORROW HISTORY",
-        icon: History,
-        isExtra: true,
-    },
-];
-
-interface CatalogFormTabsProps {
-    activeTab: TabType;
-    onTabChange: (tab: TabType) => void;
+interface ViewDetailsTabsProps {
+    activeTab: ViewTabType;
+    onTabChange: (tab: ViewTabType) => void;
     children: ReactNode;
-    showExtraTabs?: boolean;
     copiesCount?: number;
     historyCount?: number;
 }
 
-export default function CatalogFormTabs({
+export default function ViewDetailsTabs({
     activeTab,
     onTabChange,
     children,
-    showExtraTabs = false,
     copiesCount = 0,
     historyCount = 0,
-}: CatalogFormTabsProps) {
-    const tabs = showExtraTabs ? [...BASE_TABS, ...EXTRA_TABS] : BASE_TABS;
-
-    const getTabCount = (tabId: TabType): number | undefined => {
+}: ViewDetailsTabsProps) {
+    const getTabCount = (tabId: ViewTabType): number | undefined => {
         if (tabId === "related-copies") return copiesCount;
         if (tabId === "borrow-history") return historyCount;
         return undefined;
@@ -74,7 +56,7 @@ export default function CatalogFormTabs({
         <div>
             <div className="border-b border-gray-200 dark:border-gray-700">
                 <nav className="-mb-px flex space-x-2 overflow-x-auto sm:space-x-6">
-                    {tabs.map((tab) => {
+                    {TABS.map((tab) => {
                         const Icon = tab.icon;
                         const count = getTabCount(tab.id);
                         return (
@@ -88,21 +70,13 @@ export default function CatalogFormTabs({
                                         : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                                 }`}
                             >
-                                {showExtraTabs && (
-                                    <Icon size={16} className="flex-shrink-0" />
-                                )}
-                                <span
-                                    className={
-                                        showExtraTabs ? "hidden sm:inline" : ""
-                                    }
-                                >
+                                <Icon size={16} className="flex-shrink-0" />
+                                <span className="hidden sm:inline">
                                     {tab.label}
                                 </span>
-                                {showExtraTabs && (
-                                    <span className="sm:hidden">
-                                        {tab.label.split(" ")[0]}
-                                    </span>
-                                )}
+                                <span className="sm:hidden">
+                                    {tab.label.split(" ")[0]}
+                                </span>
                                 {count !== undefined && count > 0 && (
                                     <span
                                         className={`ml-0.5 rounded-full px-1.5 py-0.5 text-xs font-medium sm:ml-1 sm:px-2 ${

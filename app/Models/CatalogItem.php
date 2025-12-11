@@ -76,6 +76,11 @@ class CatalogItem extends Model
         return $this->hasMany(CatalogItemCopy::class);
     }
 
+    public function bookRequests(): HasMany
+    {
+        return $this->hasMany(BookRequest::class);
+    }
+
     /**
      * Generate a unique 7-digit accession number
      */

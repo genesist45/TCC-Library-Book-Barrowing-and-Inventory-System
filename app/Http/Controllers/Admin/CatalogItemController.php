@@ -9,6 +9,7 @@ use App\Models\CatalogItem;
 use App\Models\Category;
 use App\Models\Publisher;
 use App\Models\Author;
+use App\Models\BookRequest;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\RedirectResponse;
@@ -40,12 +41,12 @@ class CatalogItemController extends Controller
     public function store(StoreCatalogItemRequest $request): RedirectResponse
     {
         $data = $request->validated();
-        
+
         // Auto-generate accession_no if not provided
         if (empty($data['accession_no'])) {
             $data['accession_no'] = CatalogItem::getNextAccessionNo();
         }
-        
+
         if ($request->hasFile('cover_image')) {
             $data['cover_image'] = $request->file('cover_image')->store('catalog_covers', 'public');
         }
@@ -54,7 +55,7 @@ class CatalogItemController extends Controller
         unset($data['author_ids']);
 
         $catalogItem = CatalogItem::create($data);
-        
+
         if (!empty($authorIds)) {
             $catalogItem->authors()->attach($authorIds);
         }
@@ -66,25 +67,75 @@ class CatalogItemController extends Controller
 
     public function show(CatalogItem $catalogItem): Response
     {
+        // Get borrow history for this catalog item
+        $borrowHistory = BookRequest::where('catalog_item_id', $catalogItem->id)
+            ->whereIn('status', ['Approved', 'Returned'])
+            ->with(['member', 'bookReturn'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($request) {
+                return [
+                    'id' => $request->id,
+                    'member_id' => $request->member_id,
+                    'member_name' => $request->member->name ?? $request->full_name,
+                    'member_no' => $request->member->member_no ?? 'N/A',
+                    'member_type' => $request->member->type ?? 'N/A',
+                    'email' => $request->email,
+                    'phone' => $request->phone,
+                    'date_borrowed' => $request->created_at->toDateString(),
+                    'due_date' => $request->return_date?->toDateString(),
+                    'date_returned' => $request->bookReturn?->return_date?->toDateString(),
+                    'status' => $request->status,
+                    'accession_no' => $request->catalogItem->accession_no ?? null,
+                    'copy_no' => null,
+                ];
+            });
+
         return Inertia::render('admin/catalog-items/View', [
-            'catalogItem' => $catalogItem->load(['category', 'publisher', 'authors', 'copies'])
+            'catalogItem' => $catalogItem->load(['category', 'publisher', 'authors', 'copies']),
+            'borrowHistory' => $borrowHistory,
         ]);
     }
 
     public function edit(CatalogItem $catalogItem): Response
     {
+        // Get borrow history for this catalog item
+        $borrowHistory = BookRequest::where('catalog_item_id', $catalogItem->id)
+            ->whereIn('status', ['Approved', 'Returned'])
+            ->with(['member', 'bookReturn'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($request) {
+                return [
+                    'id' => $request->id,
+                    'member_id' => $request->member_id,
+                    'member_name' => $request->member->name ?? $request->full_name,
+                    'member_no' => $request->member->member_no ?? 'N/A',
+                    'member_type' => $request->member->type ?? 'N/A',
+                    'email' => $request->email,
+                    'phone' => $request->phone,
+                    'date_borrowed' => $request->created_at->toDateString(),
+                    'due_date' => $request->return_date?->toDateString(),
+                    'date_returned' => $request->bookReturn?->return_date?->toDateString(),
+                    'status' => $request->status,
+                    'accession_no' => $request->catalogItem->accession_no ?? null,
+                    'copy_no' => null,
+                ];
+            });
+
         return Inertia::render('admin/catalog-items/Edit', [
-            'catalogItem' => $catalogItem->load('authors'),
+            'catalogItem' => $catalogItem->load(['authors', 'copies']),
             'categories' => Category::where('is_published', true)->orderBy('name')->get(['id', 'name']),
             'publishers' => Publisher::where('is_published', true)->orderBy('name')->get(['id', 'name']),
             'authors' => Author::where('is_published', true)->orderBy('name')->get(['id', 'name']),
+            'borrowHistory' => $borrowHistory,
         ]);
     }
 
     public function update(UpdateCatalogItemRequest $request, CatalogItem $catalogItem): RedirectResponse
     {
         $data = $request->validated();
-        
+
         if ($request->hasFile('cover_image')) {
             if ($catalogItem->cover_image) {
                 Storage::disk('public')->delete($catalogItem->cover_image);
@@ -98,7 +149,7 @@ class CatalogItemController extends Controller
         unset($data['author_ids']);
 
         $catalogItem->update($data);
-        
+
         if (isset($authorIds)) {
             $catalogItem->authors()->sync($authorIds);
         }
