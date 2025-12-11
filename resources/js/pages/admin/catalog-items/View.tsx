@@ -1,27 +1,61 @@
-import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
-import { Head, router } from '@inertiajs/react';
-import SecondaryButton from '@/components/buttons/SecondaryButton';
-import PrimaryButton from '@/components/buttons/PrimaryButton';
-import { Pencil } from 'lucide-react';
-import { PageProps, CatalogItem } from '@/types';
-import RelatedCopiesTable from '@/components/catalog-items/RelatedCopiesTable';
-import { CoverImageDisplay, CatalogItemDetailsGrid } from '@/components/catalog-items/view-sections';
+import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
+import { Head, router } from "@inertiajs/react";
+import { useState } from "react";
+import SecondaryButton from "@/components/buttons/SecondaryButton";
+import PrimaryButton from "@/components/buttons/PrimaryButton";
+import { Pencil } from "lucide-react";
+import { PageProps, CatalogItem } from "@/types";
+import RelatedCopiesTable from "@/components/catalog-items/RelatedCopiesTable";
+import CopyBookModal from "@/components/catalog-items/CopyBookModal";
+import CopySuccessModal from "@/components/catalog-items/CopySuccessModal";
+import {
+    CoverImageDisplay,
+    CatalogItemDetailsGrid,
+} from "@/components/catalog-items/view-sections";
+import { toast } from "react-toastify";
 
 interface Props extends PageProps {
     catalogItem: CatalogItem;
 }
 
 export default function CatalogItemView({ catalogItem }: Props) {
+    const [showCopyModal, setShowCopyModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+
     const handleBack = () => {
-        router.visit(route('admin.catalog-items.index'));
+        router.visit(route("admin.catalog-items.index"));
     };
 
     const handleEdit = () => {
-        router.visit(route('admin.catalog-items.edit', catalogItem.id));
+        router.visit(route("admin.catalog-items.edit", catalogItem.id));
     };
 
     const handleRefresh = () => {
-        router.reload({ only: ['catalogItem'] });
+        router.reload({ only: ["catalogItem"] });
+    };
+
+    const handleAddCopy = () => {
+        setShowCopyModal(true);
+    };
+
+    const handleCopySuccess = () => {
+        setShowCopyModal(false);
+        setShowSuccessModal(true);
+        toast.success("Copy added successfully");
+        handleRefresh();
+    };
+
+    const handleCloseCopyModal = () => {
+        setShowCopyModal(false);
+    };
+
+    const handleCloseSuccessModal = () => {
+        setShowSuccessModal(false);
+    };
+
+    const handleAddAnotherCopy = () => {
+        setShowSuccessModal(false);
+        setShowCopyModal(true);
     };
 
     return (
@@ -36,7 +70,8 @@ export default function CatalogItemView({ catalogItem }: Props) {
                                 Catalog Item Details
                             </h2>
                             <p className="mt-1 text-sm text-gray-600 transition-colors duration-300 dark:text-gray-400">
-                                View complete information about this catalog item
+                                View complete information about this catalog
+                                item
                             </p>
                         </div>
 
@@ -48,7 +83,9 @@ export default function CatalogItemView({ catalogItem }: Props) {
                                 />
 
                                 <div className="w-full max-w-4xl">
-                                    <CatalogItemDetailsGrid catalogItem={catalogItem} />
+                                    <CatalogItemDetailsGrid
+                                        catalogItem={catalogItem}
+                                    />
                                 </div>
                             </div>
 
@@ -59,12 +96,18 @@ export default function CatalogItemView({ catalogItem }: Props) {
                                 <RelatedCopiesTable
                                     copies={catalogItem.copies || []}
                                     onRefresh={handleRefresh}
+                                    onAddCopy={handleAddCopy}
                                 />
                             </div>
 
                             <div className="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-[#3a3a3a]">
-                                <SecondaryButton onClick={handleBack}>Close</SecondaryButton>
-                                <PrimaryButton onClick={handleEdit} className="flex items-center gap-2">
+                                <SecondaryButton onClick={handleBack}>
+                                    Close
+                                </SecondaryButton>
+                                <PrimaryButton
+                                    onClick={handleEdit}
+                                    className="flex items-center gap-2"
+                                >
                                     <Pencil className="h-4 w-4" />
                                     Edit Item
                                 </PrimaryButton>
@@ -73,6 +116,20 @@ export default function CatalogItemView({ catalogItem }: Props) {
                     </div>
                 </div>
             </div>
+
+            <CopyBookModal
+                show={showCopyModal}
+                item={catalogItem}
+                onClose={handleCloseCopyModal}
+                onSuccess={handleCopySuccess}
+            />
+
+            <CopySuccessModal
+                show={showSuccessModal}
+                catalogItemId={catalogItem.id}
+                onClose={handleCloseSuccessModal}
+                onAddAnother={handleAddAnotherCopy}
+            />
         </AuthenticatedLayout>
     );
 }

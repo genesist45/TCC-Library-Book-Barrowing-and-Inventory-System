@@ -7,15 +7,16 @@ import { PageProps, Category, Publisher, Author } from "@/types";
 import { toast } from "react-toastify";
 import axios from "axios";
 import {
-    BasicInformationSection,
-    PublicationDetailsSection,
-    PhysicalDescriptionSection,
-    AdditionalDetailsSection,
-    SpecializedFieldsTabs,
+    CatalogFormTabs,
+    ItemInfoTabContent,
+    DetailTabContent,
+    JournalTabContent,
+    ThesisTabContent,
     CoverImageSection,
     StatusToggleSection,
     QuickAddModals,
 } from "@/components/catalog-items/form-sections";
+import type { TabType } from "@/components/catalog-items/form-sections";
 
 interface Props extends PageProps {
     categories: Category[];
@@ -83,7 +84,7 @@ export default function CatalogItemAdd({
     const [showPublisherModal, setShowPublisherModal] = useState(false);
     const [showAuthorModal, setShowAuthorModal] = useState(false);
 
-    const [activeTab, setActiveTab] = useState<'detail' | 'journal' | 'thesis'>('detail');
+    const [activeTab, setActiveTab] = useState<TabType>("item-info");
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -220,50 +221,54 @@ export default function CatalogItemAdd({
                         </div>
 
                         <form onSubmit={handleSubmit} className="p-4 sm:p-6">
-                            <div className="space-y-8">
-                                <BasicInformationSection
-                                    data={data}
-                                    errors={errors}
-                                    categories={localCategories}
-                                    authors={localAuthors}
-                                    onDataChange={handleDataChange}
-                                    onClearErrors={handleClearErrors}
-                                    onShowCategoryModal={() => setShowCategoryModal(true)}
-                                    onShowAuthorModal={() => setShowAuthorModal(true)}
-                                />
+                            <CatalogFormTabs
+                                activeTab={activeTab}
+                                onTabChange={setActiveTab}
+                            >
+                                {activeTab === "item-info" && (
+                                    <ItemInfoTabContent
+                                        data={data}
+                                        errors={errors}
+                                        categories={localCategories}
+                                        authors={localAuthors}
+                                        publishers={localPublishers}
+                                        onDataChange={handleDataChange}
+                                        onClearErrors={handleClearErrors}
+                                        onShowCategoryModal={() => setShowCategoryModal(true)}
+                                        onShowAuthorModal={() => setShowAuthorModal(true)}
+                                        onShowPublisherModal={() => setShowPublisherModal(true)}
+                                    />
+                                )}
 
-                                <PublicationDetailsSection
-                                    data={data}
-                                    errors={errors}
-                                    publishers={localPublishers}
-                                    onDataChange={handleDataChange}
-                                    onClearErrors={handleClearErrors}
-                                    onShowPublisherModal={() => setShowPublisherModal(true)}
-                                />
+                                {activeTab === "detail" && (
+                                    <DetailTabContent
+                                        data={data}
+                                        errors={errors}
+                                        onDataChange={handleDataChange}
+                                        onClearErrors={handleClearErrors}
+                                    />
+                                )}
 
-                                <PhysicalDescriptionSection
-                                    data={data}
-                                    errors={errors}
-                                    onDataChange={handleDataChange}
-                                    onClearErrors={handleClearErrors}
-                                />
+                                {activeTab === "journal" && (
+                                    <JournalTabContent
+                                        data={data}
+                                        errors={errors}
+                                        onDataChange={handleDataChange}
+                                        onClearErrors={handleClearErrors}
+                                    />
+                                )}
 
-                                <AdditionalDetailsSection
-                                    data={data}
-                                    errors={errors}
-                                    onDataChange={handleDataChange}
-                                    onClearErrors={handleClearErrors}
-                                />
+                                {activeTab === "thesis" && (
+                                    <ThesisTabContent
+                                        data={data}
+                                        errors={errors}
+                                        onDataChange={handleDataChange}
+                                        onClearErrors={handleClearErrors}
+                                    />
+                                )}
+                            </CatalogFormTabs>
 
-                                <SpecializedFieldsTabs
-                                    data={data}
-                                    errors={errors}
-                                    activeTab={activeTab}
-                                    onTabChange={setActiveTab}
-                                    onDataChange={handleDataChange}
-                                    onClearErrors={handleClearErrors}
-                                />
-
+                            <div className="mt-8 space-y-8">
                                 <CoverImageSection
                                     coverImagePreview={coverImagePreview}
                                     coverImageName={coverImageName}

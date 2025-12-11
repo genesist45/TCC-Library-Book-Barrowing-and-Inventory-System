@@ -1,7 +1,7 @@
-import { Pencil, Trash2 } from 'lucide-react';
-import { useState } from 'react';
-import axios from 'axios';
-import { toast } from 'react-toastify';
+import { Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 interface Copy {
     id: number;
@@ -15,28 +15,37 @@ interface Copy {
 interface RelatedCopiesTableProps {
     copies: Copy[];
     onRefresh: () => void;
+    onAddCopy?: () => void;
 }
 
-export default function RelatedCopiesTable({ copies, onRefresh }: RelatedCopiesTableProps) {
+export default function RelatedCopiesTable({
+    copies,
+    onRefresh,
+    onAddCopy,
+}: RelatedCopiesTableProps) {
     const [deletingId, setDeletingId] = useState<number | null>(null);
 
     const handleDelete = async (copy: Copy) => {
-        if (!confirm(`Are you sure you want to delete copy #${copy.copy_no}?`)) {
+        if (
+            !confirm(`Are you sure you want to delete copy #${copy.copy_no}?`)
+        ) {
             return;
         }
 
         setDeletingId(copy.id);
 
         try {
-            const response = await axios.delete(route('admin.copies.destroy', copy.id));
+            const response = await axios.delete(
+                route("admin.copies.destroy", copy.id),
+            );
 
             if (response.data.success) {
-                toast.success('Copy deleted successfully');
+                toast.success("Copy deleted successfully");
                 onRefresh();
             }
         } catch (error) {
-            toast.error('Failed to delete copy');
-            console.error('Delete error:', error);
+            toast.error("Failed to delete copy");
+            console.error("Delete error:", error);
         } finally {
             setDeletingId(null);
         }
@@ -48,12 +57,33 @@ export default function RelatedCopiesTable({ copies, onRefresh }: RelatedCopiesT
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                     No copies available for this catalog item.
                 </p>
+                {onAddCopy && (
+                    <button
+                        onClick={onAddCopy}
+                        className="mt-4 inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200"
+                    >
+                        <Plus size={16} />
+                        Add New Copy
+                    </button>
+                )}
             </div>
         );
     }
 
     return (
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-colors duration-300 dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">
+            {/* Header with Add Button */}
+            {onAddCopy && (
+                <div className="flex items-center justify-end border-b border-gray-200 bg-gray-50 px-4 py-3 transition-colors duration-300 dark:border-[#3a3a3a] dark:bg-[#3a3a3a]">
+                    <button
+                        onClick={onAddCopy}
+                        className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200"
+                    >
+                        <Plus size={16} />
+                        Add New Copy
+                    </button>
+                </div>
+            )}
             <div className="overflow-x-auto">
                 <table className="w-full">
                     <thead className="border-b border-gray-200 bg-gray-50 transition-colors duration-300 dark:border-[#3a3a3a] dark:bg-[#3a3a3a]">
@@ -83,7 +113,10 @@ export default function RelatedCopiesTable({ copies, onRefresh }: RelatedCopiesT
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white transition-colors duration-300 dark:divide-[#3a3a3a] dark:bg-[#2a2a2a]">
                         {copies.map((copy) => (
-                            <tr key={copy.id} className="transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]">
+                            <tr
+                                key={copy.id}
+                                className="transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]"
+                            >
                                 <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:px-4">
                                     {copy.id}
                                 </td>
@@ -94,23 +127,23 @@ export default function RelatedCopiesTable({ copies, onRefresh }: RelatedCopiesT
                                     Copy #{copy.copy_no}
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:px-4">
-                                    {copy.branch || '-'}
+                                    {copy.branch || "-"}
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:px-4">
-                                    {copy.location || '-'}
+                                    {copy.location || "-"}
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-2 sm:px-4">
                                     <span
                                         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                            copy.status === 'Available'
-                                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                                                : copy.status === 'Borrowed'
-                                                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
-                                                : copy.status === 'Reserved'
-                                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                                                : copy.status === 'Lost'
-                                                ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-                                                : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                                            copy.status === "Available"
+                                                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                                                : copy.status === "Borrowed"
+                                                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                                  : copy.status === "Reserved"
+                                                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                                                    : copy.status === "Lost"
+                                                      ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                                                      : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
                                         }`}
                                     >
                                         {copy.status}
@@ -124,7 +157,10 @@ export default function RelatedCopiesTable({ copies, onRefresh }: RelatedCopiesT
                                             className="flex items-center justify-center rounded-lg bg-red-100 p-1.5 text-red-600 transition hover:bg-red-200 disabled:opacity-50 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
                                             title="Delete"
                                         >
-                                            <Trash2 size={16} className="sm:h-4 sm:w-4" />
+                                            <Trash2
+                                                size={16}
+                                                className="sm:h-4 sm:w-4"
+                                            />
                                         </button>
                                     </div>
                                 </td>
