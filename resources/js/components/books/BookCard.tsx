@@ -1,5 +1,5 @@
-import { CatalogItem } from '@/types';
-import { BookOpen } from 'lucide-react';
+import { CatalogItem } from "@/types";
+import { BookOpen } from "lucide-react";
 
 interface BookCardProps {
     book: CatalogItem;
@@ -7,10 +7,16 @@ interface BookCardProps {
 }
 
 export default function BookCard({ book, onClick }: BookCardProps) {
+    // Compute availability based on copies instead of book.status
+    const hasAvailableCopy =
+        book.copies?.some((copy) => copy.status === "Available") ?? false;
+    const hasCopies = (book.copies?.length ?? 0) > 0;
+    const isAllBorrowed = hasCopies && !hasAvailableCopy;
+
     return (
         <div
             onClick={onClick}
-            className="group cursor-pointer overflow-hidden rounded-xl bg-white shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 dark:bg-[#2a2a2a] dark:shadow-lg"
+            className="group cursor-pointer overflow-hidden rounded-xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:bg-[#2a2a2a] dark:shadow-lg"
         >
             {/* Book Cover Image */}
             <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-[#3a3a3a] dark:to-[#2a2a2a]">
@@ -26,9 +32,9 @@ export default function BookCard({ book, onClick }: BookCardProps) {
                     </div>
                 )}
 
-                {/* Status Badge */}
-                {book.status === 'Borrowed' && (
-                    <div className="absolute top-2 right-2">
+                {/* Status Badge - Only show if all copies are borrowed */}
+                {isAllBorrowed && (
+                    <div className="absolute right-2 top-2">
                         <span className="inline-flex items-center rounded-full bg-red-500 px-2.5 py-1 text-xs font-semibold text-white shadow-lg">
                             Borrowed
                         </span>
@@ -49,10 +55,12 @@ export default function BookCard({ book, onClick }: BookCardProps) {
                 {/* Author Name */}
                 {book.authors && book.authors.length > 0 ? (
                     <p className="line-clamp-1 text-xs text-gray-600 dark:text-gray-400">
-                        {book.authors.map((author) => author.name).join(', ')}
+                        {book.authors.map((author) => author.name).join(", ")}
                     </p>
                 ) : (
-                    <p className="text-xs italic text-gray-400 dark:text-gray-500">No author listed</p>
+                    <p className="text-xs italic text-gray-400 dark:text-gray-500">
+                        No author listed
+                    </p>
                 )}
             </div>
         </div>
