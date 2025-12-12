@@ -28,7 +28,14 @@ Route::get("/", function () {
         "category",
         "publisher",
         "authors",
+        "copies",
     ])
+        ->withCount("copies")
+        ->withCount([
+            "copies as available_copies_count" => function ($query) {
+                $query->where("status", "Available");
+            },
+        ])
         ->where("is_active", true)
         ->latest()
         ->take(10)
