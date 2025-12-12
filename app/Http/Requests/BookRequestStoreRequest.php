@@ -22,19 +22,18 @@ class BookRequestStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'member_id' => 'required|exists:members,member_no', // member_id field contains member_no from form
-            'catalog_item_id' => 'required|exists:catalog_items,id',
-            'full_name' => 'required|string|max:255',
-            'email' => [
-                'required',
-                'email',
-            ],
-            'quota' => 'nullable|integer|min:0',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string',
-            'return_date' => 'required|date|after_or_equal:today|before_or_equal:+1 month',
-            'return_time' => 'required|date_format:H:i',
-            'notes' => 'nullable|string',
+            "member_id" => "required|exists:members,member_no", // member_id field contains member_no from form
+            "catalog_item_id" => "required|exists:catalog_items,id",
+            "catalog_item_copy_id" => "nullable|exists:catalog_item_copies,id",
+            "full_name" => "required|string|max:255",
+            "email" => ["required", "email"],
+            "quota" => "nullable|integer|min:0",
+            "phone" => "nullable|string|max:20",
+            "address" => "nullable|string",
+            "return_date" =>
+                "required|date|after_or_equal:today|before_or_equal:+1 month",
+            "return_time" => "required|date_format:H:i",
+            "notes" => "nullable|string",
         ];
     }
 }
