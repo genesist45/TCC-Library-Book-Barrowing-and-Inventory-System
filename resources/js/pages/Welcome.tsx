@@ -1,12 +1,12 @@
-import { PageProps, CatalogItem } from '@/types';
-import { Head } from '@inertiajs/react';
-import PublicHeader from '@/components/common/PublicHeader';
-import ScrollToTop from '@/components/common/ScrollToTop';
-import BookDetailsModal from '@/components/books/BookDetailsModal';
-import { useState, useEffect } from 'react';
-import Toast from '@/components/common/Toast';
-import axios from 'axios';
-import { HeroSection, BookCatalogSection } from '@/components/welcome';
+import { PageProps, CatalogItem } from "@/types";
+import { Head } from "@inertiajs/react";
+import PublicHeader from "@/components/common/PublicHeader";
+import ScrollToTop from "@/components/common/ScrollToTop";
+import BookDetailsModal from "@/components/books/BookDetailsModal";
+import { useState, useEffect } from "react";
+import Toast from "@/components/common/Toast";
+import axios from "axios";
+import { HeroSection, BookCatalogSection } from "@/components/welcome";
 
 interface SearchResult {
     id: number;
@@ -17,8 +17,11 @@ interface SearchResult {
     is_active: boolean;
 }
 
-export default function Welcome({ auth, popularBooks = [] }: PageProps<{ popularBooks: CatalogItem[] }>) {
-    const [searchQuery, setSearchQuery] = useState('');
+export default function Welcome({
+    auth,
+    popularBooks = [],
+}: PageProps<{ popularBooks: CatalogItem[] }>) {
+    const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
     const [showDropdown, setShowDropdown] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
@@ -28,23 +31,34 @@ export default function Welcome({ auth, popularBooks = [] }: PageProps<{ popular
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Filter states
-    const [typeFilter, setTypeFilter] = useState('');
-    const [yearFilter, setYearFilter] = useState('');
-    const [availabilityFilter, setAvailabilityFilter] = useState('');
+    const [typeFilter, setTypeFilter] = useState("");
+    const [yearFilter, setYearFilter] = useState("");
+    const [availabilityFilter, setAvailabilityFilter] = useState("");
 
     // Filter popular books based on selected filters
     const filteredPopularBooks = popularBooks.filter((book) => {
         if (typeFilter && book.type !== typeFilter) return false;
         if (yearFilter) {
-            if (yearFilter === 'older') {
-                const bookYear = parseInt(book.year || '0');
+            if (yearFilter === "older") {
+                const bookYear = parseInt(book.year || "0");
                 if (bookYear >= 2019) return false;
             } else if (book.year !== yearFilter) {
                 return false;
             }
         }
-        if (availabilityFilter === 'available' && book.status !== 'Available') return false;
-        if (availabilityFilter === 'borrowed' && book.status !== 'Borrowed') return false;
+        // Check availability based on copies
+        if (availabilityFilter === "available") {
+            const hasAvailableCopy =
+                book.copies?.some((copy) => copy.status === "Available") ??
+                false;
+            if (!hasAvailableCopy) return false;
+        }
+        if (availabilityFilter === "borrowed") {
+            const allCopiesBorrowed = book.copies?.length
+                ? book.copies.every((copy) => copy.status !== "Available")
+                : false;
+            if (!allCopiesBorrowed) return false;
+        }
         return true;
     });
 
@@ -58,7 +72,9 @@ export default function Welcome({ auth, popularBooks = [] }: PageProps<{ popular
             setIsSearching(true);
             const timer = setTimeout(() => {
                 axios
-                    .get(route('books.search'), { params: { query: searchQuery } })
+                    .get(route("books.search"), {
+                        params: { query: searchQuery },
+                    })
                     .then((response) => {
                         setSearchResults(response.data);
                         setShowDropdown(true);
@@ -81,9 +97,9 @@ export default function Welcome({ auth, popularBooks = [] }: PageProps<{ popular
             setSelectedBook(response.data);
             setIsModalOpen(true);
             setShowDropdown(false);
-            setSearchQuery('');
+            setSearchQuery("");
         } catch (error) {
-            console.error('Error fetching book details:', error);
+            console.error("Error fetching book details:", error);
         }
     };
 
@@ -102,7 +118,9 @@ export default function Welcome({ auth, popularBooks = [] }: PageProps<{ popular
                     searchResults={searchResults}
                     showDropdown={showDropdown}
                     isSearching={isSearching}
-                    onSearchFocus={() => searchResults.length > 0 && setShowDropdown(true)}
+                    onSearchFocus={() =>
+                        searchResults.length > 0 && setShowDropdown(true)
+                    }
                     onSearchResultClick={handleSearchResultClick}
                     typeFilter={typeFilter}
                     yearFilter={yearFilter}

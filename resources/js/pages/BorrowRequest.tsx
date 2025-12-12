@@ -1,4 +1,4 @@
-import { PageProps, CatalogItem } from '@/types';
+import { PageProps, CatalogItem, CatalogItemCopy } from '@/types';
 import { Head, useForm, usePage, router } from '@inertiajs/react';
 import PublicHeader from '@/components/common/PublicHeader';
 import { useState, useEffect } from 'react';
@@ -19,6 +19,9 @@ export default function BorrowRequest({ auth, catalogItem }: Props) {
         message: string;
     }>({ isValid: null, isChecking: false, message: '' });
 
+    // Get available copies from the catalog item
+    const availableCopies = catalogItem.copies?.filter(copy => copy.status === 'Available') ?? [];
+
     // Show flash messages
     useEffect(() => {
         if (flash?.success) {
@@ -32,6 +35,7 @@ export default function BorrowRequest({ auth, catalogItem }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         member_id: '',
         catalog_item_id: catalogItem.id,
+        catalog_item_copy_id: availableCopies.length > 0 ? availableCopies[0].id : null as number | null,
         full_name: '',
         email: '',
         quota: '',
@@ -216,6 +220,34 @@ export default function BorrowRequest({ auth, catalogItem }: Props) {
                                             <p className="mt-1 text-sm text-red-600">{memberValidation.message}</p>
                                         )}
                                     </div>
+
+                                    {/* Copy Selection */}
+                                    {catalogItem.copies && catalogItem.copies.length > 0 && (
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Select Copy <span className="text-red-500">*</span>
+                                            </label>
+                                            <select
+                                                value={data.catalog_item_copy_id ?? ''}
+                                                onChange={(e) => setData('catalog_item_copy_id', e.target.value ? parseInt(e.target.value) : null)}
+                                                className="mt-1.5 w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                required
+                                            >
+                                                <option value="">-- Select a copy --</option>
+                                                {availableCopies.map((copy) => (
+                                                    <option key={copy.id} value={copy.id}>
+                                                        Copy #{copy.copy_no} - Accession: {copy.accession_no} ({copy.location || 'Main'})
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {availableCopies.length === 0 && (
+                                                <p className="mt-1 text-sm text-amber-600">No copies available for borrowing</p>
+                                            )}
+                                            {errors.catalog_item_copy_id && (
+                                                <p className="mt-1 text-sm text-red-600">{errors.catalog_item_copy_id}</p>
+                                            )}
+                                        </div>
+                                    )}
 
                                     {/* Full Name */}
                                     <div>
