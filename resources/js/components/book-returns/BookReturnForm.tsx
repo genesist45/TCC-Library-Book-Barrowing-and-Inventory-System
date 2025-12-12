@@ -38,7 +38,7 @@ export default function BookReturnForm({
         return_time: bookReturn?.return_time || currentTime,
         condition_on_return: (bookReturn?.condition_on_return || 'Good') as 'Good' | 'Damaged' | 'Lost',
         remarks: bookReturn?.remarks || '',
-        penalty_amount: bookReturn?.penalty_amount ?? '',
+        penalty_amount: bookReturn?.penalty_amount ?? 0,
         status: (bookReturn?.status || 'Returned') as 'Returned' | 'Pending',
     });
     const [availableRequests, setAvailableRequests] = useState<AvailableRequest[]>([]);
@@ -98,7 +98,7 @@ export default function BookReturnForm({
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        const penaltyAmount = data.penalty_amount === '' ? 0 : (typeof data.penalty_amount === 'string' ? parseFloat(data.penalty_amount) : data.penalty_amount);
+        const penaltyAmount = typeof data.penalty_amount === 'number' ? data.penalty_amount : parseFloat(data.penalty_amount) || 0;
         setData('penalty_amount', penaltyAmount);
 
         setTimeout(() => {

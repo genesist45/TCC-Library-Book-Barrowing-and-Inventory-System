@@ -36,13 +36,13 @@ export default function EmailReminder() {
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        
+
         const dueDate = new Date(returnDate);
         dueDate.setHours(0, 0, 0, 0);
 
         const diffTime = dueDate.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
+
         setDaysRemaining(diffDays);
     };
 
@@ -52,10 +52,8 @@ export default function EmailReminder() {
         post(route('email-reminder.send'), {
             preserveScroll: true,
             onSuccess: () => {
-                toast.success('Email reminder scheduled successfully!', {
-                    description: `Reminder will be sent on ${data.return_date} at ${data.return_time}`,
-                });
-                
+                toast.success(`Email reminder scheduled successfully! Reminder will be sent on ${data.return_date} at ${data.return_time}`);
+
                 const now = new Date();
                 setCreatedAt(now.toLocaleString('en-US', {
                     year: 'numeric',
@@ -65,18 +63,14 @@ export default function EmailReminder() {
                     minute: '2-digit',
                     hour12: true
                 }));
-                
+
                 reset('email');
             },
             onError: (errors) => {
                 if (errors.email) {
-                    toast.error('Invalid Email', {
-                        description: errors.email,
-                    });
+                    toast.error(`Invalid Email: ${errors.email}`);
                 } else {
-                    toast.error('Submission Failed', {
-                        description: 'Please check all fields and try again.',
-                    });
+                    toast.error('Submission Failed: Please check all fields and try again.');
                 }
             },
         });
@@ -84,7 +78,7 @@ export default function EmailReminder() {
 
     const getDaysRemainingText = () => {
         if (daysRemaining === null) return '';
-        
+
         if (daysRemaining < 0) {
             return `${Math.abs(daysRemaining)} day${Math.abs(daysRemaining) !== 1 ? 's' : ''} overdue`;
         } else if (daysRemaining === 0) {
@@ -152,13 +146,12 @@ export default function EmailReminder() {
                                         />
                                     </div>
                                     <InputError message={errors.return_date} className="mt-2" />
-                                    
+
                                     {daysRemaining !== null && (
-                                        <div className={`mt-2 flex items-center gap-2 text-sm font-medium ${
-                                            daysRemaining < 0 ? 'text-red-600 dark:text-red-400' :
-                                            daysRemaining === 0 ? 'text-yellow-600 dark:text-yellow-400' :
-                                            'text-green-600 dark:text-green-400'
-                                        }`}>
+                                        <div className={`mt-2 flex items-center gap-2 text-sm font-medium ${daysRemaining < 0 ? 'text-red-600 dark:text-red-400' :
+                                                daysRemaining === 0 ? 'text-yellow-600 dark:text-yellow-400' :
+                                                    'text-green-600 dark:text-green-400'
+                                            }`}>
                                             <Calendar className="h-4 w-4" />
                                             {getDaysRemainingText()}
                                         </div>

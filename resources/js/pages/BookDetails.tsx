@@ -13,10 +13,14 @@ import {
     Phone,
     MapPin,
     FileText,
+    Info,
+    Copy,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import Toast from "@/components/common/Toast";
 import axios from "axios";
+
+type BookDetailTab = "item-info" | "available-copies";
 
 interface Props extends PageProps {
     catalogItem: CatalogItem & {
@@ -27,6 +31,7 @@ interface Props extends PageProps {
 
 export default function BookDetails({ auth, catalogItem }: Props) {
     const { flash } = usePage().props as any;
+    const [activeTab, setActiveTab] = useState<BookDetailTab>("item-info");
     const [showRequestModal, setShowRequestModal] = useState(false);
     const [selectedCopy, setSelectedCopy] = useState<CatalogItemCopy | null>(
         null,
@@ -162,7 +167,7 @@ export default function BookDetails({ auth, catalogItem }: Props) {
         post(route("books.borrow-request.store"), {
             preserveScroll: true,
             onSuccess: () => {
-                toast.success("Book request submitted successfully!");
+                // Toast is handled by flash message from backend
                 reset();
                 setShowRequestModal(false);
                 setBorrowerCategory(null);
@@ -254,264 +259,298 @@ export default function BookDetails({ auth, catalogItem }: Props) {
                                 </h1>
                             </div>
 
-                            {/* Book Details Section */}
-                            <div className="p-6">
-                                <div className="flex flex-col gap-8 lg:flex-row">
-                                    {/* Left Side - Book Information */}
-                                    <div className="flex-1">
-                                        <dl className="divide-y divide-gray-100">
-                                            <DetailRow
-                                                label="Type"
-                                                value={catalogItem.type}
-                                            />
-                                            <DetailRow
-                                                label="Authors"
-                                                value={
-                                                    catalogItem.authors &&
-                                                        catalogItem.authors.length >
-                                                        0
-                                                        ? catalogItem.authors
-                                                            .map(
-                                                                (a) => a.name,
-                                                            )
-                                                            .join(", ")
-                                                        : undefined
-                                                }
-                                                isLink
-                                            />
-                                            <DetailRow
-                                                label="Category"
-                                                value={
-                                                    catalogItem.category?.name
-                                                }
-                                            />
-                                            <DetailRow
-                                                label="Publication Year"
-                                                value={catalogItem.year}
-                                            />
-                                            <DetailRow
-                                                label="Publisher"
-                                                value={
-                                                    catalogItem.publisher?.name
-                                                }
-                                                isLink
-                                            />
-                                            <DetailRow
-                                                label="Edition"
-                                                value={catalogItem.edition}
-                                            />
-                                            <DetailRow
-                                                label="Volume"
-                                                value={catalogItem.volume}
-                                            />
-                                            <DetailRow
-                                                label="ISBN"
-                                                value={catalogItem.isbn}
-                                            />
-                                            <DetailRow
-                                                label="ISBN 13"
-                                                value={catalogItem.isbn13}
-                                            />
-                                            <DetailRow
-                                                label="ISSN"
-                                                value={catalogItem.issn}
-                                            />
-                                            <DetailRow
-                                                label="Call No"
-                                                value={catalogItem.call_no}
-                                            />
-                                            <DetailRow
-                                                label="Accession No"
-                                                value={catalogItem.accession_no}
-                                            />
-                                            <DetailRow
-                                                label="Series"
-                                                value={catalogItem.series}
-                                            />
-                                            <DetailRow
-                                                label="Subject"
-                                                value={catalogItem.subject}
-                                            />
-                                            <DetailRow
-                                                label="Place of Publication"
-                                                value={
-                                                    catalogItem.place_of_publication
-                                                }
-                                            />
-                                            <DetailRow
-                                                label="Location"
-                                                value={catalogItem.location}
-                                            />
-                                            <DetailRow
-                                                label="Abstract"
-                                                value={catalogItem.abstract}
-                                            />
-                                            <DetailRow
-                                                label="Description"
-                                                value={catalogItem.description}
-                                            />
-                                            <DetailRow
-                                                label="Biblio Notes"
-                                                value={catalogItem.biblio_info}
-                                            />
-                                            <div className="grid grid-cols-3 gap-4 border-b border-gray-100 py-3">
-                                                <dt className="text-sm font-medium text-gray-500">
-                                                    Number of Copies
-                                                </dt>
-                                                <dd className="col-span-2 text-sm font-semibold text-gray-900">
-                                                    {catalogItem.copies_count ??
-                                                        catalogItem.copies
-                                                            ?.length ??
-                                                        0}
-                                                </dd>
-                                            </div>
-                                        </dl>
-                                    </div>
-
-                                    {/* Right Side - Cover Image */}
-                                    <div className="flex justify-center lg:w-72 lg:flex-shrink-0">
-                                        {catalogItem.cover_image ? (
-                                            <img
-                                                src={`/storage/${catalogItem.cover_image}`}
-                                                alt={catalogItem.title}
-                                                className="h-auto max-h-96 w-full rounded-lg border border-gray-200 object-cover shadow-md lg:w-64"
-                                            />
-                                        ) : (
-                                            <div className="flex h-80 w-56 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50">
-                                                <BookOpen className="h-16 w-16 text-gray-400" />
-                                            </div>
+                            {/* Tabs Navigation */}
+                            <div className="border-b border-gray-200 px-6">
+                                <nav className="-mb-px flex space-x-6">
+                                    <button
+                                        type="button"
+                                        onClick={() => setActiveTab("item-info")}
+                                        className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium transition-colors ${activeTab === "item-info"
+                                                ? "border-indigo-500 text-indigo-600"
+                                                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                                            }`}
+                                    >
+                                        <Info className="h-4 w-4" />
+                                        ITEM INFO
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setActiveTab("available-copies")}
+                                        className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium transition-colors ${activeTab === "available-copies"
+                                                ? "border-indigo-500 text-indigo-600"
+                                                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                                            }`}
+                                    >
+                                        <Copy className="h-4 w-4" />
+                                        AVAILABLE COPIES
+                                        {catalogItem.copies && catalogItem.copies.length > 0 && (
+                                            <span
+                                                className={`ml-1 rounded-full px-2 py-0.5 text-xs font-medium ${activeTab === "available-copies"
+                                                        ? "bg-indigo-100 text-indigo-600"
+                                                        : "bg-gray-100 text-gray-600"
+                                                    }`}
+                                            >
+                                                {catalogItem.copies.length}
+                                            </span>
                                         )}
-                                    </div>
-                                </div>
+                                    </button>
+                                </nav>
                             </div>
 
-                            {/* Copies Table Section */}
-                            {catalogItem.copies &&
-                                catalogItem.copies.length > 0 && (
-                                    <div className="border-t border-gray-200 p-6">
-                                        <h2 className="mb-4 text-lg font-semibold text-gray-900">
-                                            Available Copies
-                                        </h2>
-                                        <div className="overflow-hidden rounded-lg border border-gray-200">
-                                            <div className="overflow-x-auto">
-                                                <table className="w-full">
-                                                    <thead>
-                                                        <tr className="border-b border-gray-200 bg-gray-50">
-                                                            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                                                Branch
-                                                            </th>
-                                                            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                                                Accession No
-                                                            </th>
-                                                            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                                                Call No
-                                                            </th>
-                                                            <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                                                Copy No
-                                                            </th>
-                                                            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                                                Location
-                                                            </th>
-                                                            <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                                                Availability
-                                                            </th>
-                                                            <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                                                Actions
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-gray-200 bg-white">
-                                                        {catalogItem.copies.map(
-                                                            (copy) => (
-                                                                <tr
-                                                                    key={
-                                                                        copy.id
-                                                                    }
-                                                                    className="transition-colors hover:bg-gray-50"
-                                                                >
-                                                                    <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-900">
-                                                                        {copy.branch ||
-                                                                            "Main"}
-                                                                    </td>
-                                                                    <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900">
-                                                                        {
-                                                                            copy.accession_no
+                            {/* Tab Content */}
+                            <div className="p-6">
+                                {/* ITEM INFO Tab */}
+                                {activeTab === "item-info" && (
+                                    <div className="flex flex-col gap-8 lg:flex-row">
+                                        {/* Left Side - Book Information */}
+                                        <div className="flex-1">
+                                            <dl className="divide-y divide-gray-100">
+                                                <DetailRow
+                                                    label="Type"
+                                                    value={catalogItem.type}
+                                                />
+                                                <DetailRow
+                                                    label="Authors"
+                                                    value={
+                                                        catalogItem.authors &&
+                                                            catalogItem.authors.length >
+                                                            0
+                                                            ? catalogItem.authors
+                                                                .map(
+                                                                    (a) => a.name,
+                                                                )
+                                                                .join(", ")
+                                                            : undefined
+                                                    }
+                                                    isLink
+                                                />
+                                                <DetailRow
+                                                    label="Category"
+                                                    value={
+                                                        catalogItem.category?.name
+                                                    }
+                                                />
+                                                <DetailRow
+                                                    label="Publication Year"
+                                                    value={catalogItem.year}
+                                                />
+                                                <DetailRow
+                                                    label="Publisher"
+                                                    value={
+                                                        catalogItem.publisher?.name
+                                                    }
+                                                    isLink
+                                                />
+                                                <DetailRow
+                                                    label="Edition"
+                                                    value={catalogItem.edition}
+                                                />
+                                                <DetailRow
+                                                    label="Volume"
+                                                    value={catalogItem.volume}
+                                                />
+                                                <DetailRow
+                                                    label="ISBN"
+                                                    value={catalogItem.isbn}
+                                                />
+                                                <DetailRow
+                                                    label="ISBN 13"
+                                                    value={catalogItem.isbn13}
+                                                />
+                                                <DetailRow
+                                                    label="ISSN"
+                                                    value={catalogItem.issn}
+                                                />
+                                                <DetailRow
+                                                    label="Call No"
+                                                    value={catalogItem.call_no}
+                                                />
+                                                <DetailRow
+                                                    label="Accession No"
+                                                    value={catalogItem.accession_no}
+                                                />
+                                                <DetailRow
+                                                    label="Series"
+                                                    value={catalogItem.series}
+                                                />
+                                                <DetailRow
+                                                    label="Subject"
+                                                    value={catalogItem.subject}
+                                                />
+                                                <DetailRow
+                                                    label="Place of Publication"
+                                                    value={
+                                                        catalogItem.place_of_publication
+                                                    }
+                                                />
+                                                <DetailRow
+                                                    label="Location"
+                                                    value={catalogItem.location}
+                                                />
+                                                <DetailRow
+                                                    label="Abstract"
+                                                    value={catalogItem.abstract}
+                                                />
+                                                <DetailRow
+                                                    label="Description"
+                                                    value={catalogItem.description}
+                                                />
+                                                <DetailRow
+                                                    label="Biblio Notes"
+                                                    value={catalogItem.biblio_info}
+                                                />
+                                                <div className="grid grid-cols-3 gap-4 border-b border-gray-100 py-3">
+                                                    <dt className="text-sm font-medium text-gray-500">
+                                                        Number of Copies
+                                                    </dt>
+                                                    <dd className="col-span-2 text-sm font-semibold text-gray-900">
+                                                        {catalogItem.copies_count ??
+                                                            catalogItem.copies
+                                                                ?.length ??
+                                                            0}
+                                                    </dd>
+                                                </div>
+                                            </dl>
+                                        </div>
+
+                                        {/* Right Side - Cover Image */}
+                                        <div className="flex justify-center lg:w-72 lg:flex-shrink-0">
+                                            {catalogItem.cover_image ? (
+                                                <img
+                                                    src={`/storage/${catalogItem.cover_image}`}
+                                                    alt={catalogItem.title}
+                                                    className="h-auto max-h-96 w-full rounded-lg border border-gray-200 object-cover shadow-md lg:w-64"
+                                                />
+                                            ) : (
+                                                <div className="flex h-80 w-56 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50">
+                                                    <BookOpen className="h-16 w-16 text-gray-400" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* AVAILABLE COPIES Tab */}
+                                {activeTab === "available-copies" && (
+                                    <>
+                                        {catalogItem.copies &&
+                                            catalogItem.copies.length > 0 ? (
+                                            <div className="overflow-hidden rounded-lg border border-gray-200">
+                                                <div className="overflow-x-auto">
+                                                    <table className="w-full">
+                                                        <thead>
+                                                            <tr className="border-b border-gray-200 bg-gray-50">
+                                                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                                                    Branch
+                                                                </th>
+                                                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                                                    Accession No
+                                                                </th>
+                                                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                                                    Call No
+                                                                </th>
+                                                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                                                    Copy No
+                                                                </th>
+                                                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                                                    Location
+                                                                </th>
+                                                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                                                    Availability
+                                                                </th>
+                                                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-600">
+                                                                    Actions
+                                                                </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-gray-200 bg-white">
+                                                            {catalogItem.copies.map(
+                                                                (copy) => (
+                                                                    <tr
+                                                                        key={
+                                                                            copy.id
                                                                         }
-                                                                    </td>
-                                                                    <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600">
-                                                                        {catalogItem.call_no ||
-                                                                            "—"}
-                                                                    </td>
-                                                                    <td className="whitespace-nowrap px-4 py-3 text-center text-sm text-gray-600">
-                                                                        {
-                                                                            copy.copy_no
-                                                                        }
-                                                                    </td>
-                                                                    <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600">
-                                                                        {copy.location ||
-                                                                            "—"}
-                                                                    </td>
-                                                                    <td className="whitespace-nowrap px-4 py-3 text-center">
-                                                                        <span
-                                                                            className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${copy.status ===
+                                                                        className="transition-colors hover:bg-gray-50"
+                                                                    >
+                                                                        <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-900">
+                                                                            {copy.branch ||
+                                                                                "Main"}
+                                                                        </td>
+                                                                        <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900">
+                                                                            {
+                                                                                copy.accession_no
+                                                                            }
+                                                                        </td>
+                                                                        <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600">
+                                                                            {catalogItem.call_no ||
+                                                                                "—"}
+                                                                        </td>
+                                                                        <td className="whitespace-nowrap px-4 py-3 text-center text-sm text-gray-600">
+                                                                            {
+                                                                                copy.copy_no
+                                                                            }
+                                                                        </td>
+                                                                        <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600">
+                                                                            {copy.location ||
+                                                                                "—"}
+                                                                        </td>
+                                                                        <td className="whitespace-nowrap px-4 py-3 text-center">
+                                                                            <span
+                                                                                className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${copy.status ===
                                                                                     "Available"
                                                                                     ? "bg-green-100 text-green-800"
                                                                                     : "bg-red-100 text-red-800"
-                                                                                }`}
-                                                                        >
-                                                                            {copy.status ===
-                                                                                "Available"
-                                                                                ? "Yes"
-                                                                                : "No"}
-                                                                        </span>
-                                                                    </td>
-                                                                    <td className="whitespace-nowrap px-4 py-3 text-center">
-                                                                        {copy.status ===
-                                                                            "Available" ? (
-                                                                            <button
-                                                                                onClick={() =>
-                                                                                    openRequestModal(
-                                                                                        copy,
-                                                                                    )
-                                                                                }
-                                                                                className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                                                                    }`}
                                                                             >
-                                                                                Request
-                                                                            </button>
-                                                                        ) : (
-                                                                            <span className="text-xs text-gray-400">
-                                                                                Unavailable
+                                                                                {copy.status ===
+                                                                                    "Available"
+                                                                                    ? "Yes"
+                                                                                    : "No"}
                                                                             </span>
-                                                                        )}
-                                                                    </td>
-                                                                </tr>
-                                                            ),
-                                                        )}
-                                                    </tbody>
-                                                </table>
+                                                                        </td>
+                                                                        <td className="whitespace-nowrap px-4 py-3 text-center">
+                                                                            {copy.status ===
+                                                                                "Available" ? (
+                                                                                <button
+                                                                                    onClick={() =>
+                                                                                        openRequestModal(
+                                                                                            copy,
+                                                                                        )
+                                                                                    }
+                                                                                    className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                                                                >
+                                                                                    Request
+                                                                                </button>
+                                                                            ) : (
+                                                                                <span className="text-xs text-gray-400">
+                                                                                    Unavailable
+                                                                                </span>
+                                                                            )}
+                                                                        </td>
+                                                                    </tr>
+                                                                ),
+                                                            )}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
+                                        ) : (
+                                            <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
+                                                <BookOpen className="mx-auto h-12 w-12 text-gray-400" />
+                                                <p className="mt-2 text-sm text-gray-600">
+                                                    No copies available for this item
+                                                </p>
+                                                <button
+                                                    onClick={() => openRequestModal()}
+                                                    className="mt-4 inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+                                                >
+                                                    Request This Book
+                                                </button>
+                                            </div>
+                                        )}
+                                    </>
                                 )}
-
-                            {/* No Copies Message */}
-                            {(!catalogItem.copies ||
-                                catalogItem.copies.length === 0) && (
-                                    <div className="border-t border-gray-200 p-6">
-                                        <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-                                            <BookOpen className="mx-auto h-12 w-12 text-gray-400" />
-                                            <p className="mt-2 text-sm text-gray-600">
-                                                No copies available for this item
-                                            </p>
-                                            <button
-                                                onClick={() => openRequestModal()}
-                                                className="mt-4 inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
-                                            >
-                                                Request This Book
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
+                            </div>
                         </div>
                     </div>
                 </main>
@@ -563,11 +602,11 @@ export default function BookDetails({ auth, catalogItem }: Props) {
                                             setData("member_id", e.target.value)
                                         }
                                         className={`w-full rounded-lg border py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 ${memberValidation.isValid === true
-                                                ? "border-green-300 focus:ring-green-500"
-                                                : memberValidation.isValid ===
-                                                    false
-                                                    ? "border-red-300 focus:ring-red-500"
-                                                    : "border-gray-300 focus:ring-indigo-500"
+                                            ? "border-green-300 focus:ring-green-500"
+                                            : memberValidation.isValid ===
+                                                false
+                                                ? "border-red-300 focus:ring-red-500"
+                                                : "border-gray-300 focus:ring-indigo-500"
                                             }`}
                                         placeholder="Enter member number"
                                         required
@@ -576,11 +615,11 @@ export default function BookDetails({ auth, catalogItem }: Props) {
                                 {memberValidation.message && (
                                     <p
                                         className={`mt-1 text-xs ${memberValidation.isValid
-                                                ? "text-green-600"
-                                                : memberValidation.isValid ===
-                                                    false
-                                                    ? "text-red-600"
-                                                    : "text-gray-500"
+                                            ? "text-green-600"
+                                            : memberValidation.isValid ===
+                                                false
+                                                ? "text-red-600"
+                                                : "text-gray-500"
                                             }`}
                                     >
                                         {memberValidation.message}
