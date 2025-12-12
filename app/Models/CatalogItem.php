@@ -31,7 +31,6 @@ class CatalogItem extends Model
         "description",
         "cover_image",
         "is_active",
-        "status",
         "volume",
         "page_duration",
         "abstract",
