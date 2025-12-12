@@ -9,7 +9,7 @@ interface MemberBorrowRecord {
     member_no: string;
     catalog_item_id: number;
     book_title: string;
-    accession_no: string;
+    accession_no?: string; // From the borrowed copy
     date_borrowed: string;
     due_date: string;
     date_returned: string | null;
@@ -236,7 +236,7 @@ export default function MemberBorrowHistoryTable({
                                 </td>
                                 <td className="whitespace-nowrap px-4 py-3">
                                     {record.penalty_amount &&
-                                    record.penalty_amount > 0 ? (
+                                        record.penalty_amount > 0 ? (
                                         <span className="inline-flex items-center gap-1 text-sm font-medium text-red-600 dark:text-red-400">
                                             <DollarSign size={14} />
                                             {formatCurrency(

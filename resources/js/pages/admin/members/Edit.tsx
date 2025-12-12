@@ -35,7 +35,7 @@ interface MemberBorrowRecord {
     member_no: string;
     catalog_item_id: number;
     book_title: string;
-    accession_no: string;
+    accession_no?: string; // From the borrowed copy
     date_borrowed: string;
     due_date: string;
     date_returned: string | null;
@@ -78,11 +78,10 @@ function EditTabs({
                                 key={tab.id}
                                 type="button"
                                 onClick={() => onTabChange(tab.id)}
-                                className={`flex items-center gap-1.5 whitespace-nowrap border-b-2 px-1 py-3 text-xs font-medium transition-colors sm:gap-2 sm:text-sm ${
-                                    activeTab === tab.id
+                                className={`flex items-center gap-1.5 whitespace-nowrap border-b-2 px-1 py-3 text-xs font-medium transition-colors sm:gap-2 sm:text-sm ${activeTab === tab.id
                                         ? "border-indigo-500 text-indigo-600 dark:text-indigo-400"
                                         : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                                }`}
+                                    }`}
                             >
                                 <Icon size={16} className="flex-shrink-0" />
                                 <span className="hidden sm:inline">
@@ -93,11 +92,10 @@ function EditTabs({
                                 </span>
                                 {count !== undefined && count > 0 && (
                                     <span
-                                        className={`ml-0.5 rounded-full px-1.5 py-0.5 text-xs font-medium sm:ml-1 sm:px-2 ${
-                                            activeTab === tab.id
+                                        className={`ml-0.5 rounded-full px-1.5 py-0.5 text-xs font-medium sm:ml-1 sm:px-2 ${activeTab === tab.id
                                                 ? "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400"
                                                 : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
-                                        }`}
+                                            }`}
                                     >
                                         {count}
                                     </span>

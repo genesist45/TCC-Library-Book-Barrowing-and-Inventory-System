@@ -49,7 +49,6 @@ class CatalogItemController extends Controller
             "authors" => Author::where("is_published", true)
                 ->orderBy("name")
                 ->get(["id", "name"]),
-            "nextAccessionNo" => CatalogItem::getNextAccessionNo(),
         ]);
     }
 
@@ -66,11 +65,6 @@ class CatalogItemController extends Controller
     public function store(StoreCatalogItemRequest $request): RedirectResponse
     {
         $data = $request->validated();
-
-        // Auto-generate accession_no if not provided
-        if (empty($data["accession_no"])) {
-            $data["accession_no"] = CatalogItem::getNextAccessionNo();
-        }
 
         if ($request->hasFile("cover_image")) {
             $data["cover_image"] = $request
@@ -115,8 +109,7 @@ class CatalogItemController extends Controller
                     "date_returned" => $request->bookReturn?->return_date?->toDateString(),
                     "status" => $request->status,
                     "accession_no" =>
-                        $request->catalogItemCopy?->accession_no ??
-                        ($request->catalogItem->accession_no ?? null),
+                        $request->catalogItemCopy?->accession_no ?? null,
                     "copy_no" => $request->catalogItemCopy?->copy_no ?? null,
                 ];
             });
@@ -155,8 +148,7 @@ class CatalogItemController extends Controller
                     "date_returned" => $request->bookReturn?->return_date?->toDateString(),
                     "status" => $request->status,
                     "accession_no" =>
-                        $request->catalogItemCopy?->accession_no ??
-                        ($request->catalogItem->accession_no ?? null),
+                        $request->catalogItemCopy?->accession_no ?? null,
                     "copy_no" => $request->catalogItemCopy?->copy_no ?? null,
                 ];
             });

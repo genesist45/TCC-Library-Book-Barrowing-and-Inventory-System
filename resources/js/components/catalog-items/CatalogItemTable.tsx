@@ -12,9 +12,6 @@ function CatalogItemTableRowSkeleton() {
                 <div className={`${shimmerClass} h-4 w-12 rounded`} />
             </td>
             <td className="whitespace-nowrap px-3 py-2 sm:px-4">
-                <div className={`${shimmerClass} h-4 w-24 rounded`} />
-            </td>
-            <td className="whitespace-nowrap px-3 py-2 sm:px-4">
                 <div className="text-sm space-y-1.5">
                     <div className={`${shimmerClass} h-4 w-48 rounded`} />
                     <div
@@ -106,9 +103,6 @@ export default function CatalogItemTable({
                             ID
                         </th>
                         <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:px-4">
-                            Accession No.
-                        </th>
-                        <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:px-4">
                             Title
                         </th>
                         <th className="hidden px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:table-cell sm:px-4">
@@ -137,111 +131,107 @@ export default function CatalogItemTable({
                 <tbody className="divide-y divide-gray-200 bg-white transition-colors duration-300 dark:divide-[#3a3a3a] dark:bg-[#2a2a2a]">
                     {isLoading
                         ? Array.from({
-                              length: items.length > 0 ? items.length : 5,
-                          }).map((_, index) => (
-                              <CatalogItemTableRowSkeleton key={index} />
-                          ))
+                            length: items.length > 0 ? items.length : 5,
+                        }).map((_, index) => (
+                            <CatalogItemTableRowSkeleton key={index} />
+                        ))
                         : items.map((item) => {
-                              const { label: statusLabel, isAvailable } =
-                                  getComputedStatus(item);
+                            const { label: statusLabel, isAvailable } =
+                                getComputedStatus(item);
 
-                              return (
-                                  <tr
-                                      key={item.id}
-                                      className="transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]"
-                                  >
-                                      <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:px-4">
-                                          {item.id}
-                                      </td>
-                                      <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:px-4">
-                                          {item.accession_no}
-                                      </td>
-                                      <td className="whitespace-nowrap px-3 py-2 sm:px-4">
-                                          <div className="text-sm">
-                                              <div className="font-medium text-gray-900 transition-colors duration-300 dark:text-gray-100">
-                                                  {item.title}
-                                              </div>
-                                              <div className="text-xs text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:hidden">
-                                                  {item.type}
-                                              </div>
-                                          </div>
-                                      </td>
-                                      <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:table-cell sm:px-4">
-                                          {item.type}
-                                      </td>
-                                      <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 md:table-cell sm:px-4">
-                                          {item.category?.name || "-"}
-                                      </td>
-                                      <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 lg:table-cell sm:px-4">
-                                          {item.publisher?.name || "-"}
-                                      </td>
-                                      <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 lg:table-cell sm:px-4">
-                                          {item.year || "-"}
-                                      </td>
-                                      <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 lg:table-cell sm:px-4">
-                                          {item.copies_count || 0}
-                                      </td>
-                                      <td className="hidden whitespace-nowrap px-3 py-2 lg:table-cell sm:px-4">
-                                          <span
-                                              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                                  isAvailable
-                                                      ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                                                      : statusLabel ===
-                                                          "No Copies"
+                            return (
+                                <tr
+                                    key={item.id}
+                                    className="transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]"
+                                >
+                                    <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:px-4">
+                                        {item.id}
+                                    </td>
+                                    <td className="whitespace-nowrap px-3 py-2 sm:px-4">
+                                        <div className="text-sm">
+                                            <div className="font-medium text-gray-900 transition-colors duration-300 dark:text-gray-100">
+                                                {item.title}
+                                            </div>
+                                            <div className="text-xs text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:hidden">
+                                                {item.type}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:table-cell sm:px-4">
+                                        {item.type}
+                                    </td>
+                                    <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 md:table-cell sm:px-4">
+                                        {item.category?.name || "-"}
+                                    </td>
+                                    <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 lg:table-cell sm:px-4">
+                                        {item.publisher?.name || "-"}
+                                    </td>
+                                    <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 lg:table-cell sm:px-4">
+                                        {item.year || "-"}
+                                    </td>
+                                    <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 lg:table-cell sm:px-4">
+                                        {item.copies_count || 0}
+                                    </td>
+                                    <td className="hidden whitespace-nowrap px-3 py-2 lg:table-cell sm:px-4">
+                                        <span
+                                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${isAvailable
+                                                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                                                    : statusLabel ===
+                                                        "No Copies"
                                                         ? "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
                                                         : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
-                                              }`}
-                                          >
-                                              {statusLabel}
-                                          </span>
-                                      </td>
-                                      <td className="whitespace-nowrap px-3 py-2 text-center text-sm print:hidden sm:px-4">
-                                          <div className="flex items-center justify-center gap-1 sm:gap-2">
-                                              <button
-                                                  onClick={() => onView(item)}
-                                                  className="flex items-center justify-center rounded-lg bg-blue-100 p-1.5 text-blue-600 transition hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
-                                                  title="View"
-                                              >
-                                                  <Eye
-                                                      size={16}
-                                                      className="sm:h-4 sm:w-4"
-                                                  />
-                                              </button>
-                                              <button
-                                                  onClick={() => onCopy(item)}
-                                                  className="flex items-center justify-center rounded-lg bg-purple-100 p-1.5 text-purple-600 transition hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:hover:bg-purple-900/50"
-                                                  title="Copy Book"
-                                              >
-                                                  <Copy
-                                                      size={16}
-                                                      className="sm:h-4 sm:w-4"
-                                                  />
-                                              </button>
-                                              <button
-                                                  onClick={() => onEdit(item)}
-                                                  className="flex items-center justify-center rounded-lg bg-amber-100 p-1.5 text-amber-600 transition hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50"
-                                                  title="Edit"
-                                              >
-                                                  <Pencil
-                                                      size={16}
-                                                      className="sm:h-4 sm:w-4"
-                                                  />
-                                              </button>
-                                              <button
-                                                  onClick={() => onDelete(item)}
-                                                  className="flex items-center justify-center rounded-lg bg-red-100 p-1.5 text-red-600 transition hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
-                                                  title="Delete"
-                                              >
-                                                  <Trash2
-                                                      size={16}
-                                                      className="sm:h-4 sm:w-4"
-                                                  />
-                                              </button>
-                                          </div>
-                                      </td>
-                                  </tr>
-                              );
-                          })}
+                                                }`}
+                                        >
+                                            {statusLabel}
+                                        </span>
+                                    </td>
+                                    <td className="whitespace-nowrap px-3 py-2 text-center text-sm print:hidden sm:px-4">
+                                        <div className="flex items-center justify-center gap-1 sm:gap-2">
+                                            <button
+                                                onClick={() => onView(item)}
+                                                className="flex items-center justify-center rounded-lg bg-blue-100 p-1.5 text-blue-600 transition hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                                                title="View"
+                                            >
+                                                <Eye
+                                                    size={16}
+                                                    className="sm:h-4 sm:w-4"
+                                                />
+                                            </button>
+                                            <button
+                                                onClick={() => onCopy(item)}
+                                                className="flex items-center justify-center rounded-lg bg-purple-100 p-1.5 text-purple-600 transition hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:hover:bg-purple-900/50"
+                                                title="Copy Book"
+                                            >
+                                                <Copy
+                                                    size={16}
+                                                    className="sm:h-4 sm:w-4"
+                                                />
+                                            </button>
+                                            <button
+                                                onClick={() => onEdit(item)}
+                                                className="flex items-center justify-center rounded-lg bg-amber-100 p-1.5 text-amber-600 transition hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50"
+                                                title="Edit"
+                                            >
+                                                <Pencil
+                                                    size={16}
+                                                    className="sm:h-4 sm:w-4"
+                                                />
+                                            </button>
+                                            <button
+                                                onClick={() => onDelete(item)}
+                                                className="flex items-center justify-center rounded-lg bg-red-100 p-1.5 text-red-600 transition hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
+                                                title="Delete"
+                                            >
+                                                <Trash2
+                                                    size={16}
+                                                    className="sm:h-4 sm:w-4"
+                                                />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                 </tbody>
             </table>
             {!isLoading && items.length === 0 && (

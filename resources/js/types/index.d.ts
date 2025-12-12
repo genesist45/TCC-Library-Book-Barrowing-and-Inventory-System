@@ -47,7 +47,7 @@ export interface CatalogItemCopy {
 export interface CatalogItem {
     volume: string;
     id: number;
-    accession_no: string;
+    accession_no?: string; // Deprecated: accession numbers belong to copies only
     title: string;
     type: string;
     category_id?: number;

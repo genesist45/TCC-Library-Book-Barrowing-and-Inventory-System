@@ -51,7 +51,7 @@ class OverdueBookNotification extends Notification
             'member_no' => $member?->member_no ?? 'N/A',
             'book_title' => $catalogItem?->title ?? 'Unknown Book',
             'book_id' => $catalogItem?->id,
-            'accession_no' => $catalogItem?->accession_no ?? 'N/A',
+            'accession_no' => $this->bookRequest->catalogItemCopy?->accession_no ?? 'N/A',
             'request_id' => $this->bookRequest->id,
             'due_date' => $dueDate,
             'days_overdue' => $this->bookRequest->return_date

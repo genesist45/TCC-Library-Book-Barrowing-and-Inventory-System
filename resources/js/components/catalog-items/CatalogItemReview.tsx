@@ -6,7 +6,6 @@ import { CatalogFormTabs, TabType } from "./form-sections";
 
 interface ReviewData {
     title: string;
-    accession_no: string;
     type: string;
     category_id: string;
     publisher_id: string;
@@ -151,7 +150,6 @@ export default function CatalogItemReview({
                             </p>
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <DisplayValue label="Title" value={data.title} />
-                                <DisplayValue label="Accession No." value={data.accession_no} />
                                 <div className="rounded-lg bg-gray-50 p-3 dark:bg-[#1a1a1a]">
                                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Authors</p>
                                     <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">

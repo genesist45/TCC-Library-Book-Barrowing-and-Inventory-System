@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('catalog_items', function (Blueprint $table) {
             $table->id();
-            $table->string('accession_no', 7)->unique();
+            $table->string('accession_no', 7)->nullable(); // Deprecated: accession numbers belong to copies only
             $table->string('title');
             $table->string('type');
             $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');

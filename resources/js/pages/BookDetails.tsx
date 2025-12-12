@@ -378,10 +378,6 @@ export default function BookDetails({
                                                     value={catalogItem.call_no}
                                                 />
                                                 <DetailRow
-                                                    label="Accession No"
-                                                    value={catalogItem.accession_no}
-                                                />
-                                                <DetailRow
                                                     label="Series"
                                                     value={catalogItem.series}
                                                 />

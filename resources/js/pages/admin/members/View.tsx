@@ -19,7 +19,7 @@ interface MemberBorrowRecord {
     member_no: string;
     catalog_item_id: number;
     book_title: string;
-    accession_no: string;
+    accession_no?: string; // From the borrowed copy
     date_borrowed: string;
     due_date: string;
     date_returned: string | null;

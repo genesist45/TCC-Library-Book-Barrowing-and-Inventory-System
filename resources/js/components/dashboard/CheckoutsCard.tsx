@@ -9,7 +9,7 @@ interface CheckoutItem {
     catalog_item_id: number;
     book_title: string;
     cover_image?: string;
-    accession_no: string;
+    accession_no?: string; // From the borrowed copy
     due_date: string;
     date_borrowed: string;
     is_overdue: boolean;

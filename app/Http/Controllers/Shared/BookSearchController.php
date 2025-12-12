@@ -161,11 +161,14 @@ class BookSearchController extends Controller
         $validated["member_id"] = $member->id;
 
         $bookRequest = \App\Models\BookRequest::create($validated);
+        
+        // Load relationships needed for notifications
+        $bookRequest->load(['member', 'catalogItem']);
 
-        // Notify all admins
-        $admins = \App\Models\User::where("role", "admin")->get();
+        // Notify all admins and staff
+        $usersToNotify = \App\Models\User::whereIn("role", ["admin", "staff"])->get();
         \Illuminate\Support\Facades\Notification::send(
-            $admins,
+            $usersToNotify,
             new \App\Notifications\NewBookRequestNotification($bookRequest),
         );
 

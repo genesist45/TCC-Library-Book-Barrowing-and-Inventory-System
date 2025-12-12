@@ -4,7 +4,7 @@ import { BookPlus, ExternalLink, BookOpen } from "lucide-react";
 interface CatalogItem {
     id: number;
     title: string;
-    accession_no: string;
+    accession_no?: string; // Deprecated: belongs to copies only
     isbn?: string;
     isbn13?: string;
     cover_image?: string;
@@ -87,9 +87,9 @@ export default function NewArrivalsCard({ items }: NewArrivalsCardProps) {
                                             ) : (
                                                 <>
                                                     <span className="font-medium">
-                                                        Acc#:
+                                                        Type:
                                                     </span>{" "}
-                                                    {item.accession_no}
+                                                    {item.type || "Book"}
                                                 </>
                                             )}
                                         </p>

@@ -24,18 +24,15 @@ interface Props extends PageProps {
     categories: Category[];
     publishers: Publisher[];
     authors: Author[];
-    nextAccessionNo: string;
 }
 
 export default function CatalogItemAdd({
     categories,
     publishers,
     authors,
-    nextAccessionNo,
 }: Props) {
     const { data, setData, post, processing, errors, clearErrors, setError } = useForm({
         title: "",
-        accession_no: nextAccessionNo,
         type: "",
         category_id: "",
         publisher_id: "",
@@ -115,7 +112,7 @@ export default function CatalogItemAdd({
 
                 // Determine which tab has the first error
                 const itemInfoFields = [
-                    "title", "accession_no", "type", "category_id", "publisher_id",
+                    "title", "type", "category_id", "publisher_id",
                     "author_ids", "year", "isbn", "isbn13", "call_no", "subject",
                     "series", "edition", "place_of_publication", "extent",
                     "other_physical_details", "dimensions", "location", "url", "description"

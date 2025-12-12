@@ -56,7 +56,6 @@ export default function CatalogItemEdit({
 }: Props) {
     const { data, setData, post, processing, errors, clearErrors } = useForm({
         title: catalogItem.title || "",
-        accession_no: catalogItem.accession_no || "",
         type: catalogItem.type || "",
         category_id: catalogItem.category_id?.toString() || "",
         publisher_id: catalogItem.publisher_id?.toString() || "",
@@ -224,7 +223,7 @@ export default function CatalogItemEdit({
             if (error.response?.data?.errors) {
                 toast.error(
                     error.response.data.errors.name?.[0] ||
-                        "Failed to add category",
+                    "Failed to add category",
                 );
             }
         }

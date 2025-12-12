@@ -154,16 +154,16 @@ Route::middleware(["auth", "verified"])->group(function () {
             return back()->with("info", "No overdue books found.");
         }
 
-        $admins = \App\Models\User::where("role", "admin")->get();
+        $usersToNotify = \App\Models\User::whereIn("role", ["admin", "staff"])->get();
 
-        if ($admins->isEmpty()) {
-            return back()->with("error", "No admin users found to notify.");
+        if ($usersToNotify->isEmpty()) {
+            return back()->with("error", "No admin or staff users found to notify.");
         }
 
         $notificationsSent = 0;
         foreach ($overdueRequests as $request) {
             // Check if notification was already sent today
-            $alreadySent = $admins
+            $alreadySent = $usersToNotify
                 ->first()
                 ->notifications()
                 ->where(
@@ -176,7 +176,7 @@ Route::middleware(["auth", "verified"])->group(function () {
 
             if (!$alreadySent) {
                 \Illuminate\Support\Facades\Notification::send(
-                    $admins,
+                    $usersToNotify,
                     new \App\Notifications\OverdueBookNotification($request),
                 );
                 $notificationsSent++;

@@ -40,7 +40,7 @@ class NewBookRequestNotification extends Notification
     {
         return [
             'message' => 'New book request submitted',
-            'member_name' => $this->bookRequest->member->full_name,
+            'member_name' => $this->bookRequest->member->name,
             'book_title' => $this->bookRequest->catalogItem->title,
             'request_id' => $this->bookRequest->id,
             'action_url' => route('admin.book-requests.index'),

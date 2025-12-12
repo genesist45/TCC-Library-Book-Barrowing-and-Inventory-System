@@ -16,8 +16,6 @@ export default function CatalogItemDetailsGrid({ catalogItem }: CatalogItemDetai
                 </p>
             </DetailField>
 
-            <DetailField label="Accession No." value={catalogItem.accession_no} />
-
             <AuthorBadges authors={catalogItem.authors || []} />
 
             <DetailField label="Material Type" value={catalogItem.type} />
