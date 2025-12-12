@@ -12,17 +12,17 @@ class BookSearchController extends Controller
      */
     public function search(Request $request)
     {
-        $query = $request->input('query', '');
-        $activeOnly = $request->boolean('active_only', false);
+        $query = $request->input("query", "");
+        $activeOnly = $request->boolean("active_only", false);
 
         $results = \App\Models\CatalogItem::query()
-            ->with(['category', 'publisher', 'authors'])
-            ->where('title', 'LIKE', "%{$query}%")
+            ->with(["category", "publisher", "authors"])
+            ->where("title", "LIKE", "%{$query}%")
             ->when($activeOnly, function ($q) {
-                $q->where('is_active', true);
+                $q->where("is_active", true);
             })
             ->limit(5)
-            ->get(['id', 'title', 'cover_image', 'type', 'year', 'is_active']);
+            ->get(["id", "title", "cover_image", "type", "year", "is_active"]);
 
         return response()->json($results);
     }
@@ -32,11 +32,17 @@ class BookSearchController extends Controller
      */
     public function show($id)
     {
-        $catalogItem = \App\Models\CatalogItem::with(['category', 'publisher', 'authors'])
+        $catalogItem = \App\Models\CatalogItem::with([
+            "category",
+            "publisher",
+            "authors",
+            "copies",
+        ])
+            ->withCount("copies")
             ->findOrFail($id);
 
-        return inertia('BookDetails', [
-            'catalogItem' => $catalogItem,
+        return inertia("BookDetails", [
+            "catalogItem" => $catalogItem,
         ]);
     }
 
@@ -45,8 +51,11 @@ class BookSearchController extends Controller
      */
     public function getBookDetails($id)
     {
-        $catalogItem = \App\Models\CatalogItem::with(['category', 'publisher', 'authors'])
-            ->findOrFail($id);
+        $catalogItem = \App\Models\CatalogItem::with([
+            "category",
+            "publisher",
+            "authors",
+        ])->findOrFail($id);
 
         return response()->json($catalogItem);
     }
@@ -56,43 +65,95 @@ class BookSearchController extends Controller
      */
     public function createBorrowRequest($id)
     {
-        $catalogItem = \App\Models\CatalogItem::with(['category', 'publisher', 'authors'])
-            ->findOrFail($id);
+        $catalogItem = \App\Models\CatalogItem::with([
+            "category",
+            "publisher",
+            "authors",
+            "copies",
+        ])->findOrFail($id);
 
-        return inertia('BorrowRequest', [
-            'catalogItem' => $catalogItem,
+        return inertia("BorrowRequest", [
+            "catalogItem" => $catalogItem,
         ]);
     }
 
     /**
      * Store borrow request
      */
-    public function storeBorrowRequest(\App\Http\Requests\BookRequestStoreRequest $request)
-    {
+    public function storeBorrowRequest(
+        \App\Http\Requests\BookRequestStoreRequest $request,
+    ) {
         $validated = $request->validated();
-        
-        // Check if the book is already borrowed
-        $catalogItem = \App\Models\CatalogItem::findOrFail($validated['catalog_item_id']);
-        if ($catalogItem->status === 'Borrowed') {
-            return redirect()->back()->withErrors(['catalog_item_id' => 'This book is currently borrowed and not available for requests.'])->withInput();
+
+        // If a specific copy is selected, check if that copy is available
+        if (!empty($validated["catalog_item_copy_id"])) {
+            $copy = \App\Models\CatalogItemCopy::find(
+                $validated["catalog_item_copy_id"],
+            );
+
+            if (!$copy) {
+                return redirect()
+                    ->back()
+                    ->withErrors([
+                        "catalog_item_copy_id" =>
+                            "The selected copy does not exist.",
+                    ])
+                    ->withInput();
+            }
+
+            if ($copy->status !== "Available") {
+                return redirect()
+                    ->back()
+                    ->withErrors([
+                        "catalog_item_copy_id" =>
+                            "This copy is currently not available for requests. Status: " .
+                            $copy->status,
+                    ])
+                    ->withInput();
+            }
+
+            // Verify the copy belongs to the specified catalog item
+            if ($copy->catalog_item_id != $validated["catalog_item_id"]) {
+                return redirect()
+                    ->back()
+                    ->withErrors([
+                        "catalog_item_copy_id" =>
+                            "The selected copy does not belong to this catalog item.",
+                    ])
+                    ->withInput();
+            }
         }
-        
+
         // Look up member by member_no to get the actual member_id
-        $member = \App\Models\Member::where('member_no', $validated['member_id'])->first();
-        
+        $member = \App\Models\Member::where(
+            "member_no",
+            $validated["member_id"],
+        )->first();
+
         if (!$member) {
-            return redirect()->back()->withErrors(['member_id' => 'Member number not found.'])->withInput();
+            return redirect()
+                ->back()
+                ->withErrors(["member_id" => "Member number not found."])
+                ->withInput();
         }
-        
+
         // Replace member_no with actual member_id
-        $validated['member_id'] = $member->id;
-        
+        $validated["member_id"] = $member->id;
+
         $bookRequest = \App\Models\BookRequest::create($validated);
 
         // Notify all admins
-        $admins = \App\Models\User::where('role', 'admin')->get();
-        \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\NewBookRequestNotification($bookRequest));
+        $admins = \App\Models\User::where("role", "admin")->get();
+        \Illuminate\Support\Facades\Notification::send(
+            $admins,
+            new \App\Notifications\NewBookRequestNotification($bookRequest),
+        );
 
-        return redirect()->back()->with('success', 'Your borrow request has been submitted successfully!');
+        return redirect()
+            ->back()
+            ->with(
+                "success",
+                "Your borrow request has been submitted successfully!",
+            );
     }
 }
