@@ -53,6 +53,16 @@ class CatalogItemController extends Controller
         ]);
     }
 
+    /**
+     * Validate catalog item data before showing review page.
+     * Uses the same validation rules as store but returns JSON.
+     */
+    public function validateForReview(StoreCatalogItemRequest $request): JsonResponse
+    {
+        // If we reach here, validation passed (Laravel auto-validates via FormRequest)
+        return response()->json(['success' => true, 'message' => 'Validation passed']);
+    }
+
     public function store(StoreCatalogItemRequest $request): RedirectResponse
     {
         $data = $request->validated();

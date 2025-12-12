@@ -244,6 +244,7 @@ Route::middleware(["auth", "verified", "role:admin|staff"])->group(function () {
                 "create",
                 "edit",
             ]);
+            Route::post("catalog-items/validate", [CatalogItemController::class, "validateForReview"])->name("catalog-items.validate");
             Route::resource("catalog-items", CatalogItemController::class);
             Route::resource("members", MemberController::class);
 

@@ -33,7 +33,7 @@ export default function CatalogItemAdd({
     authors,
     nextAccessionNo,
 }: Props) {
-    const { data, setData, post, processing, errors, clearErrors } = useForm({
+    const { data, setData, post, processing, errors, clearErrors, setError } = useForm({
         title: "",
         accession_no: nextAccessionNo,
         type: "",
@@ -88,22 +88,72 @@ export default function CatalogItemAdd({
 
     const [activeTab, setActiveTab] = useState<TabType>("item-info");
     const [showReview, setShowReview] = useState(false);
+    const [isValidating, setIsValidating] = useState(false);
 
-    const handleReview = (e: React.FormEvent) => {
+    const handleReview = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Basic validation before showing review
-        if (!data.title.trim()) {
-            toast.error("Title is required");
+        setIsValidating(true);
+        clearErrors();
+
+        try {
+            // Call Laravel backend validation
+            await axios.post(route("admin.catalog-items.validate"), data);
+
+            // Validation passed - show review page
+            setShowReview(true);
             setActiveTab("item-info");
-            return;
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        } catch (error: any) {
+            if (error.response?.status === 422) {
+                // Validation failed - show errors
+                const validationErrors = error.response.data.errors;
+
+                // Set errors in form state
+                Object.keys(validationErrors).forEach((field) => {
+                    setError(field as any, validationErrors[field][0]);
+                });
+
+                // Determine which tab has the first error
+                const itemInfoFields = [
+                    "title", "accession_no", "type", "category_id", "publisher_id",
+                    "author_ids", "year", "isbn", "isbn13", "call_no", "subject",
+                    "series", "edition", "place_of_publication", "extent",
+                    "other_physical_details", "dimensions", "location", "url", "description"
+                ];
+                const detailFields = ["volume", "page_duration", "abstract", "biblio_info", "url_visibility", "library_branch"];
+                const journalFields = ["issn", "frequency", "journal_type", "issue_type", "issue_period"];
+                const thesisFields = ["granting_institution", "degree_qualification", "supervisor", "thesis_date", "thesis_period", "publication_type"];
+
+                const errorFields = Object.keys(validationErrors);
+
+                if (errorFields.some(f => itemInfoFields.includes(f) || f.startsWith("author_ids"))) {
+                    setActiveTab("item-info");
+                } else if (errorFields.some(f => detailFields.includes(f))) {
+                    setActiveTab("detail");
+                } else if (errorFields.some(f => journalFields.includes(f))) {
+                    setActiveTab("journal");
+                } else if (errorFields.some(f => thesisFields.includes(f))) {
+                    setActiveTab("thesis");
+                }
+
+                toast.error("Please fix the validation errors before proceeding to review.");
+
+                // Scroll to first error after tab switch renders
+                setTimeout(() => {
+                    const errorElement = document.querySelector(".text-red-600, .text-red-500");
+                    if (errorElement) {
+                        errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+                        const input = errorElement.closest("div")?.querySelector("input, select, textarea");
+                        if (input instanceof HTMLElement) input.focus();
+                    }
+                }, 150);
+            } else {
+                toast.error("An unexpected error occurred. Please try again.");
+                console.error("Validation error:", error);
+            }
+        } finally {
+            setIsValidating(false);
         }
-        if (!data.type) {
-            toast.error("Material Type is required");
-            setActiveTab("item-info");
-            return;
-        }
-        setShowReview(true);
-        setActiveTab("item-info"); // Reset to first tab in review
     };
 
     const handleConfirmSubmit = () => {
@@ -332,8 +382,8 @@ export default function CatalogItemAdd({
                                     <SecondaryButton type="button" onClick={handleCancel}>
                                         Cancel
                                     </SecondaryButton>
-                                    <PrimaryButton disabled={processing}>
-                                        Review & Submit
+                                    <PrimaryButton disabled={processing || isValidating}>
+                                        {isValidating ? "Validating..." : "Review & Submit"}
                                     </PrimaryButton>
                                 </div>
                             </form>
