@@ -122,7 +122,34 @@ class BookRequestController extends Controller
 
         // Handle status change to "Approved"
         if ($statusChanged && $validated["status"] === "Approved") {
-            // 1. Mark the specific COPY as "Borrowed" (not the main catalog item)
+            // If no specific copy was selected, try to find an available copy
+            if (!$bookRequest->catalog_item_copy_id) {
+                $bookRequest->load("catalogItem.copies");
+                $availableCopy = $bookRequest->catalogItem->copies()
+                    ->where("status", "Available")
+                    ->first();
+
+                if ($availableCopy) {
+                    // Assign this copy to the request
+                    $bookRequest->update(["catalog_item_copy_id" => $availableCopy->id]);
+                    $bookRequest->load("catalogItemCopy");
+                } else {
+                    // No available copies exist - create a default copy
+                    $newCopy = \App\Models\CatalogItemCopy::create([
+                        "catalog_item_id" => $bookRequest->catalog_item_id,
+                        "accession_no" => \App\Models\CatalogItemCopy::generateAccessionNo(),
+                        "copy_no" => \App\Models\CatalogItemCopy::getNextCopyNo($bookRequest->catalog_item_id),
+                        "status" => "Available",
+                        "branch" => $bookRequest->catalogItem->library_branch ?? null,
+                        "location" => $bookRequest->catalogItem->location ?? null,
+                    ]);
+                    
+                    $bookRequest->update(["catalog_item_copy_id" => $newCopy->id]);
+                    $bookRequest->load("catalogItemCopy");
+                }
+            }
+
+            // 1. Mark the copy as "Borrowed"
             if ($bookRequest->catalogItemCopy) {
                 $bookRequest->catalogItemCopy->update(["status" => "Borrowed"]);
             }
@@ -224,12 +251,13 @@ class BookRequestController extends Controller
     public function approve($id)
     {
         $bookRequest = \App\Models\BookRequest::with([
+            "catalogItem.copies",
             "catalogItem.authors",
             "catalogItem.publisher",
             "catalogItemCopy",
         ])->findOrFail($id);
 
-        // Check if the specific copy is already borrowed
+        // If a specific copy was requested, check if it's already borrowed
         if (
             $bookRequest->catalogItemCopy &&
             $bookRequest->catalogItemCopy->status === "Borrowed"
@@ -240,9 +268,36 @@ class BookRequestController extends Controller
             );
         }
 
+        // If no specific copy was selected, try to find an available copy
+        if (!$bookRequest->catalog_item_copy_id) {
+            $availableCopy = $bookRequest->catalogItem->copies()
+                ->where("status", "Available")
+                ->first();
+
+            if ($availableCopy) {
+                // Assign this copy to the request
+                $bookRequest->update(["catalog_item_copy_id" => $availableCopy->id]);
+                $bookRequest->load("catalogItemCopy");
+            } else {
+                // No available copies exist - create a default copy for this catalog item
+                $newCopy = \App\Models\CatalogItemCopy::create([
+                    "catalog_item_id" => $bookRequest->catalog_item_id,
+                    "accession_no" => \App\Models\CatalogItemCopy::generateAccessionNo(),
+                    "copy_no" => \App\Models\CatalogItemCopy::getNextCopyNo($bookRequest->catalog_item_id),
+                    "status" => "Available",
+                    "branch" => $bookRequest->catalogItem->library_branch ?? null,
+                    "location" => $bookRequest->catalogItem->location ?? null,
+                ]);
+                
+                $bookRequest->update(["catalog_item_copy_id" => $newCopy->id]);
+                $bookRequest->load("catalogItemCopy");
+            }
+        }
+
+        // Now approve the request
         $bookRequest->update(["status" => "Approved"]);
 
-        // Mark the specific COPY as "Borrowed" (not the main catalog item)
+        // Mark the copy as "Borrowed"
         if ($bookRequest->catalogItemCopy) {
             $bookRequest->catalogItemCopy->update(["status" => "Borrowed"]);
         }
