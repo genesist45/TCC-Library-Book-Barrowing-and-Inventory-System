@@ -19,15 +19,6 @@ interface NewArrivalsCardProps {
 }
 
 export default function NewArrivalsCard({ items }: NewArrivalsCardProps) {
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-        });
-    };
-
     return (
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">
             {/* Header */}
@@ -111,13 +102,6 @@ export default function NewArrivalsCard({ items }: NewArrivalsCardProps) {
                                                         .join(", ")}
                                                 </p>
                                             )}
-                                    </div>
-
-                                    {/* Date Badge */}
-                                    <div className="flex-shrink-0">
-                                        <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                                            {formatDate(item.created_at)}
-                                        </span>
                                     </div>
                                 </Link>
                             </li>

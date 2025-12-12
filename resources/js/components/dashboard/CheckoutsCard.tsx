@@ -39,6 +39,37 @@ export default function CheckoutsCard({ items }: CheckoutsCardProps) {
         return diffDays;
     };
 
+    const getStatusText = (dueDate: string, isOverdue: boolean) => {
+        const daysRemaining = getDaysRemaining(dueDate);
+
+        if (isOverdue || daysRemaining < 0) {
+            const daysOverdue = Math.abs(daysRemaining);
+            return {
+                text: `${daysOverdue} day${daysOverdue !== 1 ? "s" : ""} overdue`,
+                className: "text-gray-400 dark:text-gray-500",
+            };
+        }
+
+        if (daysRemaining === 0) {
+            return {
+                text: "Due today",
+                className: "text-gray-400 dark:text-gray-500",
+            };
+        }
+
+        if (daysRemaining <= 2) {
+            return {
+                text: `${daysRemaining} day${daysRemaining !== 1 ? "s" : ""} left`,
+                className: "text-gray-400 dark:text-gray-500",
+            };
+        }
+
+        return {
+            text: `${daysRemaining} days left`,
+            className: "text-gray-400 dark:text-gray-500",
+        };
+    };
+
     return (
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">
             {/* Header */}
@@ -70,12 +101,10 @@ export default function CheckoutsCard({ items }: CheckoutsCardProps) {
                 {items.length > 0 ? (
                     <ul className="divide-y divide-gray-100 dark:divide-[#3a3a3a]">
                         {items.map((item) => {
-                            const daysRemaining = getDaysRemaining(
+                            const status = getStatusText(
                                 item.due_date,
+                                item.is_overdue,
                             );
-                            const isOverdue = item.is_overdue || daysRemaining < 0;
-                            const isDueSoon =
-                                !isOverdue && daysRemaining <= 2;
 
                             return (
                                 <li key={item.id}>
@@ -122,29 +151,12 @@ export default function CheckoutsCard({ items }: CheckoutsCardProps) {
                                                     {formatDate(item.due_date)}
                                                 </span>
                                             </div>
-                                        </div>
-
-                                        {/* Status Badge */}
-                                        <div className="flex-shrink-0">
-                                            {isOverdue ? (
-                                                <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400">
-                                                    {Math.abs(daysRemaining)} day
-                                                    {Math.abs(daysRemaining) !== 1
-                                                        ? "s"
-                                                        : ""}{" "}
-                                                    overdue
-                                                </span>
-                                            ) : isDueSoon ? (
-                                                <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                                                    {daysRemaining === 0
-                                                        ? "Due today"
-                                                        : `${daysRemaining} day${daysRemaining !== 1 ? "s" : ""} left`}
-                                                </span>
-                                            ) : (
-                                                <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                                                    {daysRemaining} days left
-                                                </span>
-                                            )}
+                                            {/* Status Text at Bottom Left */}
+                                            <p
+                                                className={`mt-1 text-xs font-medium ${status.className}`}
+                                            >
+                                                {status.text}
+                                            </p>
                                         </div>
                                     </Link>
                                 </li>
