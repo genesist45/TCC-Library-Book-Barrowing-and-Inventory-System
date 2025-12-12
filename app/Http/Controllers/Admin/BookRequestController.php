@@ -134,18 +134,16 @@ class BookRequestController extends Controller
                     $bookRequest->update(["catalog_item_copy_id" => $availableCopy->id]);
                     $bookRequest->load("catalogItemCopy");
                 } else {
-                    // No available copies exist - create a default copy
-                    $newCopy = \App\Models\CatalogItemCopy::create([
-                        "catalog_item_id" => $bookRequest->catalog_item_id,
-                        "accession_no" => \App\Models\CatalogItemCopy::generateAccessionNo(),
-                        "copy_no" => \App\Models\CatalogItemCopy::getNextCopyNo($bookRequest->catalog_item_id),
-                        "status" => "Available",
-                        "branch" => $bookRequest->catalogItem->library_branch ?? null,
-                        "location" => $bookRequest->catalogItem->location ?? null,
-                    ]);
+                    // No available copies exist - block approval
+                    // Revert the status back to the original
+                    $bookRequest->update(["status" => $oldStatus]);
                     
-                    $bookRequest->update(["catalog_item_copy_id" => $newCopy->id]);
-                    $bookRequest->load("catalogItemCopy");
+                    return redirect()
+                        ->back()
+                        ->with(
+                            "error",
+                            "No available copies for this title.",
+                        );
                 }
             }
 
@@ -279,18 +277,11 @@ class BookRequestController extends Controller
                 $bookRequest->update(["catalog_item_copy_id" => $availableCopy->id]);
                 $bookRequest->load("catalogItemCopy");
             } else {
-                // No available copies exist - create a default copy for this catalog item
-                $newCopy = \App\Models\CatalogItemCopy::create([
-                    "catalog_item_id" => $bookRequest->catalog_item_id,
-                    "accession_no" => \App\Models\CatalogItemCopy::generateAccessionNo(),
-                    "copy_no" => \App\Models\CatalogItemCopy::getNextCopyNo($bookRequest->catalog_item_id),
-                    "status" => "Available",
-                    "branch" => $bookRequest->catalogItem->library_branch ?? null,
-                    "location" => $bookRequest->catalogItem->location ?? null,
-                ]);
-                
-                $bookRequest->update(["catalog_item_copy_id" => $newCopy->id]);
-                $bookRequest->load("catalogItemCopy");
+                // No available copies exist - block approval
+                return back()->with(
+                    "error",
+                    "No available copies for this title.",
+                );
             }
         }
 

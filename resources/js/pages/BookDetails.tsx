@@ -576,15 +576,13 @@ export default function BookDetails({
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <p className="mt-2 text-sm text-gray-600">
-                                                            No copies available for this item
+                                                        <p className="mt-2 text-sm font-medium text-gray-600">
+                                                            No copies available for this catalog item
                                                         </p>
-                                                        <button
-                                                            onClick={() => openRequestModal()}
-                                                            className="mt-4 inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
-                                                        >
-                                                            Request This Book
-                                                        </button>
+                                                        <p className="mt-1 text-xs text-gray-500">
+                                                            This title currently has no physical copies in the library inventory.
+                                                            Please check back later or contact the library staff.
+                                                        </p>
                                                     </>
                                                 )}
                                             </div>
