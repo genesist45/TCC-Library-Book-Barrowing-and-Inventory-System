@@ -34,7 +34,6 @@ return new class extends Migration
             $table->enum('location', ['Filipianna', 'Circulation', 'Theses', 'Fiction', 'Reserve'])->nullable();
             $table->string('cover_image')->nullable();
             $table->boolean('is_active')->default(true);
-            $table->enum('status', ['Available', 'Borrowed'])->default('Available');
             
             $table->string('volume')->nullable();
             $table->string('page_duration')->nullable();

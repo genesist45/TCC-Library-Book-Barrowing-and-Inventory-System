@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('member_id')->constrained('members')->onDelete('cascade');
             $table->foreignId('catalog_item_id')->constrained('catalog_items')->onDelete('cascade');
+            $table->foreignId('catalog_item_copy_id')->nullable()->constrained('catalog_item_copies')->onDelete('set null');
             $table->string('full_name');
             $table->string('email');
             $table->integer('quota')->nullable();
