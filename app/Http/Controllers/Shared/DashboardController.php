@@ -22,8 +22,9 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        // Render different dashboard views based on role
-        if ($user->role === "admin") {
+        // Render admin dashboard for both admin and staff users
+        // Both roles have access to the same features (except Users page which is admin-only)
+        if ($user->role === "admin" || $user->role === "staff") {
             $lastMonth = now()->subMonth();
 
             $stats = [

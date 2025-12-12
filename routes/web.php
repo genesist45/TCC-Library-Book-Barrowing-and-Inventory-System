@@ -197,7 +197,7 @@ Route::middleware(["auth", "verified"])->group(function () {
     })->name("notifications.check-overdue");
 });
 
-// Admin-only routes (without URL prefix, but protected by role middleware)
+// Admin-only routes (Users management - only admins can access)
 Route::middleware(["auth", "verified", "role:admin"])->group(function () {
     Route::get("/users", [UserController::class, "index"])->name("users.index");
     Route::post("/users", [UserController::class, "store"])->name(
@@ -209,7 +209,10 @@ Route::middleware(["auth", "verified", "role:admin"])->group(function () {
     Route::delete("/users/{user}", [UserController::class, "destroy"])->name(
         "users.destroy",
     );
+});
 
+// Admin and Staff shared routes (all administrative functions except user management)
+Route::middleware(["auth", "verified", "role:admin|staff"])->group(function () {
     // QR Scanner
     Route::get("/qr-scanner", [QrScannerController::class, "index"])->name(
         "qr-scanner",
