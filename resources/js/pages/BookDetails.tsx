@@ -26,10 +26,22 @@ interface Props extends PageProps {
     catalogItem: CatalogItem & {
         copies?: CatalogItemCopy[];
         copies_count?: number;
+        available_copies_count?: number;
     };
+    hasAvailableCopies: boolean;
+    hasCopies: boolean;
+    allCopiesBorrowed: boolean;
+    hasPendingOrActiveRequest: boolean;
 }
 
-export default function BookDetails({ auth, catalogItem }: Props) {
+export default function BookDetails({
+    auth,
+    catalogItem,
+    hasAvailableCopies,
+    hasCopies,
+    allCopiesBorrowed,
+    hasPendingOrActiveRequest
+}: Props) {
     const { flash } = usePage().props as any;
     const [activeTab, setActiveTab] = useState<BookDetailTab>("item-info");
     const [showRequestModal, setShowRequestModal] = useState(false);
@@ -266,8 +278,8 @@ export default function BookDetails({ auth, catalogItem }: Props) {
                                         type="button"
                                         onClick={() => setActiveTab("item-info")}
                                         className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium transition-colors ${activeTab === "item-info"
-                                                ? "border-indigo-500 text-indigo-600"
-                                                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                                            ? "border-indigo-500 text-indigo-600"
+                                            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
                                             }`}
                                     >
                                         <Info className="h-4 w-4" />
@@ -277,8 +289,8 @@ export default function BookDetails({ auth, catalogItem }: Props) {
                                         type="button"
                                         onClick={() => setActiveTab("available-copies")}
                                         className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium transition-colors ${activeTab === "available-copies"
-                                                ? "border-indigo-500 text-indigo-600"
-                                                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                                            ? "border-indigo-500 text-indigo-600"
+                                            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
                                             }`}
                                     >
                                         <Copy className="h-4 w-4" />
@@ -286,8 +298,8 @@ export default function BookDetails({ auth, catalogItem }: Props) {
                                         {catalogItem.copies && catalogItem.copies.length > 0 && (
                                             <span
                                                 className={`ml-1 rounded-full px-2 py-0.5 text-xs font-medium ${activeTab === "available-copies"
-                                                        ? "bg-indigo-100 text-indigo-600"
-                                                        : "bg-gray-100 text-gray-600"
+                                                    ? "bg-indigo-100 text-indigo-600"
+                                                    : "bg-gray-100 text-gray-600"
                                                     }`}
                                             >
                                                 {catalogItem.copies.length}
@@ -537,15 +549,44 @@ export default function BookDetails({ auth, catalogItem }: Props) {
                                         ) : (
                                             <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
                                                 <BookOpen className="mx-auto h-12 w-12 text-gray-400" />
-                                                <p className="mt-2 text-sm text-gray-600">
-                                                    No copies available for this item
-                                                </p>
-                                                <button
-                                                    onClick={() => openRequestModal()}
-                                                    className="mt-4 inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
-                                                >
-                                                    Request This Book
-                                                </button>
+
+                                                {/* Show different messages based on status */}
+                                                {allCopiesBorrowed ? (
+                                                    <>
+                                                        <p className="mt-2 text-sm font-medium text-red-600">
+                                                            All copies are currently borrowed
+                                                        </p>
+                                                        <p className="mt-1 text-xs text-gray-500">
+                                                            This book is checked out and not available for borrowing at this time.
+                                                        </p>
+                                                        {hasPendingOrActiveRequest && (
+                                                            <p className="mt-2 text-xs text-amber-600">
+                                                                There is already a pending or active request for this book.
+                                                            </p>
+                                                        )}
+                                                    </>
+                                                ) : hasPendingOrActiveRequest ? (
+                                                    <>
+                                                        <p className="mt-2 text-sm font-medium text-red-600">
+                                                            This book is currently borrowed
+                                                        </p>
+                                                        <p className="mt-1 text-xs text-gray-500">
+                                                            No copies available - book is checked out.
+                                                        </p>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <p className="mt-2 text-sm text-gray-600">
+                                                            No copies available for this item
+                                                        </p>
+                                                        <button
+                                                            onClick={() => openRequestModal()}
+                                                            className="mt-4 inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+                                                        >
+                                                            Request This Book
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
                                         )}
                                     </>

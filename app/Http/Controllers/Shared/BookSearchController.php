@@ -39,10 +39,30 @@ class BookSearchController extends Controller
             "copies",
         ])
             ->withCount("copies")
+            ->withCount([
+                "copies as available_copies_count" => function ($query) {
+                    $query->where("status", "Available");
+                },
+            ])
             ->findOrFail($id);
+
+        // Check if there are any pending or approved (unreturned) requests for this catalog item
+        $hasPendingOrActiveRequest = \App\Models\BookRequest::where("catalog_item_id", $id)
+            ->whereIn("status", ["Pending", "Approved"])
+            ->whereDoesntHave("bookReturn")
+            ->exists();
+
+        // Calculate availability status
+        $hasAvailableCopies = $catalogItem->available_copies_count > 0;
+        $hasCopies = $catalogItem->copies_count > 0;
+        $allCopiesBorrowed = $hasCopies && !$hasAvailableCopies;
 
         return inertia("BookDetails", [
             "catalogItem" => $catalogItem,
+            "hasAvailableCopies" => $hasAvailableCopies,
+            "hasCopies" => $hasCopies,
+            "allCopiesBorrowed" => $allCopiesBorrowed,
+            "hasPendingOrActiveRequest" => $hasPendingOrActiveRequest,
         ]);
     }
 
