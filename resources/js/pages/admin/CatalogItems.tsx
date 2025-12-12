@@ -1,16 +1,21 @@
-import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
-import { Head, router, usePage } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
-import CatalogItemTable from '@/components/catalog-items/CatalogItemTable';
-import CatalogItemPageHeader from '@/components/catalog-items/CatalogItemPageHeader';
-import CatalogItemDeleteModal from '@/components/catalog-items/CatalogItemDeleteModal';
-import CopyBookModal from '@/components/catalog-items/CopyBookModal';
-import CopySuccessModal from '@/components/catalog-items/CopySuccessModal';
-import { toast } from 'react-toastify';
-import { PageProps, CatalogItem } from '@/types';
+import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
+import { Head, router, usePage } from "@inertiajs/react";
+import { useState, useEffect } from "react";
+import CatalogItemTable from "@/components/catalog-items/CatalogItemTable";
+import CatalogItemPageHeader from "@/components/catalog-items/CatalogItemPageHeader";
+import CatalogItemDeleteModal from "@/components/catalog-items/CatalogItemDeleteModal";
+import CopyBookModal from "@/components/catalog-items/CopyBookModal";
+import CopySuccessModal from "@/components/catalog-items/CopySuccessModal";
+import { toast } from "react-toastify";
+import { PageProps, CatalogItem } from "@/types";
+
+// Extended type to include available_copies_count from the backend
+interface CatalogItemWithAvailability extends CatalogItem {
+    available_copies_count?: number;
+}
 
 interface Props extends PageProps {
-    catalogItems: CatalogItem[];
+    catalogItems: CatalogItemWithAvailability[];
     flash?: {
         success?: string;
         error?: string;
@@ -22,7 +27,7 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
     const [showCopyModal, setShowCopyModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState("");
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [processing, setProcessing] = useState(false);
 
@@ -36,15 +41,15 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
     }, [flash]);
 
     const handleAddItem = () => {
-        router.visit(route('admin.catalog-items.create'));
+        router.visit(route("admin.catalog-items.create"));
     };
 
     const handleViewItem = (item: CatalogItem) => {
-        router.visit(route('admin.catalog-items.show', item.id));
+        router.visit(route("admin.catalog-items.show", item.id));
     };
 
     const handleEditItem = (item: CatalogItem) => {
-        router.visit(route('admin.catalog-items.edit', item.id));
+        router.visit(route("admin.catalog-items.edit", item.id));
     };
 
     const handleCopyItem = (item: CatalogItem) => {
@@ -61,16 +66,16 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
         if (!selectedItem) return;
 
         setProcessing(true);
-        router.delete(route('admin.catalog-items.destroy', selectedItem.id), {
+        router.delete(route("admin.catalog-items.destroy", selectedItem.id), {
             onSuccess: () => {
-                toast.success('Catalog item deleted successfully!');
+                toast.success("Catalog item deleted successfully!");
                 setShowDeleteModal(false);
                 setSelectedItem(null);
                 setProcessing(false);
             },
             onError: () => {
                 setProcessing(false);
-                toast.error('Failed to delete catalog item');
+                toast.error("Failed to delete catalog item");
             },
         });
     };
@@ -109,15 +114,15 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
         setSelectedItem(null);
     };
 
-    const filteredItems = catalogItems.filter(item => {
+    const filteredItems = catalogItems.filter((item) => {
         const searchLower = searchTerm.toLowerCase();
         return (
-            (item.title?.toLowerCase() || '').includes(searchLower) ||
-            (item.type?.toLowerCase() || '').includes(searchLower) ||
-            (item.category?.name?.toLowerCase() || '').includes(searchLower) ||
-            (item.publisher?.name?.toLowerCase() || '').includes(searchLower) ||
-            (item.isbn?.toLowerCase() || '').includes(searchLower) ||
-            (item.isbn13?.toLowerCase() || '').includes(searchLower)
+            (item.title?.toLowerCase() || "").includes(searchLower) ||
+            (item.type?.toLowerCase() || "").includes(searchLower) ||
+            (item.category?.name?.toLowerCase() || "").includes(searchLower) ||
+            (item.publisher?.name?.toLowerCase() || "").includes(searchLower) ||
+            (item.isbn?.toLowerCase() || "").includes(searchLower) ||
+            (item.isbn13?.toLowerCase() || "").includes(searchLower)
         );
     });
 
@@ -130,13 +135,13 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
                         body * {
                             visibility: hidden;
                         }
-                        
+
                         /* Show only the print container and its children */
                         #print-container,
                         #print-container * {
                             visibility: visible;
                         }
-                        
+
                         /* Position the print container at the top */
                         #print-container {
                             position: absolute;
@@ -145,35 +150,35 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
                             width: 100%;
                             padding: 20px;
                         }
-                        
+
                         /* Clean print styles */
                         @page {
                             margin: 1cm;
                         }
-                        
+
                         /* Remove backgrounds and borders for clean printing */
                         body {
                             background: white !important;
                         }
-                        
+
                         /* Table print styles */
                         table {
                             border-collapse: collapse;
                             width: 100%;
                             font-size: 10pt;
                         }
-                        
+
                         th, td {
                             border: 1px solid #000 !important;
                             padding: 8px !important;
                             text-align: left;
                         }
-                        
+
                         th {
                             background-color: #f0f0f0 !important;
                             font-weight: bold;
                         }
-                        
+
                         /* Ensure table doesn't break across pages awkwardly */
                         tr {
                             page-break-inside: avoid;
@@ -213,15 +218,17 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
                         Catalog Inventory Report
                     </h1>
                     <p className="text-sm text-gray-600 mb-1">
-                        Comprehensive list of all library catalog items and media resources
+                        Comprehensive list of all library catalog items and
+                        media resources
                     </p>
                     <p className="text-xs text-gray-500">
-                        Generated on: {new Date().toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
+                        Generated on:{" "}
+                        {new Date().toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
                         })}
                     </p>
                     <p className="text-xs text-gray-500">
@@ -234,9 +241,6 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
                         <tr>
                             <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
                                 ID
-                            </th>
-                            <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
-                                Accession No.
                             </th>
                             <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
                                 Title
@@ -274,9 +278,6 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
                                     {item.id}
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2 text-xs font-medium">
-                                    {item.accession_no}
-                                </td>
-                                <td className="border border-gray-300 px-3 py-2 text-xs font-medium">
                                     {item.title}
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2 text-xs">
@@ -284,26 +285,28 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2 text-xs">
                                     {item.authors && item.authors.length > 0
-                                        ? item.authors.map(a => a.name).join(', ')
-                                        : '-'}
+                                        ? item.authors
+                                            .map((a) => a.name)
+                                            .join(", ")
+                                        : "-"}
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2 text-xs">
-                                    {item.publisher?.name || '-'}
+                                    {item.publisher?.name || "-"}
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2 text-xs">
-                                    {item.year || '-'}
+                                    {item.year || "-"}
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2 text-xs">
                                     {item.copies_count || 0}
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2 text-xs">
-                                    {item.isbn || item.isbn13 || '-'}
+                                    {item.isbn || item.isbn13 || "-"}
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2 text-xs">
-                                    {item.category?.name || '-'}
+                                    {item.category?.name || "-"}
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2 text-xs">
-                                    {item.is_active ? 'Active' : 'Inactive'}
+                                    {item.is_active ? "Active" : "Inactive"}
                                 </td>
                             </tr>
                         ))}

@@ -8,14 +8,12 @@ import { Category, Author } from "@/types";
 interface BasicInformationSectionProps {
     data: {
         title: string;
-        accession_no: string;
         type: string;
         category_id: string;
         author_ids: number[];
     };
     errors: {
         title?: string;
-        accession_no?: string;
         type?: string;
         category_id?: string;
         author_ids?: string;
@@ -65,24 +63,6 @@ export default function BasicInformationSection({
                         }}
                     />
                     <InputError message={errors.title} className="mt-1" />
-                </div>
-
-                <div>
-                    <InputLabel htmlFor="accession_no" value="Accession No." required />
-                    <TextInput
-                        id="accession_no"
-                        type="text"
-                        className="mt-1 block w-full bg-gray-50 dark:bg-gray-700"
-                        value={data.accession_no}
-                        onChange={(e) => {
-                            onDataChange("accession_no", e.target.value);
-                            onClearErrors("accession_no");
-                        }}
-                    />
-                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        Auto-generated unique 7-digit number (editable if needed)
-                    </p>
-                    <InputError message={errors.accession_no} className="mt-1" />
                 </div>
 
                 <div className="sm:col-span-2">

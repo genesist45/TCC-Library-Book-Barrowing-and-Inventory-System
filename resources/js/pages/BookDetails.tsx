@@ -1,20 +1,39 @@
-import { PageProps, CatalogItem } from '@/types';
-import { Head, router, usePage } from '@inertiajs/react';
-import PublicHeader from '@/components/common/PublicHeader';
-import { useEffect } from 'react';
-import { BookOpen } from 'lucide-react';
-import { toast } from 'react-toastify';
-import Toast from '@/components/common/Toast';
+import { PageProps, CatalogItem, CatalogItemCopy } from "@/types";
+import { Head, router, usePage } from "@inertiajs/react";
+import PublicHeader from "@/components/common/PublicHeader";
+import { useEffect, useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { toast } from "react-toastify";
+import Toast from "@/components/common/Toast";
+
+// Book detail components
+import BookDetailsTabs, { BookDetailTab } from "@/components/books/BookDetailsTabs";
+import ItemInfoTab from "@/components/books/ItemInfoTab";
+import AvailableCopiesTable from "@/components/books/AvailableCopiesTable";
+import BorrowRequestModal from "@/components/books/BorrowRequestModal";
 
 interface Props extends PageProps {
-    catalogItem: CatalogItem;
+    catalogItem: CatalogItem & {
+        copies?: CatalogItemCopy[];
+        copies_count?: number;
+        available_copies_count?: number;
+    };
+    hasAvailableCopies: boolean;
+    hasCopies: boolean;
+    allCopiesBorrowed: boolean;
+    hasPendingOrActiveRequest: boolean;
 }
 
-export default function BookDetails({ auth, catalogItem }: Props) {
+export default function BookDetails({
+    auth,
+    catalogItem,
+    allCopiesBorrowed,
+    hasPendingOrActiveRequest,
+}: Props) {
     const { flash } = usePage().props as any;
-    const handleBorrowRequest = () => {
-        router.visit(route('books.borrow-request.create', catalogItem.id));
-    };
+    const [activeTab, setActiveTab] = useState<BookDetailTab>("item-info");
+    const [showRequestModal, setShowRequestModal] = useState(false);
+    const [selectedCopyId, setSelectedCopyId] = useState<number | null>(null);
 
     // Show flash messages
     useEffect(() => {
@@ -26,6 +45,20 @@ export default function BookDetails({ auth, catalogItem }: Props) {
         }
     }, [flash]);
 
+    const handleGoBack = () => {
+        router.visit("/");
+    };
+
+    const handleRequestCopy = (copy: CatalogItemCopy) => {
+        setSelectedCopyId(copy.id);
+        setShowRequestModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowRequestModal(false);
+        setSelectedCopyId(null);
+    };
+
     return (
         <>
             <Head title={catalogItem.title} />
@@ -33,108 +66,61 @@ export default function BookDetails({ auth, catalogItem }: Props) {
                 <PublicHeader user={auth.user} />
 
                 <main className="container mx-auto px-4 py-24 sm:px-6 lg:px-12">
-                    <div className="mx-auto max-w-5xl">
-                        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
-                            <div className="p-6 sm:p-8">
-                                <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-                                    {/* Book Cover */}
-                                    <div className="flex justify-center lg:justify-start">
-                                        {catalogItem.cover_image ? (
-                                            <img
-                                                src={`/storage/${catalogItem.cover_image}`}
-                                                alt={catalogItem.title}
-                                                className="h-80 w-auto rounded-lg border border-gray-300 object-cover shadow-md"
-                                            />
-                                        ) : (
-                                            <div className="flex h-80 w-56 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50">
-                                                <BookOpen className="h-16 w-16 text-gray-400" />
-                                            </div>
-                                        )}
-                                    </div>
+                    <div className="mx-auto max-w-6xl">
+                        {/* Back Button */}
+                        <button
+                            onClick={handleGoBack}
+                            className="mb-6 flex items-center gap-2 text-sm font-medium text-gray-600 transition hover:text-indigo-600"
+                        >
+                            <ArrowLeft className="h-4 w-4" />
+                            Back to Catalog
+                        </button>
 
-                                    {/* Book Details */}
-                                    <div className="lg:col-span-2">
-                                        <h1 className="text-3xl font-bold text-gray-900">{catalogItem.title}</h1>
+                        {/* Main Content Card */}
+                        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
+                            {/* Header */}
+                            <div className="border-b border-gray-200 bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
+                                <h1 className="text-2xl font-bold text-white">
+                                    {catalogItem.title}
+                                </h1>
+                            </div>
 
-                                        <div className="mt-4 space-y-3">
-                                            {catalogItem.authors && catalogItem.authors.length > 0 && (
-                                                <div>
-                                                    <span className="text-sm font-medium text-gray-600">Authors: </span>
-                                                    <span className="text-sm text-gray-900">
-                                                        {catalogItem.authors.map((a) => a.name).join(', ')}
-                                                    </span>
-                                                </div>
-                                            )}
+                            {/* Tabs Navigation */}
+                            <BookDetailsTabs
+                                activeTab={activeTab}
+                                onTabChange={setActiveTab}
+                                copiesCount={catalogItem.copies?.length}
+                            />
 
-                                            {catalogItem.publisher && (
-                                                <div>
-                                                    <span className="text-sm font-medium text-gray-600">Publisher: </span>
-                                                    <span className="text-sm text-gray-900">{catalogItem.publisher.name}</span>
-                                                </div>
-                                            )}
+                            {/* Tab Content */}
+                            <div className="p-6">
+                                {activeTab === "item-info" && (
+                                    <ItemInfoTab catalogItem={catalogItem} />
+                                )}
 
-                                            {catalogItem.category && (
-                                                <div>
-                                                    <span className="text-sm font-medium text-gray-600">Category: </span>
-                                                    <span className="text-sm text-gray-900">{catalogItem.category.name}</span>
-                                                </div>
-                                            )}
-
-                                            <div>
-                                                <span className="text-sm font-medium text-gray-600">Type: </span>
-                                                <span className="text-sm text-gray-900">{catalogItem.type}</span>
-                                            </div>
-
-                                            {catalogItem.year && (
-                                                <div>
-                                                    <span className="text-sm font-medium text-gray-600">Year: </span>
-                                                    <span className="text-sm text-gray-900">{catalogItem.year}</span>
-                                                </div>
-                                            )}
-
-                                            {catalogItem.isbn && (
-                                                <div>
-                                                    <span className="text-sm font-medium text-gray-600">ISBN: </span>
-                                                    <span className="text-sm text-gray-900">{catalogItem.isbn}</span>
-                                                </div>
-                                            )}
-
-                                            <div>
-                                                <span className="text-sm font-medium text-gray-600">Status: </span>
-                                                <span
-                                                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${catalogItem.is_active
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : 'bg-gray-100 text-gray-800'
-                                                        }`}
-                                                >
-                                                    {catalogItem.is_active ? 'Available' : 'Unavailable'}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        {catalogItem.description && (
-                                            <div className="mt-6">
-                                                <h3 className="text-sm font-medium text-gray-600">Description</h3>
-                                                <p className="mt-2 text-sm text-gray-900">{catalogItem.description}</p>
-                                            </div>
-                                        )}
-
-                                        {/* Borrow Request Button */}
-                                        <div className="mt-8">
-                                            <button
-                                                onClick={handleBorrowRequest}
-                                                className="rounded-lg bg-indigo-600 px-8 py-3 font-semibold text-white shadow-lg transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                                            >
-                                                Request to Borrow
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+                                {activeTab === "available-copies" && (
+                                    <AvailableCopiesTable
+                                        copies={catalogItem.copies}
+                                        callNo={catalogItem.call_no}
+                                        allCopiesBorrowed={allCopiesBorrowed}
+                                        hasPendingOrActiveRequest={hasPendingOrActiveRequest}
+                                        onRequestCopy={handleRequestCopy}
+                                    />
+                                )}
                             </div>
                         </div>
                     </div>
                 </main>
             </div>
+
+            {/* Borrow Request Modal */}
+            <BorrowRequestModal
+                isOpen={showRequestModal}
+                onClose={handleCloseModal}
+                catalogItemId={catalogItem.id}
+                catalogItemCopyId={selectedCopyId}
+            />
+
             <Toast />
         </>
     );

@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class CatalogItem extends Model
 {
     protected $fillable = [
-        "accession_no",
         "title",
         "type",
         "category_id",
@@ -31,7 +30,6 @@ class CatalogItem extends Model
         "description",
         "cover_image",
         "is_active",
-        "status",
         "volume",
         "page_duration",
         "abstract",
@@ -76,37 +74,9 @@ class CatalogItem extends Model
         return $this->hasMany(CatalogItemCopy::class);
     }
 
-    /**
-     * Generate a unique 7-digit accession number
-     */
-    public static function generateAccessionNo(): string
+    public function bookRequests(): HasMany
     {
-        do {
-            // Generate a random 7-digit number (1000000 to 9999999)
-            $accessionNo = str_pad(
-                (string) random_int(1000000, 9999999),
-                7,
-                "0",
-                STR_PAD_LEFT,
-            );
-        } while (self::where("accession_no", $accessionNo)->exists());
-
-        return $accessionNo;
+        return $this->hasMany(BookRequest::class);
     }
 
-    /**
-     * Get the next sequential accession number
-     */
-    public static function getNextAccessionNo(): string
-    {
-        $lastItem = self::orderBy("accession_no", "desc")->first();
-
-        if ($lastItem && is_numeric($lastItem->accession_no)) {
-            $nextNo = (int) $lastItem->accession_no + 1;
-            return str_pad((string) $nextNo, 7, "0", STR_PAD_LEFT);
-        }
-
-        // Start from 0000001 if no items exist
-        return "0000001";
-    }
 }

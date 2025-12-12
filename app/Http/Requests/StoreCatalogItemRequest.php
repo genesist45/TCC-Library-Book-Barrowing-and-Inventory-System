@@ -14,7 +14,6 @@ class StoreCatalogItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'accession_no' => 'required|string|size:7|unique:catalog_items,accession_no',
             'title' => 'required|string|max:255',
             'type' => 'required|string|in:Book,Thesis,Journal,Magazine,Newspaper,DVD,CD,Other',
             'category_id' => 'nullable|exists:categories,id',
@@ -48,8 +47,8 @@ class StoreCatalogItemRequest extends FormRequest
             'journal_type' => 'nullable|string|max:100',
             'issue_type' => 'nullable|string|max:100',
             'issue_period' => 'nullable|string|max:100',
-            'granting_institution' => 'required_if:type,Thesis|nullable|string|max:255',
-            'degree_qualification' => 'required_if:type,Thesis|nullable|string|max:255',
+            'granting_institution' => 'nullable|string|max:255',
+            'degree_qualification' => 'nullable|string|max:255',
             'supervisor' => 'nullable|string|max:255',
             'thesis_date' => 'nullable|date',
             'thesis_period' => 'nullable|string|max:100',
@@ -60,9 +59,6 @@ class StoreCatalogItemRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'accession_no.required' => 'Accession number is required.',
-            'accession_no.size' => 'Accession number must be exactly 7 digits.',
-            'accession_no.unique' => 'This accession number already exists.',
             'title.required' => 'Title is required.',
             'title.max' => 'Title must not exceed 255 characters.',
             'type.required' => 'Type is required.',
@@ -83,8 +79,6 @@ class StoreCatalogItemRequest extends FormRequest
             'cover_image.mimes' => 'Cover image must be a JPEG, JPG, or PNG file.',
             'cover_image.max' => 'Cover image size must not exceed 2MB.',
             'url_visibility.in' => 'Invalid URL visibility option selected.',
-            'granting_institution.required_if' => 'Granting institution is required for thesis materials.',
-            'degree_qualification.required_if' => 'Degree/Qualification is required for thesis materials.',
             'thesis_date.date' => 'Please enter a valid date.',
         ];
     }

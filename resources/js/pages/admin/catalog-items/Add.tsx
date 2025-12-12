@@ -6,33 +6,33 @@ import SecondaryButton from "@/components/buttons/SecondaryButton";
 import { PageProps, Category, Publisher, Author } from "@/types";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { Info, Copy, BookOpen } from "lucide-react";
+import CatalogItemReview from "@/components/catalog-items/CatalogItemReview";
 import {
-    BasicInformationSection,
-    PublicationDetailsSection,
-    PhysicalDescriptionSection,
-    AdditionalDetailsSection,
-    SpecializedFieldsTabs,
+    ItemInfoTabContent,
+    DetailTabContent,
+    JournalTabContent,
+    ThesisTabContent,
     CoverImageSection,
     StatusToggleSection,
     QuickAddModals,
+    CatalogFormTabs,
+    TabType,
 } from "@/components/catalog-items/form-sections";
 
 interface Props extends PageProps {
     categories: Category[];
     publishers: Publisher[];
     authors: Author[];
-    nextAccessionNo: string;
 }
 
 export default function CatalogItemAdd({
     categories,
     publishers,
     authors,
-    nextAccessionNo,
 }: Props) {
-    const { data, setData, post, processing, errors, clearErrors } = useForm({
+    const { data, setData, post, processing, errors, clearErrors, setError } = useForm({
         title: "",
-        accession_no: nextAccessionNo,
         type: "",
         category_id: "",
         publisher_id: "",
@@ -83,10 +83,77 @@ export default function CatalogItemAdd({
     const [showPublisherModal, setShowPublisherModal] = useState(false);
     const [showAuthorModal, setShowAuthorModal] = useState(false);
 
-    const [activeTab, setActiveTab] = useState<'detail' | 'journal' | 'thesis'>('detail');
+    const [activeTab, setActiveTab] = useState<TabType>("item-info");
+    const [showReview, setShowReview] = useState(false);
+    const [isValidating, setIsValidating] = useState(false);
 
-    const handleSubmit: FormEventHandler = (e) => {
+    const handleReview = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsValidating(true);
+        clearErrors();
+
+        try {
+            // Call Laravel backend validation
+            await axios.post(route("admin.catalog-items.validate"), data);
+
+            // Validation passed - show review page
+            setShowReview(true);
+            setActiveTab("item-info");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        } catch (error: any) {
+            if (error.response?.status === 422) {
+                // Validation failed - show errors
+                const validationErrors = error.response.data.errors;
+
+                // Set errors in form state
+                Object.keys(validationErrors).forEach((field) => {
+                    setError(field as any, validationErrors[field][0]);
+                });
+
+                // Determine which tab has the first error
+                const itemInfoFields = [
+                    "title", "type", "category_id", "publisher_id",
+                    "author_ids", "year", "isbn", "isbn13", "call_no", "subject",
+                    "series", "edition", "place_of_publication", "extent",
+                    "other_physical_details", "dimensions", "location", "url", "description"
+                ];
+                const detailFields = ["volume", "page_duration", "abstract", "biblio_info", "url_visibility", "library_branch"];
+                const journalFields = ["issn", "frequency", "journal_type", "issue_type", "issue_period"];
+                const thesisFields = ["granting_institution", "degree_qualification", "supervisor", "thesis_date", "thesis_period", "publication_type"];
+
+                const errorFields = Object.keys(validationErrors);
+
+                if (errorFields.some(f => itemInfoFields.includes(f) || f.startsWith("author_ids"))) {
+                    setActiveTab("item-info");
+                } else if (errorFields.some(f => detailFields.includes(f))) {
+                    setActiveTab("detail");
+                } else if (errorFields.some(f => journalFields.includes(f))) {
+                    setActiveTab("journal");
+                } else if (errorFields.some(f => thesisFields.includes(f))) {
+                    setActiveTab("thesis");
+                }
+
+                toast.error("Please fix the validation errors before proceeding to review.");
+
+                // Scroll to first error after tab switch renders
+                setTimeout(() => {
+                    const errorElement = document.querySelector(".text-red-600, .text-red-500");
+                    if (errorElement) {
+                        errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+                        const input = errorElement.closest("div")?.querySelector("input, select, textarea");
+                        if (input instanceof HTMLElement) input.focus();
+                    }
+                }, 150);
+            } else {
+                toast.error("An unexpected error occurred. Please try again.");
+                console.error("Validation error:", error);
+            }
+        } finally {
+            setIsValidating(false);
+        }
+    };
+
+    const handleConfirmSubmit = () => {
         console.log("Submitting form data:", data);
         post(route("admin.catalog-items.store"), {
             forceFormData: true,
@@ -99,8 +166,13 @@ export default function CatalogItemAdd({
                 if (firstError) {
                     toast.error(firstError as string);
                 }
+                setShowReview(false); // Go back to form on error
             },
         });
+    };
+
+    const handleBackToForm = () => {
+        setShowReview(false);
     };
 
     const handleCancel = () => {
@@ -212,81 +284,107 @@ export default function CatalogItemAdd({
                     <div className="rounded-lg border border-gray-200 bg-white shadow-sm transition-colors duration-300 dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">
                         <div className="border-b border-gray-200 p-4 dark:border-[#3a3a3a] sm:p-6">
                             <h2 className="text-xl font-semibold text-gray-900 transition-colors duration-300 dark:text-gray-100">
-                                Add New Catalog Item
+                                {showReview ? "Review Catalog Item" : "Add New Catalog Item"}
                             </h2>
                             <p className="mt-1 text-sm text-gray-600 transition-colors duration-300 dark:text-gray-400">
-                                Fill in the information below to create a new catalog item
+                                {showReview
+                                    ? "Review the information below before submitting"
+                                    : "Fill in the information below to create a new catalog item"}
                             </p>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-4 sm:p-6">
-                            <div className="space-y-8">
-                                <BasicInformationSection
+                        {showReview ? (
+                            <div className="p-4 sm:p-6">
+                                <CatalogItemReview
                                     data={data}
-                                    errors={errors}
                                     categories={localCategories}
                                     authors={localAuthors}
-                                    onDataChange={handleDataChange}
-                                    onClearErrors={handleClearErrors}
-                                    onShowCategoryModal={() => setShowCategoryModal(true)}
-                                    onShowAuthorModal={() => setShowAuthorModal(true)}
-                                />
-
-                                <PublicationDetailsSection
-                                    data={data}
-                                    errors={errors}
                                     publishers={localPublishers}
-                                    onDataChange={handleDataChange}
-                                    onClearErrors={handleClearErrors}
-                                    onShowPublisherModal={() => setShowPublisherModal(true)}
-                                />
-
-                                <PhysicalDescriptionSection
-                                    data={data}
-                                    errors={errors}
-                                    onDataChange={handleDataChange}
-                                    onClearErrors={handleClearErrors}
-                                />
-
-                                <AdditionalDetailsSection
-                                    data={data}
-                                    errors={errors}
-                                    onDataChange={handleDataChange}
-                                    onClearErrors={handleClearErrors}
-                                />
-
-                                <SpecializedFieldsTabs
-                                    data={data}
-                                    errors={errors}
+                                    coverImagePreview={coverImagePreview}
                                     activeTab={activeTab}
                                     onTabChange={setActiveTab}
-                                    onDataChange={handleDataChange}
-                                    onClearErrors={handleClearErrors}
-                                />
-
-                                <CoverImageSection
-                                    coverImagePreview={coverImagePreview}
-                                    coverImageName={coverImageName}
-                                    error={errors.cover_image}
-                                    onImageChange={handleImageChange}
-                                    onRemoveImage={handleRemoveImage}
-                                />
-
-                                <StatusToggleSection
-                                    isActive={data.is_active}
-                                    onToggle={() => setData("is_active", !data.is_active)}
+                                    onBack={handleBackToForm}
+                                    onConfirm={handleConfirmSubmit}
+                                    processing={processing}
+                                    onShowCategoryModal={() => setShowCategoryModal(true)}
+                                    onShowAuthorModal={() => setShowAuthorModal(true)}
+                                    onShowPublisherModal={() => setShowPublisherModal(true)}
                                 />
                             </div>
+                        ) : (
+                            <form onSubmit={handleReview} className="p-4 sm:p-6">
+                                <CatalogFormTabs
+                                    activeTab={activeTab}
+                                    onTabChange={setActiveTab}
+                                >
+                                    {activeTab === "item-info" && (
+                                        <ItemInfoTabContent
+                                            data={data}
+                                            errors={errors}
+                                            categories={localCategories}
+                                            authors={localAuthors}
+                                            publishers={localPublishers}
+                                            onDataChange={handleDataChange}
+                                            onClearErrors={handleClearErrors}
+                                            onShowCategoryModal={() => setShowCategoryModal(true)}
+                                            onShowAuthorModal={() => setShowAuthorModal(true)}
+                                            onShowPublisherModal={() => setShowPublisherModal(true)}
+                                        />
+                                    )}
 
-                            <div className="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-[#3a3a3a]">
-                                <SecondaryButton type="button" onClick={handleCancel}>
-                                    Cancel
-                                </SecondaryButton>
-                                <PrimaryButton disabled={processing}>
-                                    Add Catalog Item
-                                </PrimaryButton>
-                            </div>
-                        </form>
+                                    {activeTab === "detail" && (
+                                        <DetailTabContent
+                                            data={data}
+                                            errors={errors}
+                                            onDataChange={handleDataChange}
+                                            onClearErrors={handleClearErrors}
+                                        />
+                                    )}
+
+                                    {activeTab === "journal" && (
+                                        <JournalTabContent
+                                            data={data}
+                                            errors={errors}
+                                            onDataChange={handleDataChange}
+                                            onClearErrors={handleClearErrors}
+                                        />
+                                    )}
+
+                                    {activeTab === "thesis" && (
+                                        <ThesisTabContent
+                                            data={data}
+                                            errors={errors}
+                                            onDataChange={handleDataChange}
+                                            onClearErrors={handleClearErrors}
+                                        />
+                                    )}
+                                </CatalogFormTabs>
+
+                                <div className="mt-8 space-y-8">
+                                    <CoverImageSection
+                                        coverImagePreview={coverImagePreview}
+                                        coverImageName={coverImageName}
+                                        error={errors.cover_image}
+                                        onImageChange={handleImageChange}
+                                        onRemoveImage={handleRemoveImage}
+                                    />
+
+                                    <StatusToggleSection
+                                        isActive={data.is_active}
+                                        onToggle={() => setData("is_active", !data.is_active)}
+                                    />
+                                </div>
+
+                                <div className="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-[#3a3a3a]">
+                                    <SecondaryButton type="button" onClick={handleCancel}>
+                                        Cancel
+                                    </SecondaryButton>
+                                    <PrimaryButton disabled={processing || isValidating}>
+                                        {isValidating ? "Validating..." : "Review & Submit"}
+                                    </PrimaryButton>
+                                </div>
+                            </form>
+                        )}
                     </div>
                 </div>
             </div>

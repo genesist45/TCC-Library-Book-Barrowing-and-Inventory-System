@@ -1,7 +1,7 @@
-import { CatalogItem, User } from '@/types';
-import SearchBar from './SearchBar';
-import FilterOptions from './FilterOptions';
-import PopularBooksSection from './PopularBooksSection';
+import { CatalogItem, User } from "@/types";
+import SearchBar from "./SearchBar";
+import FilterOptions from "./FilterOptions";
+import PopularBooksSection from "./PopularBooksSection";
 
 interface SearchResult {
     id: number;
@@ -66,11 +66,12 @@ export default function BookCatalogSection({
                             <div className="mb-4">
                                 <h2 className="font-jakarta text-2xl font-extrabold tracking-tight sm:text-3xl">
                                     <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                                        Book Catalog
+                                        Catalogs
                                     </span>
                                 </h2>
                                 <p className="mt-1 font-jakarta text-xs font-medium text-gray-600 sm:text-sm">
-                                    Explore our extensive collection of books, journals, and resources.
+                                    Explore our extensive collection of books,
+                                    journals, and resources.
                                 </p>
                             </div>
 
@@ -92,7 +93,9 @@ export default function BookCatalogSection({
                                     availabilityFilter={availabilityFilter}
                                     onTypeChange={onTypeFilterChange}
                                     onYearChange={onYearFilterChange}
-                                    onAvailabilityChange={onAvailabilityFilterChange}
+                                    onAvailabilityChange={
+                                        onAvailabilityFilterChange
+                                    }
                                 />
                             </div>
                         </div>

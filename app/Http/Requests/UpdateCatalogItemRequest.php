@@ -13,11 +13,7 @@ class UpdateCatalogItemRequest extends FormRequest
 
     public function rules(): array
     {
-        $catalogItem = $this->route('catalog_item');
-        $catalogItemId = $catalogItem instanceof \App\Models\CatalogItem ? $catalogItem->id : $catalogItem;
-        
         return [
-            'accession_no' => 'required|string|size:7|unique:catalog_items,accession_no,' . $catalogItemId,
             'title' => 'required|string|max:255',
             'type' => 'required|string|in:Book,Thesis,Journal,Magazine,Newspaper,DVD,CD,Other',
             'category_id' => 'nullable|exists:categories,id',
@@ -63,9 +59,6 @@ class UpdateCatalogItemRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'accession_no.required' => 'Accession number is required.',
-            'accession_no.size' => 'Accession number must be exactly 7 digits.',
-            'accession_no.unique' => 'This accession number already exists.',
             'title.required' => 'Title is required.',
             'title.max' => 'Title must not exceed 255 characters.',
             'type.required' => 'Type is required.',

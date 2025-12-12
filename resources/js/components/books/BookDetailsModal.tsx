@@ -291,9 +291,6 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                                         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${book.is_active ? 'bg-green-100 text-green-700 ring-1 ring-green-200' : 'bg-red-100 text-red-700 ring-1 ring-red-200'}`}>
                                             {book.is_active ? 'Active' : 'Inactive'}
                                         </span>
-                                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${book.status === 'Available' ? 'bg-green-100 text-green-700 ring-1 ring-green-200' : 'bg-red-100 text-red-700 ring-1 ring-red-200'}`}>
-                                            {book.status === 'Available' ? 'Available' : 'Borrowed'}
-                                        </span>
                                     </div>
 
                                     {/* Additional Info */}
@@ -336,7 +333,7 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
 
                                     {/* Book Request Button */}
                                     <div className="mt-6">
-                                        {book.status === 'Borrowed' ? (
+                                        {(!book.copies?.length || book.copies.every(c => c.status !== 'Available')) ? (
                                             <div className="w-full rounded-full bg-gray-100 px-8 py-2.5 text-center text-sm font-bold text-gray-500">
                                                 <p>This book is currently borrowed</p>
                                                 <p className="text-xs font-normal text-gray-400 mt-1">Not available for requests</p>
@@ -472,7 +469,7 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                                                                 className={`h-8 w-full rounded-md py-1 pl-8 pr-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-[#2a2a2a] dark:text-gray-100 ${dateError
                                                                     ? 'border-red-500 focus:border-red-500 focus:ring-red-500 dark:border-red-500'
                                                                     : 'border-gray-300 dark:border-[#3a3a3a]'
-                                                                }`}
+                                                                    }`}
                                                                 required
                                                             />
                                                         </div>

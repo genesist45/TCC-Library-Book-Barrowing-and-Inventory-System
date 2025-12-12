@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMemberRequest;
 use App\Http\Requests\UpdateMemberRequest;
+use App\Models\BookRequest;
 use App\Models\Member;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -35,15 +36,21 @@ class MemberController extends Controller
 
     public function show(Member $member): Response
     {
+        $borrowHistory = $this->getMemberBorrowHistory($member);
+
         return Inertia::render('admin/members/View', [
-            'member' => $member
+            'member' => $member,
+            'borrowHistory' => $borrowHistory,
         ]);
     }
 
     public function edit(Member $member): Response
     {
+        $borrowHistory = $this->getMemberBorrowHistory($member);
+
         return Inertia::render('admin/members/Edit', [
-            'member' => $member
+            'member' => $member,
+            'borrowHistory' => $borrowHistory,
         ]);
     }
 
@@ -63,5 +70,33 @@ class MemberController extends Controller
         return redirect()
             ->route('admin.members.index')
             ->with('success', 'Member deleted successfully.');
+    }
+
+    /**
+     * Get borrow history for a specific member.
+     */
+    private function getMemberBorrowHistory(Member $member): array
+    {
+        return BookRequest::where('member_id', $member->id)
+            ->with(['catalogItem', 'bookReturn'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($request) use ($member) {
+                return [
+                    'id' => $request->id,
+                    'member_id' => $request->member_id,
+                    'member_name' => $member->name,
+                    'member_no' => $member->member_no,
+                    'catalog_item_id' => $request->catalog_item_id,
+                    'book_title' => $request->catalogItem->title ?? 'Unknown',
+                    'accession_no' => $request->catalogItem->accession_no ?? '-',
+                    'date_borrowed' => $request->created_at->toDateString(),
+                    'due_date' => $request->return_date?->toDateString() ?? '-',
+                    'date_returned' => $request->bookReturn?->return_date?->toDateString(),
+                    'status' => $request->bookReturn ? 'Returned' : $request->status,
+                    'penalty_amount' => $request->bookReturn?->penalty_amount ?? null,
+                ];
+            })
+            ->toArray();
     }
 }
