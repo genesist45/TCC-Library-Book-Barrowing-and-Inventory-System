@@ -27,12 +27,7 @@ export default function HeroSection({ user }: HeroSectionProps) {
                         >
                             Get Started
                         </Link>
-                        <Link
-                            href={route('register')}
-                            className="rounded-lg border-2 border-gray-300 bg-white px-6 py-3 text-center text-sm font-semibold text-gray-700 transition hover:border-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:px-8 sm:text-base"
-                        >
-                            Create Account
-                        </Link>
+
                     </div>
                 )}
             </div>
