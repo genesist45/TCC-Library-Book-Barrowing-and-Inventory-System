@@ -70,12 +70,12 @@ export interface CatalogItem {
     description?: string;
     cover_image?: string;
     is_active: boolean;
-    status: "Available" | "Borrowed";
     created_at: string;
     updated_at: string;
     authors?: Author[];
     copies?: CatalogItemCopy[];
     copies_count?: number;
+    available_copies_count?: number;
     // DETAIL fields
     volume?: string;
     page_duration?: string;
@@ -119,6 +119,7 @@ export interface BookRequest {
     id: number;
     member_id: number;
     catalog_item_id: number;
+    catalog_item_copy_id?: number;
     full_name: string;
     email: string;
     quota?: number;
@@ -133,6 +134,8 @@ export interface BookRequest {
     member?: Member;
     catalogItem?: CatalogItem;
     catalog_item?: CatalogItem;
+    catalogItemCopy?: CatalogItemCopy;
+    catalog_item_copy?: CatalogItemCopy;
 }
 
 export interface BookReturn {
