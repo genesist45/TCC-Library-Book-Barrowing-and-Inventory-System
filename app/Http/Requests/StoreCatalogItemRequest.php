@@ -48,8 +48,8 @@ class StoreCatalogItemRequest extends FormRequest
             'journal_type' => 'nullable|string|max:100',
             'issue_type' => 'nullable|string|max:100',
             'issue_period' => 'nullable|string|max:100',
-            'granting_institution' => 'required_if:type,Thesis|nullable|string|max:255',
-            'degree_qualification' => 'required_if:type,Thesis|nullable|string|max:255',
+            'granting_institution' => 'nullable|string|max:255',
+            'degree_qualification' => 'nullable|string|max:255',
             'supervisor' => 'nullable|string|max:255',
             'thesis_date' => 'nullable|date',
             'thesis_period' => 'nullable|string|max:100',
@@ -83,8 +83,6 @@ class StoreCatalogItemRequest extends FormRequest
             'cover_image.mimes' => 'Cover image must be a JPEG, JPG, or PNG file.',
             'cover_image.max' => 'Cover image size must not exceed 2MB.',
             'url_visibility.in' => 'Invalid URL visibility option selected.',
-            'granting_institution.required_if' => 'Granting institution is required for thesis materials.',
-            'degree_qualification.required_if' => 'Degree/Qualification is required for thesis materials.',
             'thesis_date.date' => 'Please enter a valid date.',
         ];
     }
