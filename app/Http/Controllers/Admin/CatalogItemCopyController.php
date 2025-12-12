@@ -145,9 +145,8 @@ class CatalogItemCopyController extends Controller
      */
     public function borrowHistory(CatalogItemCopy $copy)
     {
-        // For now, get borrow history from book_requests for the parent catalog item
-        // In a more complete implementation, you would track copy-level borrowing
-        $borrowHistory = \App\Models\BookRequest::where('catalog_item_id', $copy->catalog_item_id)
+        // Get borrow history for this specific copy only
+        $borrowHistory = \App\Models\BookRequest::where('catalog_item_copy_id', $copy->id)
             ->whereIn('status', ['Approved', 'Returned'])
             ->with(['member', 'bookReturn'])
             ->orderBy('created_at', 'desc')
