@@ -13,7 +13,7 @@ import {
     DetailTabContent,
     JournalTabContent,
     ThesisTabContent,
-    CoverImageSection,
+
     StatusToggleSection,
     QuickAddModals,
     CatalogFormTabs,
@@ -309,6 +309,10 @@ export default function CatalogItemAdd({
                                     onShowCategoryModal={() => setShowCategoryModal(true)}
                                     onShowAuthorModal={() => setShowAuthorModal(true)}
                                     onShowPublisherModal={() => setShowPublisherModal(true)}
+                                    coverImageName={coverImageName}
+                                    error={errors.cover_image}
+                                    onImageChange={handleImageChange}
+                                    onRemoveImage={handleRemoveImage}
                                 />
                             </div>
                         ) : (
@@ -361,13 +365,7 @@ export default function CatalogItemAdd({
                                 </CatalogFormTabs>
 
                                 <div className="mt-8 space-y-8">
-                                    <CoverImageSection
-                                        coverImagePreview={coverImagePreview}
-                                        coverImageName={coverImageName}
-                                        error={errors.cover_image}
-                                        onImageChange={handleImageChange}
-                                        onRemoveImage={handleRemoveImage}
-                                    />
+
 
                                     <StatusToggleSection
                                         isActive={data.is_active}

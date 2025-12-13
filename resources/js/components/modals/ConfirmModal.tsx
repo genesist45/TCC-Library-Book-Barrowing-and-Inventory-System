@@ -1,5 +1,6 @@
 import Modal from '@/components/modals/Modal';
 import DangerButton from '@/components/buttons/DangerButton';
+import PrimaryButton from '@/components/buttons/PrimaryButton';
 import SecondaryButton from '@/components/buttons/SecondaryButton';
 
 interface ConfirmModalProps {
@@ -11,6 +12,7 @@ interface ConfirmModalProps {
     onConfirm: () => void;
     onCancel: () => void;
     processing?: boolean;
+    variant?: 'danger' | 'primary';
 }
 
 export default function ConfirmModal({
@@ -22,7 +24,10 @@ export default function ConfirmModal({
     onConfirm,
     onCancel,
     processing = false,
+    variant = 'danger',
 }: ConfirmModalProps) {
+    const ConfirmButton = variant === 'danger' ? DangerButton : PrimaryButton;
+
     return (
         <Modal show={show} onClose={onCancel} maxWidth="md">
             <div className="p-6">
@@ -39,12 +44,11 @@ export default function ConfirmModal({
                         {cancelText}
                     </SecondaryButton>
 
-                    <DangerButton onClick={onConfirm} disabled={processing}>
+                    <ConfirmButton onClick={onConfirm} disabled={processing}>
                         {processing ? 'Processing...' : confirmText}
-                    </DangerButton>
+                    </ConfirmButton>
                 </div>
             </div>
         </Modal>
     );
 }
-

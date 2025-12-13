@@ -8,7 +8,7 @@ export default function AuthorBadges({ authors }: AuthorBadgesProps) {
     if (!authors || authors.length === 0) return null;
 
     return (
-        <div className="sm:col-span-2 lg:col-span-3">
+        <div className="w-full">
             <label className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 Authors
             </label>

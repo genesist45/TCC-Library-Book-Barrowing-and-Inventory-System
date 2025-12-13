@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { BookOpen } from "lucide-react";
 import { CatalogItemCopy } from "@/types";
+import Pagination from "@/components/common/Pagination";
 
 interface AvailableCopiesTableProps {
     copies: CatalogItemCopy[] | undefined;
@@ -9,6 +11,8 @@ interface AvailableCopiesTableProps {
     onRequestCopy: (copy: CatalogItemCopy) => void;
 }
 
+const DEFAULT_ITEMS_PER_PAGE = 10;
+
 export default function AvailableCopiesTable({
     copies,
     callNo,
@@ -16,9 +20,27 @@ export default function AvailableCopiesTable({
     hasPendingOrActiveRequest,
     onRequestCopy,
 }: AvailableCopiesTableProps) {
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(DEFAULT_ITEMS_PER_PAGE);
+
     if (!copies || copies.length === 0) {
         return <EmptyState allCopiesBorrowed={allCopiesBorrowed} hasPendingOrActiveRequest={hasPendingOrActiveRequest} />;
     }
+
+    // Calculate pagination
+    const totalItems = copies.length;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedCopies = copies.slice(startIndex, endIndex);
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
+
+    const handleItemsPerPageChange = (newItemsPerPage: number) => {
+        setItemsPerPage(newItemsPerPage);
+        setCurrentPage(1);
+    };
 
     return (
         <div className="overflow-hidden rounded-lg border border-gray-200">
@@ -50,7 +72,7 @@ export default function AvailableCopiesTable({
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white">
-                        {copies.map((copy) => (
+                        {paginatedCopies.map((copy) => (
                             <tr key={copy.id} className="transition-colors hover:bg-gray-50">
                                 <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-900">
                                     {copy.branch || "Main"}
@@ -94,6 +116,17 @@ export default function AvailableCopiesTable({
                     </tbody>
                 </table>
             </div>
+
+            {/* Pagination */}
+            <Pagination
+                currentPage={currentPage}
+                totalItems={totalItems}
+                itemsPerPage={itemsPerPage}
+                onPageChange={handlePageChange}
+                onItemsPerPageChange={handleItemsPerPageChange}
+                itemsPerPageOptions={[10, 25, 50]}
+                showRowsPerPage={true}
+            />
         </div>
     );
 }

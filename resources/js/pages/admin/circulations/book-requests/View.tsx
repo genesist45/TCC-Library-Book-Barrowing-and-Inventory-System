@@ -3,9 +3,10 @@ import { Head, router } from '@inertiajs/react';
 import { PageProps, BookRequest } from '@/types';
 import { useState, useEffect } from 'react';
 import { Pencil, Trash2, CheckCircle, XCircle, Eye, Search, RefreshCw, Printer } from 'lucide-react';
-import SecondaryButton from '@/components/buttons/SecondaryButton';
 import { TableRowSkeleton } from '@/components/common/Loading';
 import { toast } from 'react-toastify';
+import ActionButton, { ActionButtonGroup } from '@/components/buttons/ActionButton';
+import ConfirmModal from '@/components/modals/ConfirmModal';
 
 interface Props extends PageProps {
     bookRequests: BookRequest[];
@@ -15,11 +16,14 @@ interface Props extends PageProps {
     };
 }
 
+type ModalAction = 'approve' | 'disapprove' | 'delete' | null;
+
 export default function BookRequestsView({ bookRequests, flash }: Props) {
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState<BookRequest | null>(null);
+    const [modalAction, setModalAction] = useState<ModalAction>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [processing, setProcessing] = useState(false);
 
     useEffect(() => {
         if (flash?.success) {
@@ -56,37 +60,95 @@ export default function BookRequestsView({ bookRequests, flash }: Props) {
         window.print();
     };
 
-    const handleDelete = (request: BookRequest) => {
+    // Open confirmation modal
+    const openModal = (action: ModalAction, request: BookRequest) => {
         setSelectedRequest(request);
-        setShowDeleteModal(true);
+        setModalAction(action);
     };
 
-    const confirmDelete = () => {
-        if (selectedRequest) {
-            router.delete(route('admin.book-requests.destroy', selectedRequest.id), {
-                onSuccess: () => {
-                    toast.success('Book request deleted successfully!');
-                    setShowDeleteModal(false);
-                    setSelectedRequest(null);
-                },
-                onError: () => {
-                    toast.error('Failed to delete book request');
-                },
-            });
+    const closeModal = () => {
+        setSelectedRequest(null);
+        setModalAction(null);
+        setProcessing(false);
+    };
+
+    // Confirm actions
+    const confirmAction = () => {
+        if (!selectedRequest) return;
+
+        setProcessing(true);
+
+        switch (modalAction) {
+            case 'approve':
+                router.post(route('admin.book-requests.approve', selectedRequest.id), {}, {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        closeModal();
+                    },
+                    onError: () => {
+                        toast.error('Failed to approve request');
+                        setProcessing(false);
+                    },
+                });
+                break;
+
+            case 'disapprove':
+                router.post(route('admin.book-requests.disapprove', selectedRequest.id), {}, {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        closeModal();
+                    },
+                    onError: () => {
+                        toast.error('Failed to disapprove request');
+                        setProcessing(false);
+                    },
+                });
+                break;
+
+            case 'delete':
+                router.delete(route('admin.book-requests.destroy', selectedRequest.id), {
+                    onSuccess: () => {
+                        closeModal();
+                    },
+                    onError: () => {
+                        toast.error('Failed to delete book request');
+                        setProcessing(false);
+                    },
+                });
+                break;
         }
     };
 
-    const handleApprove = (id: number) => {
-        router.post(route('admin.book-requests.approve', id), {}, {
-            preserveScroll: true,
-        });
-    };
-
-    const handleDisapprove = (id: number) => {
-        if (confirm('Are you sure you want to disapprove this request?')) {
-            router.post(route('admin.book-requests.disapprove', id), {}, {
-                preserveScroll: true,
-            });
+    const getModalConfig = () => {
+        switch (modalAction) {
+            case 'approve':
+                return {
+                    title: 'Approve Request',
+                    message: `Are you sure you want to approve the book request from "${selectedRequest?.full_name}"?`,
+                    confirmText: 'Yes, Approve',
+                    variant: 'primary' as const,
+                };
+            case 'disapprove':
+                return {
+                    title: 'Disapprove Request',
+                    message: `Are you sure you want to disapprove the book request from "${selectedRequest?.full_name}"?`,
+                    confirmText: 'Yes, Disapprove',
+                    variant: 'danger' as const,
+                };
+            case 'delete':
+                return {
+                    title: 'Delete Request',
+                    message: `Are you sure you want to delete the book request from "${selectedRequest?.full_name}"? This action cannot be undone.`,
+                    confirmText: 'Yes, Delete',
+                    variant: 'danger' as const,
+                };
+            default:
+                return {
+                    title: '',
+                    message: '',
+                    confirmText: 'Confirm',
+                    variant: 'primary' as const,
+                };
         }
     };
 
@@ -98,6 +160,8 @@ export default function BookRequestsView({ bookRequests, flash }: Props) {
         };
         return styles[status as keyof typeof styles] || 'bg-gray-100 text-gray-800';
     };
+
+    const modalConfig = getModalConfig();
 
     return (
         <AuthenticatedLayout>
@@ -118,10 +182,8 @@ export default function BookRequestsView({ bookRequests, flash }: Props) {
                     body { background: white !important; }
                     .shadow-sm, .rounded-lg { box-shadow: none !important; border-radius: 0 !important; }
                     .border { border: none !important; }
-                    /* Remove scrollbars and ensure full width */
                     .overflow-hidden, .overflow-x-auto { overflow: visible !important; }
                     table { width: 100% !important; table-layout: fixed !important; }
-                    /* Compact text and spacing for print */
                     td, th { 
                         padding: 3px !important; 
                         font-size: 9px !important; 
@@ -228,7 +290,7 @@ export default function BookRequestsView({ bookRequests, flash }: Props) {
                                             </td>
                                         </tr>
                                     ) : (
-                                        filteredRequests.map((request, index) => (
+                                        filteredRequests.map((request) => (
                                             <tr
                                                 key={request.id}
                                                 className={`transition-colors hover:bg-gray-50 dark:hover:bg-[#3a3a3a] ${request.status === 'Disapproved' ? 'bg-red-50 dark:bg-red-900/10' : ''
@@ -252,11 +314,13 @@ export default function BookRequestsView({ bookRequests, flash }: Props) {
                                                         month: 'short',
                                                         day: 'numeric',
                                                     })}{' '}
-                                                    {request.return_time ? new Date(`2000-01-01T${request.return_time}`).toLocaleTimeString('en-US', {
-                                                        hour: 'numeric',
-                                                        minute: '2-digit',
-                                                        hour12: true
-                                                    }) : ''}
+                                                    {request.return_time
+                                                        ? new Date(`2000-01-01T${request.return_time}`).toLocaleTimeString('en-US', {
+                                                            hour: 'numeric',
+                                                            minute: '2-digit',
+                                                            hour12: true,
+                                                        })
+                                                        : ''}
                                                 </td>
                                                 <td className="whitespace-nowrap px-6 py-4">
                                                     <span
@@ -266,56 +330,51 @@ export default function BookRequestsView({ bookRequests, flash }: Props) {
                                                     </span>
                                                 </td>
                                                 <td className="whitespace-nowrap px-6 py-4 text-sm print:hidden">
-                                                    <div className="flex items-center gap-2">
+                                                    <ActionButtonGroup>
                                                         {/* Approve Button - Only for Pending */}
                                                         {request.status === 'Pending' && (
-                                                            <button
-                                                                onClick={() => handleApprove(request.id)}
-                                                                className="flex items-center justify-center rounded-lg bg-green-100 p-1.5 text-green-600 transition hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50"
+                                                            <ActionButton
+                                                                onClick={() => openModal('approve', request)}
+                                                                icon={CheckCircle}
                                                                 title="Approve this request"
-                                                            >
-                                                                <CheckCircle className="h-4 w-4" />
-                                                            </button>
+                                                                variant="approve"
+                                                            />
                                                         )}
 
                                                         {/* Disapprove Button - Only for Pending */}
                                                         {request.status === 'Pending' && (
-                                                            <button
-                                                                onClick={() => handleDisapprove(request.id)}
-                                                                className="flex items-center justify-center rounded-lg bg-red-100 p-1.5 text-red-600 transition hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
+                                                            <ActionButton
+                                                                onClick={() => openModal('disapprove', request)}
+                                                                icon={XCircle}
                                                                 title="Disapprove this request"
-                                                            >
-                                                                <XCircle className="h-4 w-4" />
-                                                            </button>
+                                                                variant="disapprove"
+                                                            />
                                                         )}
 
                                                         {/* View Button */}
-                                                        <button
+                                                        <ActionButton
                                                             onClick={() => router.visit(route('admin.book-requests.show', request.id))}
-                                                            className="flex items-center justify-center rounded-lg bg-blue-100 p-1.5 text-blue-600 transition hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                                                            icon={Eye}
                                                             title="View full details"
-                                                        >
-                                                            <Eye className="h-4 w-4" />
-                                                        </button>
+                                                            variant="view"
+                                                        />
 
                                                         {/* Edit Button */}
-                                                        <button
+                                                        <ActionButton
                                                             onClick={() => router.visit(route('admin.book-requests.edit', request.id))}
-                                                            className="flex items-center justify-center rounded-lg bg-amber-100 p-1.5 text-amber-600 transition hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50"
+                                                            icon={Pencil}
                                                             title="Edit this request"
-                                                        >
-                                                            <Pencil className="h-4 w-4" />
-                                                        </button>
+                                                            variant="edit"
+                                                        />
 
                                                         {/* Delete Button */}
-                                                        <button
-                                                            onClick={() => handleDelete(request)}
-                                                            className="flex items-center justify-center rounded-lg bg-red-100 p-1.5 text-red-600 transition hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
+                                                        <ActionButton
+                                                            onClick={() => openModal('delete', request)}
+                                                            icon={Trash2}
                                                             title="Delete this request"
-                                                        >
-                                                            <Trash2 className="h-4 w-4" />
-                                                        </button>
-                                                    </div>
+                                                            variant="delete"
+                                                        />
+                                                    </ActionButtonGroup>
                                                 </td>
                                             </tr>
                                         ))
@@ -327,27 +386,18 @@ export default function BookRequestsView({ bookRequests, flash }: Props) {
                 </div>
             </div>
 
-            {/* Delete Confirmation Modal */}
-            {showDeleteModal && selectedRequest && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-                    <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-[#2a2a2a]">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Confirm Delete</h3>
-                        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                            Are you sure you want to delete this book request from{' '}
-                            <strong>{selectedRequest.full_name}</strong>?
-                        </p>
-                        <div className="mt-6 flex justify-end gap-3">
-                            <SecondaryButton onClick={() => setShowDeleteModal(false)}>Cancel</SecondaryButton>
-                            <button
-                                onClick={confirmDelete}
-                                className="rounded-lg bg-red-600 px-4 py-2 font-semibold text-white transition hover:bg-red-700"
-                            >
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Confirmation Modal */}
+            <ConfirmModal
+                show={modalAction !== null}
+                title={modalConfig.title}
+                message={modalConfig.message}
+                confirmText={modalConfig.confirmText}
+                cancelText="Cancel"
+                onConfirm={confirmAction}
+                onCancel={closeModal}
+                processing={processing}
+                variant={modalConfig.variant}
+            />
         </AuthenticatedLayout>
     );
 }

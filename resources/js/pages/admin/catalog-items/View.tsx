@@ -129,13 +129,15 @@ export default function CatalogItemView({
                                 historyCount={historyCount}
                             >
                                 {activeTab === "item-info" && (
-                                    <div className="flex flex-col items-center gap-6">
-                                        <CoverImageDisplay
-                                            coverImage={catalogItem.cover_image}
-                                            title={catalogItem.title}
-                                        />
+                                    <div className="flex flex-col items-start gap-8 md:flex-row">
+                                        <div className="w-full flex-shrink-0 md:w-auto">
+                                            <CoverImageDisplay
+                                                coverImage={catalogItem.cover_image}
+                                                title={catalogItem.title}
+                                            />
+                                        </div>
 
-                                        <div className="w-full max-w-4xl">
+                                        <div className="w-full flex-1">
                                             <CatalogItemDetailsGrid
                                                 catalogItem={catalogItem}
                                             />

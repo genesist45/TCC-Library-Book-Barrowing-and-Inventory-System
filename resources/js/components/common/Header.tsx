@@ -219,15 +219,15 @@ export default function Header({
                                                                 ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
                                                                 : "bg-gray-100 text-gray-500 dark:bg-[#3a3a3a] dark:text-gray-400"
                                                             : !notification.read_at
-                                                              ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
-                                                              : "bg-gray-100 text-gray-500 dark:bg-[#3a3a3a] dark:text-gray-400";
+                                                                ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                                                                : "bg-gray-100 text-gray-500 dark:bg-[#3a3a3a] dark:text-gray-400";
                                                     const bgClass = isOverdue
                                                         ? !notification.read_at
                                                             ? "bg-red-50/50 dark:bg-red-900/10"
                                                             : ""
                                                         : !notification.read_at
-                                                          ? "bg-blue-50/50 dark:bg-blue-900/10"
-                                                          : "";
+                                                            ? "bg-blue-50/50 dark:bg-blue-900/10"
+                                                            : "";
                                                     const dotClass = isOverdue
                                                         ? "bg-red-600"
                                                         : "bg-blue-600";
@@ -300,22 +300,22 @@ export default function Header({
                                                                                     .data
                                                                                     .days_overdue >
                                                                                     0 && (
-                                                                                    <span className="ml-1 text-red-500 dark:text-red-400">
-                                                                                        (
-                                                                                        {
-                                                                                            notification
+                                                                                        <span className="ml-1 text-red-500 dark:text-red-400">
+                                                                                            (
+                                                                                            {
+                                                                                                notification
+                                                                                                    .data
+                                                                                                    .days_overdue
+                                                                                            }{" "}
+                                                                                            {notification
                                                                                                 .data
-                                                                                                .days_overdue
-                                                                                        }{" "}
-                                                                                        {notification
-                                                                                            .data
-                                                                                            .days_overdue ===
-                                                                                        1
-                                                                                            ? "day"
-                                                                                            : "days"}{" "}
-                                                                                        overdue)
-                                                                                    </span>
-                                                                                )}
+                                                                                                .days_overdue ===
+                                                                                                1
+                                                                                                ? "day"
+                                                                                                : "days"}{" "}
+                                                                                            overdue)
+                                                                                        </span>
+                                                                                    )}
                                                                             </>
                                                                         ) : (
                                                                             <>
