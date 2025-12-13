@@ -3,6 +3,7 @@ import InputLabel from "@/components/forms/InputLabel";
 import TextInput from "@/components/forms/TextInput";
 import InputError from "@/components/forms/InputError";
 import SearchableMultiSelect from "@/components/common/SearchableMultiSelect";
+import SearchableSelect from "@/components/common/SearchableSelect";
 import { Category, Author } from "@/types";
 
 interface BasicInformationSectionProps {
@@ -112,22 +113,17 @@ export default function BasicInformationSection({
 
                 <div>
                     <InputLabel htmlFor="category_id" value="Category" />
-                    <select
-                        id="category_id"
-                        value={data.category_id}
-                        onChange={(e) => {
-                            onDataChange("category_id", e.target.value);
-                            onClearErrors("category_id");
-                        }}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                    >
-                        <option value="">Select Category</option>
-                        {categories.map((category) => (
-                            <option key={category.id} value={category.id}>
-                                {category.name}
-                            </option>
-                        ))}
-                    </select>
+                    <div className="mt-1">
+                        <SearchableSelect
+                            options={categories.map(cat => ({ id: cat.id, label: cat.name }))}
+                            value={data.category_id}
+                            onChange={(value) => {
+                                onDataChange("category_id", value);
+                                onClearErrors("category_id");
+                            }}
+                            placeholder="Search categories..."
+                        />
+                    </div>
                     <button
                         type="button"
                         onClick={onShowCategoryModal}

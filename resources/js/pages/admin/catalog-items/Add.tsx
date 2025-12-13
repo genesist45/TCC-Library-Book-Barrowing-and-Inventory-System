@@ -93,8 +93,29 @@ export default function CatalogItemAdd({
         clearErrors();
 
         try {
-            // Call Laravel backend validation
-            await axios.post(route("admin.catalog-items.validate"), data);
+            // Create FormData to properly handle file uploads
+            const formData = new FormData();
+            Object.entries(data).forEach(([key, value]) => {
+                if (key === 'author_ids' && Array.isArray(value)) {
+                    // Handle array of author IDs
+                    value.forEach((id, index) => {
+                        formData.append(`author_ids[${index}]`, id.toString());
+                    });
+                } else if (key === 'cover_image' && value instanceof File) {
+                    // Handle file upload
+                    formData.append(key, value);
+                } else if (value !== null && value !== undefined) {
+                    // Handle other fields
+                    formData.append(key, typeof value === 'boolean' ? (value ? '1' : '0') : String(value));
+                }
+            });
+
+            // Call Laravel backend validation with FormData
+            await axios.post(route("admin.catalog-items.validate"), formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
 
             // Validation passed - show review page
             setShowReview(true);
@@ -388,6 +409,7 @@ export default function CatalogItemAdd({
             </div>
 
             <QuickAddModals
+                mode={showReview ? "full" : "simple"}
                 showCategoryModal={showCategoryModal}
                 showPublisherModal={showPublisherModal}
                 showAuthorModal={showAuthorModal}
@@ -397,6 +419,19 @@ export default function CatalogItemAdd({
                 onCategoryAdded={handleCategoryAdded}
                 onPublisherAdded={handlePublisherAdded}
                 onAuthorAdded={handleAuthorAdded}
+                categories={localCategories}
+                publishers={localPublishers}
+                authors={localAuthors}
+                selectedCategoryId={data.category_id}
+                selectedPublisherId={data.publisher_id}
+                selectedAuthorIds={data.author_ids}
+                onSelectCategory={(categoryId) => setData('category_id', categoryId)}
+                onSelectPublisher={(publisherId) => setData('publisher_id', publisherId)}
+                onSelectAuthor={(authorId) => {
+                    if (!data.author_ids.includes(authorId)) {
+                        setData('author_ids', [...data.author_ids, authorId]);
+                    }
+                }}
             />
         </AuthenticatedLayout>
     );

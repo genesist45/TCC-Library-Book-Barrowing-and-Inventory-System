@@ -2,6 +2,7 @@ import { Plus } from "lucide-react";
 import InputLabel from "@/components/forms/InputLabel";
 import TextInput from "@/components/forms/TextInput";
 import InputError from "@/components/forms/InputError";
+import SearchableSelect from "@/components/common/SearchableSelect";
 import { Publisher } from "@/types";
 
 interface PublicationDetailsSectionProps {
@@ -56,22 +57,17 @@ export default function PublicationDetailsSection({
 
                 <div>
                     <InputLabel htmlFor="publisher_id" value="Publisher" />
-                    <select
-                        id="publisher_id"
-                        value={data.publisher_id}
-                        onChange={(e) => {
-                            onDataChange("publisher_id", e.target.value);
-                            onClearErrors("publisher_id");
-                        }}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                    >
-                        <option value="">Select Publisher</option>
-                        {publishers.map((publisher) => (
-                            <option key={publisher.id} value={publisher.id}>
-                                {publisher.name}
-                            </option>
-                        ))}
-                    </select>
+                    <div className="mt-1">
+                        <SearchableSelect
+                            options={publishers.map(pub => ({ id: pub.id, label: pub.name }))}
+                            value={data.publisher_id}
+                            onChange={(value) => {
+                                onDataChange("publisher_id", value);
+                                onClearErrors("publisher_id");
+                            }}
+                            placeholder="Search publishers..."
+                        />
+                    </div>
                     <button
                         type="button"
                         onClick={onShowPublisherModal}

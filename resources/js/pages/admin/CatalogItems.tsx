@@ -68,7 +68,7 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
         setProcessing(true);
         router.delete(route("admin.catalog-items.destroy", selectedItem.id), {
             onSuccess: () => {
-                toast.success("Catalog item deleted successfully!");
+                // Toast is handled by flash message in useEffect
                 setShowDeleteModal(false);
                 setSelectedItem(null);
                 setProcessing(false);

@@ -100,8 +100,8 @@ export default function SearchableSelect({
                     placeholder={placeholder}
                     disabled={disabled}
                     className={`block w-full rounded-md border shadow-sm transition-colors focus:ring-1 focus:ring-opacity-50 sm:text-sm ${error
-                            ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500 dark:border-red-700 dark:text-red-500'
-                            : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500'
+                        ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500 dark:border-red-700 dark:text-red-500'
+                        : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500'
                         } ${disabled ? 'bg-gray-100 cursor-not-allowed dark:bg-[#2a2a2a]' : 'bg-white'}`}
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
@@ -111,7 +111,7 @@ export default function SearchableSelect({
 
             {/* Dropdown */}
             {isOpen && !disabled && (
-                <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 bg-white shadow-lg dark:border-[#4a4a4a] dark:bg-[#3a3a3a]">
+                <div className="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white shadow-lg dark:border-[#4a4a4a] dark:bg-[#3a3a3a]">
                     {filteredOptions.length === 0 ? (
                         <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
                             No results found
@@ -123,8 +123,8 @@ export default function SearchableSelect({
                                     key={option.id}
                                     onClick={() => handleSelect(option)}
                                     className={`cursor-pointer px-3 py-2 text-sm transition-colors ${option.id.toString() === value.toString()
-                                            ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
-                                            : 'text-gray-900 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-[#4a4a4a]'
+                                        ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+                                        : 'text-gray-900 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-[#4a4a4a]'
                                         }`}
                                 >
                                     {option.label}
