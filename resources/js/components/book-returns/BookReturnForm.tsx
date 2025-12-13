@@ -126,22 +126,22 @@ export default function BookReturnForm({
     const selectedRequest = availableRequests.find(req => req.id.toString() === data.book_request_id);
 
     return (
-        <div className="p-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+        <div className="p-4">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {mode === 'add' ? 'Add New Return' : 'Edit Return'}
             </h2>
-            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-xs text-gray-600 dark:text-gray-400">
                 {mode === 'add'
-                    ? 'Record a new book return by filling out the form below'
+                    ? 'Record a new book return by filling out the form'
                     : 'Update the return information'}
             </p>
 
-            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <form onSubmit={handleSubmit} className="mt-4 space-y-3">
 
                 {/* Borrow ID - Only for Add */}
                 {mode === 'add' && (
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Borrow ID <span className="text-red-500">*</span>
                         </label>
                         <SearchableSelect
@@ -157,68 +157,68 @@ export default function BookReturnForm({
 
                 {/* Auto-filled Member and Book Info */}
                 {selectedRequest && mode === 'add' && (
-                    <div className="grid grid-cols-2 gap-4 rounded-lg bg-blue-50 p-4 dark:bg-blue-900/10 transition-all duration-200">
-                        <div>
-                            <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Member</p>
-                            <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                    <div className="flex gap-4 rounded-md bg-blue-50 p-2.5 dark:bg-blue-900/10 transition-all duration-200">
+                        <div className="flex-1">
+                            <p className="text-[10px] uppercase font-bold text-gray-500 dark:text-gray-400 tracking-wider">Member</p>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
                                 {selectedRequest.member_name}
                             </p>
                         </div>
-                        <div>
-                            <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Book</p>
-                            <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                        <div className="flex-1 border-l border-blue-200 pl-4 dark:border-blue-800">
+                            <p className="text-[10px] uppercase font-bold text-gray-500 dark:text-gray-400 tracking-wider">Book</p>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
                                 {selectedRequest.book_title}
                             </p>
                         </div>
                     </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                     {/* Return Date */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Return Date <span className="text-red-500">*</span>
+                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Date <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="date"
                             value={data.return_date}
                             onChange={(e) => handleFieldChange('return_date', e.target.value)}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white sm:text-sm"
+                            className="block w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white"
                             required
                         />
                         {errors.return_date && (
-                            <p className="mt-1 text-sm text-red-600">{errors.return_date}</p>
+                            <p className="mt-0.5 text-xs text-red-600">{errors.return_date}</p>
                         )}
                     </div>
 
                     {/* Return Time */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Return Time <span className="text-red-500">*</span>
+                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Time <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="time"
                             value={data.return_time}
                             onChange={(e) => handleFieldChange('return_time', e.target.value)}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white sm:text-sm"
+                            className="block w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white"
                             required
                         />
                         {errors.return_time && (
-                            <p className="mt-1 text-sm text-red-600">{errors.return_time}</p>
+                            <p className="mt-0.5 text-xs text-red-600">{errors.return_time}</p>
                         )}
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-3">
                     {/* Condition on Return */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Condition on Return <span className="text-red-500">*</span>
+                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Condition <span className="text-red-500">*</span>
                         </label>
                         <select
                             value={data.condition_on_return}
                             onChange={(e) => handleFieldChange('condition_on_return', e.target.value)}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white sm:text-sm"
+                            className="block w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white"
                             required
                         >
                             <option value="Good">Good</option>
@@ -226,14 +226,14 @@ export default function BookReturnForm({
                             <option value="Lost">Lost</option>
                         </select>
                         {errors.condition_on_return && (
-                            <p className="mt-1 text-sm text-red-600">{errors.condition_on_return}</p>
+                            <p className="mt-0.5 text-xs text-red-600">{errors.condition_on_return}</p>
                         )}
                     </div>
 
                     {/* Penalty Amount */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Penalty Amount <span className="text-red-500">*</span>
+                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Penalty <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="number"
@@ -241,64 +241,64 @@ export default function BookReturnForm({
                             min="0"
                             value={data.penalty_amount}
                             onChange={(e) => handleFieldChange('penalty_amount', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white sm:text-sm"
+                            className="block w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white"
                             required
                         />
                         {errors.penalty_amount && (
-                            <p className="mt-1 text-sm text-red-600">{errors.penalty_amount}</p>
+                            <p className="mt-0.5 text-xs text-red-600">{errors.penalty_amount}</p>
+                        )}
+                    </div>
+
+                    {/* Status */}
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Status <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                            value={data.status}
+                            onChange={(e) => handleFieldChange('status', e.target.value)}
+                            className="block w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white"
+                            required
+                        >
+                            <option value="Returned">Returned</option>
+                            <option value="Pending">Pending</option>
+                        </select>
+                        {errors.status && (
+                            <p className="mt-0.5 text-xs text-red-600">{errors.status}</p>
                         )}
                     </div>
                 </div>
 
-                {/* Status */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Status <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                        value={data.status}
-                        onChange={(e) => handleFieldChange('status', e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white sm:text-sm"
-                        required
-                    >
-                        <option value="Returned">Returned</option>
-                        <option value="Pending">Pending</option>
-                    </select>
-                    {errors.status && (
-                        <p className="mt-1 text-sm text-red-600">{errors.status}</p>
-                    )}
-                </div>
-
                 {/* Remarks */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Remarks
                     </label>
                     <textarea
-                        rows={3}
+                        rows={2}
                         value={data.remarks}
                         onChange={(e) => handleFieldChange('remarks', e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white sm:text-sm"
-                        placeholder="Any additional notes about the return..."
+                        className="block w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white"
+                        placeholder="Additional notes..."
                     />
                     {errors.remarks && (
-                        <p className="mt-1 text-sm text-red-600">{errors.remarks}</p>
+                        <p className="mt-0.5 text-xs text-red-600">{errors.remarks}</p>
                     )}
                 </div>
 
                 {/* Buttons */}
-                <div className="flex justify-end gap-3 border-t border-gray-200 pt-4 dark:border-[#3a3a3a]">
+                <div className="flex justify-end gap-3 border-t border-gray-200 pt-3 dark:border-[#3a3a3a]">
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-gray-200 dark:hover:bg-[#4a4a4a]"
+                        className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-gray-200 dark:hover:bg-[#4a4a4a]"
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
                         disabled={processing}
-                        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+                        className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
                     >
                         {processing ? 'Saving...' : mode === 'add' ? 'Add Return' : 'Update Return'}
                     </button>

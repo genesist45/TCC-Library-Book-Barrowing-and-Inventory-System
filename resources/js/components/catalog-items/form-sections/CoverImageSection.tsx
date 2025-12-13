@@ -22,7 +22,7 @@ export default function CoverImageSection({
             <div className="mt-4">
                 <div className="sm:col-span-2">
                     <InputLabel htmlFor="cover_image" value="Cover Image" />
-                    <div className="mt-1 flex items-center gap-4">
+                    <div className="mt-1 flex flex-wrap items-center gap-4">
                         <label className="flex cursor-pointer items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
                             <Upload className="h-4 w-4" />
                             Choose File
@@ -34,7 +34,7 @@ export default function CoverImageSection({
                                 onChange={onImageChange}
                             />
                         </label>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                        <span className="text-sm text-gray-500 dark:text-gray-400 break-all">
                             {coverImageName || "No file chosen"}
                         </span>
                         {coverImageName && (
@@ -47,12 +47,12 @@ export default function CoverImageSection({
                             </button>
                         )}
                     </div>
-                    <div className="mt-3">
+                    <div className="mt-3 flex justify-center">
                         {coverImagePreview ? (
                             <img
                                 src={coverImagePreview}
                                 alt="Cover preview"
-                                className="h-48 w-auto rounded-md border border-gray-300 object-cover shadow-sm dark:border-gray-700"
+                                className="h-48 w-auto max-w-full rounded-md border border-gray-300 object-cover shadow-sm dark:border-gray-700"
                             />
                         ) : (
                             <div className="flex h-48 w-32 items-center justify-center rounded-md border border-gray-300 bg-gray-100 shadow-sm dark:border-gray-700 dark:bg-gray-800">

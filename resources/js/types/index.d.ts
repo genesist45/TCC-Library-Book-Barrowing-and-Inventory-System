@@ -162,6 +162,10 @@ export interface BookReturn {
     };
     book_request?: {
         id: number;
+        catalog_item_copy?: {
+            accession_no: string;
+            copy_no: number;
+        };
     };
     processor?: {
         id: number;
