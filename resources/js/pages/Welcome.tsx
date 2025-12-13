@@ -1,8 +1,7 @@
 import { PageProps, CatalogItem } from "@/types";
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import PublicHeader from "@/components/common/PublicHeader";
 import ScrollToTop from "@/components/common/ScrollToTop";
-import BookDetailsModal from "@/components/books/BookDetailsModal";
 import { useState, useEffect } from "react";
 import Toast from "@/components/common/Toast";
 import axios from "axios";
@@ -25,10 +24,6 @@ export default function Welcome({
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
     const [showDropdown, setShowDropdown] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
-
-    // Modal state
-    const [selectedBook, setSelectedBook] = useState<CatalogItem | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Filter states
     const [typeFilter, setTypeFilter] = useState("");
@@ -62,9 +57,9 @@ export default function Welcome({
         return true;
     });
 
+    // Navigate to book details page
     const handleBookClick = (book: CatalogItem) => {
-        setSelectedBook(book);
-        setIsModalOpen(true);
+        router.visit(route("books.show", book.id));
     };
 
     useEffect(() => {
@@ -91,16 +86,11 @@ export default function Welcome({
         }
     }, [searchQuery]);
 
-    const handleSearchResultClick = async (bookId: number) => {
-        try {
-            const response = await axios.get(`/api/catalog-items/${bookId}`);
-            setSelectedBook(response.data);
-            setIsModalOpen(true);
-            setShowDropdown(false);
-            setSearchQuery("");
-        } catch (error) {
-            console.error("Error fetching book details:", error);
-        }
+    // Navigate to book details page when clicking a search result
+    const handleSearchResultClick = (bookId: number) => {
+        setShowDropdown(false);
+        setSearchQuery("");
+        router.visit(route("books.show", bookId));
     };
 
     return (
@@ -134,14 +124,6 @@ export default function Welcome({
 
                 <ScrollToTop />
             </div>
-
-            {selectedBook && (
-                <BookDetailsModal
-                    book={selectedBook}
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                />
-            )}
 
             <Toast />
         </>
