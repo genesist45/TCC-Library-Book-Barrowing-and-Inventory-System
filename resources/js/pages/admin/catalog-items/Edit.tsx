@@ -290,6 +290,7 @@ export default function CatalogItemEdit({
     };
 
     const copiesCount = catalogItem.copies?.length || 0;
+    const availableCopiesCount = catalogItem.copies?.filter(c => c.status === 'Available').length || 0;
     const historyCount = borrowHistory.length;
 
     // Check if current tab is a form tab (needs form wrapper)
@@ -319,6 +320,7 @@ export default function CatalogItemEdit({
                                 onTabChange={setActiveTab}
                                 showExtraTabs={true}
                                 copiesCount={copiesCount}
+                                availableCopiesCount={availableCopiesCount}
                                 historyCount={historyCount}
                             >
                                 {isFormTab ? (

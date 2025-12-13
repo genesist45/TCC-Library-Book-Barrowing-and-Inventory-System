@@ -36,6 +36,7 @@ interface ViewDetailsTabsProps {
     onTabChange: (tab: ViewTabType) => void;
     children: ReactNode;
     copiesCount?: number;
+    availableCopiesCount?: number;
     historyCount?: number;
 }
 
@@ -44,11 +45,15 @@ export default function ViewDetailsTabs({
     onTabChange,
     children,
     copiesCount = 0,
+    availableCopiesCount,
     historyCount = 0,
 }: ViewDetailsTabsProps) {
-    const getTabCount = (tabId: ViewTabType): number | undefined => {
-        if (tabId === "related-copies") return copiesCount;
-        if (tabId === "borrow-history") return historyCount;
+    const getTabBadge = (tabId: ViewTabType): string | undefined => {
+        if (tabId === "related-copies") {
+            const available = availableCopiesCount ?? copiesCount;
+            return `${available}/${copiesCount}`;
+        }
+        if (tabId === "borrow-history" && historyCount > 0) return String(historyCount);
         return undefined;
     };
 
@@ -58,17 +63,16 @@ export default function ViewDetailsTabs({
                 <nav className="-mb-px flex space-x-2 overflow-x-auto sm:space-x-6">
                     {TABS.map((tab) => {
                         const Icon = tab.icon;
-                        const count = getTabCount(tab.id);
+                        const badge = getTabBadge(tab.id);
                         return (
                             <button
                                 key={tab.id}
                                 type="button"
                                 onClick={() => onTabChange(tab.id)}
-                                className={`flex items-center gap-1.5 whitespace-nowrap border-b-2 px-1 py-3 text-xs font-medium transition-colors sm:gap-2 sm:text-sm ${
-                                    activeTab === tab.id
+                                className={`flex items-center gap-1.5 whitespace-nowrap border-b-2 px-1 py-3 text-xs font-medium transition-colors sm:gap-2 sm:text-sm ${activeTab === tab.id
                                         ? "border-indigo-500 text-indigo-600 dark:text-indigo-400"
                                         : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                                }`}
+                                    }`}
                             >
                                 <Icon size={16} className="flex-shrink-0" />
                                 <span className="hidden sm:inline">
@@ -77,15 +81,14 @@ export default function ViewDetailsTabs({
                                 <span className="sm:hidden">
                                     {tab.label.split(" ")[0]}
                                 </span>
-                                {count !== undefined && count > 0 && (
+                                {badge !== undefined && (
                                     <span
-                                        className={`ml-0.5 rounded-full px-1.5 py-0.5 text-xs font-medium sm:ml-1 sm:px-2 ${
-                                            activeTab === tab.id
+                                        className={`ml-0.5 rounded-full px-1.5 py-0.5 text-xs font-medium sm:ml-1 sm:px-2 ${activeTab === tab.id
                                                 ? "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400"
                                                 : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
-                                        }`}
+                                            }`}
                                     >
-                                        {count}
+                                        {badge}
                                     </span>
                                 )}
                             </button>

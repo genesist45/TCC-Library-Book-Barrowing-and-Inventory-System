@@ -209,7 +209,7 @@ export default function BookReturnForm({
                     </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className={`grid gap-3 ${mode === 'add' ? 'grid-cols-3' : 'grid-cols-2'}`}>
                     {/* Condition on Return */}
                     <div>
                         <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -249,24 +249,26 @@ export default function BookReturnForm({
                         )}
                     </div>
 
-                    {/* Status */}
-                    <div>
-                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Status <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                            value={data.status}
-                            onChange={(e) => handleFieldChange('status', e.target.value)}
-                            className="block w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white"
-                            required
-                        >
-                            <option value="Returned">Returned</option>
-                            <option value="Pending">Pending</option>
-                        </select>
-                        {errors.status && (
-                            <p className="mt-0.5 text-xs text-red-600">{errors.status}</p>
-                        )}
-                    </div>
+                    {/* Status - Only show in Add mode */}
+                    {mode === 'add' && (
+                        <div>
+                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Status <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                                value={data.status}
+                                onChange={(e) => handleFieldChange('status', e.target.value)}
+                                className="block w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white"
+                                required
+                            >
+                                <option value="Returned">Returned</option>
+                                <option value="Pending">Pending</option>
+                            </select>
+                            {errors.status && (
+                                <p className="mt-0.5 text-xs text-red-600">{errors.status}</p>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {/* Remarks */}

@@ -90,6 +90,7 @@ export default function BookDetails({
                                 activeTab={activeTab}
                                 onTabChange={setActiveTab}
                                 copiesCount={catalogItem.copies?.length}
+                                availableCopiesCount={catalogItem.available_copies_count ?? catalogItem.copies?.filter(c => c.status === 'Available').length}
                             />
 
                             {/* Tab Content */}

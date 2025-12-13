@@ -102,6 +102,7 @@ export default function CatalogItemView({
     };
 
     const copiesCount = catalogItem.copies?.length || 0;
+    const availableCopiesCount = catalogItem.copies?.filter(c => c.status === 'Available').length || 0;
     const historyCount = borrowHistory.length;
 
     return (
@@ -126,6 +127,7 @@ export default function CatalogItemView({
                                 activeTab={activeTab}
                                 onTabChange={setActiveTab}
                                 copiesCount={copiesCount}
+                                availableCopiesCount={availableCopiesCount}
                                 historyCount={historyCount}
                             >
                                 {activeTab === "item-info" && (

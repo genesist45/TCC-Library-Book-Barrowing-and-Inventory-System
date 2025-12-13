@@ -183,13 +183,10 @@ export default function RelatedCopiesTable({
                     <thead className="border-b border-gray-200 bg-gray-50 transition-colors duration-300 dark:border-[#3a3a3a] dark:bg-[#3a3a3a]">
                         <tr>
                             <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:px-4">
-                                ID
+                                Copy No.
                             </th>
                             <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:px-4">
                                 Accession No.
-                            </th>
-                            <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:px-4">
-                                Copy No.
                             </th>
                             <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:px-4">
                                 Branch
@@ -212,13 +209,10 @@ export default function RelatedCopiesTable({
                                 className="transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]"
                             >
                                 <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:px-4">
-                                    {copy.id}
-                                </td>
-                                <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-900 transition-colors duration-300 dark:text-gray-100 sm:px-4">
-                                    {copy.accession_no}
-                                </td>
-                                <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:px-4">
                                     Copy #{copy.copy_no}
+                                </td>
+                                <td className="whitespace-nowrap px-3 py-2 text-sm font-medium text-gray-900 transition-colors duration-300 dark:text-gray-100 sm:px-4">
+                                    {copy.accession_no}
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:px-4">
                                     {copy.branch || "-"}
@@ -228,17 +222,16 @@ export default function RelatedCopiesTable({
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-2 sm:px-4">
                                     <span
-                                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                            copy.status === "Available"
+                                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${copy.status === "Available"
                                                 ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
                                                 : copy.status === "Borrowed"
-                                                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
-                                                  : copy.status === "Reserved"
-                                                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                                                    : copy.status === "Lost"
-                                                      ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
-                                                      : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
-                                        }`}
+                                                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                                    : copy.status === "Reserved"
+                                                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                                                        : copy.status === "Lost"
+                                                            ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                                                            : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
+                                            }`}
                                     >
                                         {copy.status}
                                     </span>

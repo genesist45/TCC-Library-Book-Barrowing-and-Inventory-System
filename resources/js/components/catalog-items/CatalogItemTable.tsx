@@ -117,8 +117,8 @@ export default function CatalogItemTable({
                         <th className="hidden px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 lg:table-cell sm:px-4">
                             Year
                         </th>
-                        <th className="hidden px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 lg:table-cell sm:px-4">
-                            Copies
+                        <th className="hidden px-3 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 lg:table-cell sm:px-4">
+                            Availability
                         </th>
                         <th className="hidden px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 lg:table-cell sm:px-4">
                             Status
@@ -169,17 +169,37 @@ export default function CatalogItemTable({
                                     <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 lg:table-cell sm:px-4">
                                         {item.year || "-"}
                                     </td>
-                                    <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 lg:table-cell sm:px-4">
-                                        {item.copies_count || 0}
+                                    <td className="hidden whitespace-nowrap px-3 py-2 text-center lg:table-cell sm:px-4">
+                                        {(() => {
+                                            const available = item.available_copies_count ?? 0;
+                                            const total = item.copies_count ?? 0;
+                                            let badgeClass = '';
+                                            if (total === 0) {
+                                                badgeClass = 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400';
+                                            } else if (available === 0) {
+                                                badgeClass = 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+                                            } else if (available === total) {
+                                                badgeClass = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
+                                            } else {
+                                                badgeClass = 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400';
+                                            }
+                                            return (
+                                                <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold ${badgeClass}`}>
+                                                    {available}
+                                                    <span className="mx-0.5 opacity-60">/</span>
+                                                    {total}
+                                                </span>
+                                            );
+                                        })()}
                                     </td>
                                     <td className="hidden whitespace-nowrap px-3 py-2 lg:table-cell sm:px-4">
                                         <span
                                             className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${isAvailable
-                                                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                                                    : statusLabel ===
-                                                        "No Copies"
-                                                        ? "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
-                                                        : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                                                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                                                : statusLabel ===
+                                                    "No Copies"
+                                                    ? "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
+                                                    : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
                                                 }`}
                                         >
                                             {statusLabel}

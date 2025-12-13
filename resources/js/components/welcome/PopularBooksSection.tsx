@@ -140,7 +140,7 @@ export default function PopularBooksSection({
                                         </td>
                                         <td className="px-4 py-3">
                                             {book.authors &&
-                                            book.authors.length > 0 ? (
+                                                book.authors.length > 0 ? (
                                                 <div className="space-y-0.5">
                                                     {book.authors.map(
                                                         (author) => (

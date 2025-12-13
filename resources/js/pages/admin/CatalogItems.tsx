@@ -258,7 +258,7 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
                                 Year
                             </th>
                             <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
-                                Copies
+                                Availability
                             </th>
                             <th className="border border-gray-300 bg-gray-100 px-3 py-2 text-left text-xs font-semibold uppercase">
                                 ISBN
@@ -297,7 +297,7 @@ export default function CatalogItems({ catalogItems, flash }: Props) {
                                     {item.year || "-"}
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2 text-xs">
-                                    {item.copies_count || 0}
+                                    {item.available_copies_count ?? 0}/{item.copies_count ?? 0}
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2 text-xs">
                                     {item.isbn || item.isbn13 || "-"}

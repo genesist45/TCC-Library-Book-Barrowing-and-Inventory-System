@@ -7,7 +7,7 @@ interface TabButtonProps {
     onClick: () => void;
     icon: React.ReactNode;
     label: string;
-    badge?: number;
+    badge?: string;
 }
 
 function TabButton({ active, onClick, icon, label, badge }: TabButtonProps) {
@@ -16,17 +16,17 @@ function TabButton({ active, onClick, icon, label, badge }: TabButtonProps) {
             type="button"
             onClick={onClick}
             className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium transition-colors ${active
-                    ? "border-indigo-500 text-indigo-600"
-                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                ? "border-indigo-500 text-indigo-600"
+                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
                 }`}
         >
             {icon}
             {label}
-            {badge !== undefined && badge > 0 && (
+            {badge !== undefined && (
                 <span
                     className={`ml-1 rounded-full px-2 py-0.5 text-xs font-medium ${active
-                            ? "bg-indigo-100 text-indigo-600"
-                            : "bg-gray-100 text-gray-600"
+                        ? "bg-indigo-100 text-indigo-600"
+                        : "bg-gray-100 text-gray-600"
                         }`}
                 >
                     {badge}
@@ -40,13 +40,19 @@ interface BookDetailsTabsProps {
     activeTab: BookDetailTab;
     onTabChange: (tab: BookDetailTab) => void;
     copiesCount?: number;
+    availableCopiesCount?: number;
 }
 
 export default function BookDetailsTabs({
     activeTab,
     onTabChange,
     copiesCount,
+    availableCopiesCount,
 }: BookDetailsTabsProps) {
+    const availableCount = availableCopiesCount ?? copiesCount ?? 0;
+    const totalCount = copiesCount ?? 0;
+    const badge = `${availableCount}/${totalCount}`;
+
     return (
         <div className="border-b border-gray-200 px-6">
             <nav className="-mb-px flex space-x-6">
@@ -61,7 +67,7 @@ export default function BookDetailsTabs({
                     onClick={() => onTabChange("available-copies")}
                     icon={<Copy className="h-4 w-4" />}
                     label="AVAILABLE COPIES"
-                    badge={copiesCount}
+                    badge={badge}
                 />
             </nav>
         </div>
