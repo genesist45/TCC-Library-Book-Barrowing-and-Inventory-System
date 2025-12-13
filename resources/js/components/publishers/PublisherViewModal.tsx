@@ -43,62 +43,85 @@ export default function PublisherViewModal({ show, publisher, onClose }: Publish
 
                 {displayPublisher && (
                     <div className="p-6 space-y-6">
-                        {/* Status & Name Card */}
-                        <div className="flex items-start justify-between rounded-lg bg-gray-50 p-4 dark:bg-[#323232]">
+                        {/* Primary Info Row */}
+                        <div className="grid grid-cols-2 gap-x-8 gap-y-4">
                             <div>
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
+                                    Publisher Name
+                                </p>
+                                <p className="text-base font-medium text-gray-900 dark:text-gray-100">
                                     {displayPublisher.name}
-                                </h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1.5">
-                                    <Globe size={14} />
-                                    {displayPublisher.country}
                                 </p>
                             </div>
-                            <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${displayPublisher.is_published
-                                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                                : 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
-                                }`}>
-                                {displayPublisher.is_published ? (
-                                    <>
-                                        <CheckCircle size={12} /> Active
-                                    </>
-                                ) : (
-                                    <>
-                                        <XCircle size={12} /> Inactive
-                                    </>
-                                )}
-                            </span>
+                            <div>
+                                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
+                                    Status
+                                </p>
+                                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${displayPublisher.is_published
+                                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                    : 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
+                                    }`}>
+                                    {displayPublisher.is_published ? (
+                                        <>
+                                            <CheckCircle size={12} /> Active
+                                        </>
+                                    ) : (
+                                        <>
+                                            <XCircle size={12} /> Inactive
+                                        </>
+                                    )}
+                                </span>
+                            </div>
                         </div>
 
-                        {/* Details Grid */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="rounded-lg border border-gray-100 p-3 dark:border-[#3a3a3a]">
-                                <div className="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold flex items-center gap-1.5 mb-1">
-                                    <BookOpen size={14} /> Total Items
+                        {/* Country Row */}
+                        <div>
+                            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
+                                Country
+                            </p>
+                            <p className="text-sm text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                                <Globe size={14} className="text-gray-400" />
+                                {displayPublisher.country}
+                            </p>
+                        </div>
+
+                        {/* Details Section */}
+                        <div className="rounded-lg bg-gray-50 p-4 dark:bg-[#323232]">
+                            <h4 className="text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wide mb-4">
+                                Publication Statistics
+                            </h4>
+                            <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+                                <div>
+                                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
+                                        Total Items
+                                    </p>
+                                    <p className="text-sm text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                                        <BookOpen size={14} className="text-gray-400" />
+                                        {displayPublisher.items_count ?? 0}
+                                    </p>
                                 </div>
-                                <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                    {displayPublisher.items_count}
-                                </div>
-                            </div>
-                            <div className="rounded-lg border border-gray-100 p-3 dark:border-[#3a3a3a]">
-                                <div className="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold flex items-center gap-1.5 mb-1">
-                                    <Calendar size={14} /> Added On
-                                </div>
-                                <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-1">
-                                    {new Date(displayPublisher.created_at).toLocaleDateString()}
+                                <div>
+                                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
+                                        Added On
+                                    </p>
+                                    <p className="text-sm text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                                        <Calendar size={14} className="text-gray-400" />
+                                        {new Date(displayPublisher.created_at).toLocaleDateString()}
+                                    </p>
                                 </div>
                             </div>
                         </div>
 
                         {/* Description Section */}
                         {displayPublisher.description && (
-                            <div>
-                                <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1.5">
-                                    <FileText size={16} /> Description
+                            <div className="rounded-lg bg-gray-50 p-4 dark:bg-[#323232]">
+                                <h4 className="text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+                                    <FileText size={14} />
+                                    Description
                                 </h4>
-                                <div className="rounded-lg bg-gray-50 p-4 text-sm leading-relaxed text-gray-600 dark:bg-[#323232] dark:text-gray-300">
+                                <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
                                     {displayPublisher.description}
-                                </div>
+                                </p>
                             </div>
                         )}
                     </div>

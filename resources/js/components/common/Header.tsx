@@ -223,10 +223,10 @@ export default function Header({
                                                                 : "bg-gray-100 text-gray-500 dark:bg-[#3a3a3a] dark:text-gray-400";
                                                     const bgClass = isOverdue
                                                         ? !notification.read_at
-                                                            ? "bg-red-50/50 dark:bg-red-900/10"
+                                                            ? "bg-red-50 dark:bg-red-900/20"
                                                             : ""
                                                         : !notification.read_at
-                                                            ? "bg-blue-50/50 dark:bg-blue-900/10"
+                                                            ? "bg-blue-50 dark:bg-blue-900/20"
                                                             : "";
                                                     const dotClass = isOverdue
                                                         ? "bg-red-600"
@@ -345,11 +345,7 @@ export default function Header({
                                                                         ).toLocaleString()}
                                                                     </p>
                                                                 </div>
-                                                                {!notification.read_at && (
-                                                                    <span
-                                                                        className={`mt-2 h-2 w-2 rounded-full ${dotClass}`}
-                                                                    ></span>
-                                                                )}
+
                                                             </button>
 
                                                             <button

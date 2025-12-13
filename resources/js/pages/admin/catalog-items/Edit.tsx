@@ -457,6 +457,7 @@ export default function CatalogItemEdit({
             </div>
 
             <QuickAddModals
+                mode="simple"
                 showCategoryModal={showCategoryModal}
                 showPublisherModal={showPublisherModal}
                 showAuthorModal={showAuthorModal}
