@@ -25,7 +25,7 @@ export default function BookReturnViewModal({ show, bookReturn, onClose }: BookR
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-gray-100 dark:border-[#3a3a3a]">
                     <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                        Return Details
+                        Record Details
                     </h2>
                     <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
                         Transaction ID: #{bookReturn.id}

@@ -128,12 +128,12 @@ export default function BookReturnForm({
     return (
         <div className="p-4">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                {mode === 'add' ? 'Add New Return' : 'Edit Return'}
+                {mode === 'add' ? 'Add New Record' : 'Edit Record'}
             </h2>
             <p className="text-xs text-gray-600 dark:text-gray-400">
                 {mode === 'add'
-                    ? 'Record a new book return by filling out the form'
-                    : 'Update the return information'}
+                    ? 'Record a new book record by filling out the form'
+                    : 'Update the record information'}
             </p>
 
             <form onSubmit={handleSubmit} className="mt-4 space-y-3">
@@ -302,7 +302,7 @@ export default function BookReturnForm({
                         disabled={processing}
                         className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
                     >
-                        {processing ? 'Saving...' : mode === 'add' ? 'Add Return' : 'Update Return'}
+                        {processing ? 'Saving...' : mode === 'add' ? 'Add Record' : 'Update Record'}
                     </button>
                 </div>
             </form>

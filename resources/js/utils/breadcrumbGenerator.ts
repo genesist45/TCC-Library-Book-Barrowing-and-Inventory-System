@@ -68,9 +68,9 @@ export function generateBreadcrumbs(currentRoute: string): BreadcrumbItem[] {
         return breadcrumbs;
     }
 
-    // Book Returns routes
+    // Book Records routes
     if (currentRoute.startsWith('admin.book-returns')) {
-        breadcrumbs.push({ label: 'Book Returns', active: true });
+        breadcrumbs.push({ label: 'Book Records', active: true });
         return breadcrumbs;
     }
 
