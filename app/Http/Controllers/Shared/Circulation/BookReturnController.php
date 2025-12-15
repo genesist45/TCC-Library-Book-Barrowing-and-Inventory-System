@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Shared\Circulation;
 
 use App\Http\Controllers\Controller;
 use App\Models\BookReturn;
@@ -102,10 +102,10 @@ class BookReturnController extends Controller
                     // Set status based on condition
                     $newStatus =
                         $validated["condition_on_return"] === "Lost"
-                            ? "Lost"
-                            : ($validated["condition_on_return"] === "Damaged"
-                                ? "Under Repair"
-                                : "Available");
+                        ? "Lost"
+                        : ($validated["condition_on_return"] === "Damaged"
+                            ? "Under Repair"
+                            : "Available");
                     $copy->update(["status" => $newStatus]);
                 }
             }
@@ -177,10 +177,10 @@ class BookReturnController extends Controller
             if ($copy) {
                 $newStatus =
                     $validated["condition_on_return"] === "Lost"
-                        ? "Lost"
-                        : ($validated["condition_on_return"] === "Damaged"
-                            ? "Under Repair"
-                            : "Available");
+                    ? "Lost"
+                    : ($validated["condition_on_return"] === "Damaged"
+                        ? "Under Repair"
+                        : "Available");
                 $copy->update(["status" => $newStatus]);
             }
         }

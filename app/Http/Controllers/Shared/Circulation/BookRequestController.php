@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Shared\Circulation;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -137,7 +137,7 @@ class BookRequestController extends Controller
                     // No available copies exist - block approval
                     // Revert the status back to the original
                     $bookRequest->update(["status" => $oldStatus]);
-                    
+
                     return redirect()
                         ->back()
                         ->with(
