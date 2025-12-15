@@ -1,22 +1,21 @@
 <?php
 
-use App\Http\Controllers\Admin\AuthorController;
-use App\Http\Controllers\Admin\BookRequestController;
-use App\Http\Controllers\Admin\BookReturnController;
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\CatalogItemController;
-use App\Http\Controllers\Admin\CatalogItemCopyController;
-use App\Http\Controllers\Admin\EmailReminderController;
-use App\Http\Controllers\Admin\MemberController;
-use App\Http\Controllers\Admin\PublisherController;
-use App\Http\Controllers\Admin\QrScannerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\SetupController;
 use App\Http\Controllers\Shared\AIChatController;
 use App\Http\Controllers\Shared\BookSearchController;
 use App\Http\Controllers\Shared\DashboardController;
 use App\Http\Controllers\Shared\ProfileController;
-use Illuminate\Foundation\Application;
+use App\Http\Controllers\Shared\Catalog\AuthorController;
+use App\Http\Controllers\Shared\Catalog\CategoryController;
+use App\Http\Controllers\Shared\Catalog\CatalogItemController;
+use App\Http\Controllers\Shared\Catalog\CatalogItemCopyController;
+use App\Http\Controllers\Shared\Catalog\PublisherController;
+use App\Http\Controllers\Shared\Circulation\BookRequestController;
+use App\Http\Controllers\Shared\Circulation\BookReturnController;
+use App\Http\Controllers\Shared\Members\MemberController;
+use App\Http\Controllers\Shared\Tools\EmailReminderController;
+use App\Http\Controllers\Shared\Tools\QrScannerController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
