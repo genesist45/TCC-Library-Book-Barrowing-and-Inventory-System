@@ -74,7 +74,7 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
                         setMemberValidation({
                             isValid: true,
                             isChecking: false,
-                            message: `Valid member (${category}) - Return date set to ${getMaxBorrowDays(category)} days`,
+                            message: `Valid member (${category}) - ${memberData.name || ""} - Return date set to ${getMaxBorrowDays(category)} days`,
                         });
                     })
                     .catch(() => {
@@ -279,13 +279,12 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
                                                     type="text"
                                                     value={data.member_id}
                                                     onChange={(e) => setData('member_id', e.target.value)}
-                                                    className={`w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-gray-100 ${
-                                                        memberValidation.isValid === true
+                                                    className={`w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-gray-100 ${memberValidation.isValid === true
                                                             ? 'border-green-500 focus:border-green-500 focus:ring-green-500'
                                                             : memberValidation.isValid === false
-                                                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                                                            : ''
-                                                    }`}
+                                                                ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                                                                : ''
+                                                        }`}
                                                     placeholder="Enter member number"
                                                     autoFocus
                                                     required
@@ -364,8 +363,8 @@ export default function BorrowBookModal({ book, isOpen, onClose }: BorrowBookMod
                                                         min={today}
                                                         max={maxDateString}
                                                         className={`w-full rounded-md py-1.5 pl-8 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-[#2a2a2a] dark:text-gray-100 ${dateError
-                                                                ? 'border-red-500 focus:border-red-500 focus:ring-red-500 dark:border-red-500'
-                                                                : 'border-gray-300 dark:border-[#3a3a3a]'
+                                                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500 dark:border-red-500'
+                                                            : 'border-gray-300 dark:border-[#3a3a3a]'
                                                             }`}
                                                         required
                                                     />

@@ -20,8 +20,27 @@ class BookRequestController extends Controller
             ->latest()
             ->get();
 
+        // Get all catalog items with their copies for the Add Borrow Member modal
+        $catalogItems = \App\Models\CatalogItem::with([
+            'category:id,name',
+            'publisher:id,name',
+            'authors:id,name',
+            'copies' => function ($query) {
+                $query->select('id', 'catalog_item_id', 'copy_no', 'accession_no', 'status', 'branch', 'location');
+            }
+        ])
+            ->withCount('copies')
+            ->withCount([
+                'copies as available_copies_count' => function ($query) {
+                    $query->where('status', 'Available');
+                }
+            ])
+            ->orderBy('title')
+            ->get();
+
         return inertia("admin/circulations/book-requests/View", [
             "bookRequests" => $bookRequests,
+            "catalogItems" => $catalogItems,
         ]);
     }
 
@@ -345,5 +364,71 @@ class BookRequestController extends Controller
         );
 
         return back()->with("success", "Book request disapproved.");
+    }
+
+    /**
+     * Store a new book request with auto-approval (for admin/staff use)
+     */
+    public function storeApproved(\Illuminate\Http\Request $request)
+    {
+        $validated = $request->validate([
+            "member_id" => "required|exists:members,member_no",
+            "catalog_item_id" => "required|exists:catalog_items,id",
+            "catalog_item_copy_id" => "required|exists:catalog_item_copies,id",
+            "return_date" => "required|date|after_or_equal:today",
+            "return_time" => "required|date_format:H:i",
+            "address" => "nullable|string",
+            "notes" => "nullable|string",
+        ]);
+
+        // Get the member by member_no
+        $member = \App\Models\Member::where("member_no", $validated["member_id"])->first();
+
+        if (!$member) {
+            return back()->withErrors(["member_id" => "Member not found."]);
+        }
+
+        // Check if the copy is available
+        $copy = \App\Models\CatalogItemCopy::find($validated["catalog_item_copy_id"]);
+
+        if (!$copy || $copy->status !== "Available") {
+            return back()->withErrors(["catalog_item_copy_id" => "This copy is not available for borrowing."]);
+        }
+
+        // Create the book request with Approved status
+        $bookRequest = \App\Models\BookRequest::create([
+            "member_id" => $member->id,
+            "catalog_item_id" => $validated["catalog_item_id"],
+            "catalog_item_copy_id" => $validated["catalog_item_copy_id"],
+            "full_name" => $member->name,
+            "email" => $member->email,
+            "quota" => $member->booking_quota,
+            "phone" => $member->phone,
+            "address" => $validated["address"] ?? null,
+            "return_date" => $validated["return_date"],
+            "return_time" => $validated["return_time"],
+            "notes" => $validated["notes"] ?? null,
+            "status" => "Approved", // Auto-approved
+        ]);
+
+        // Mark the copy as "Borrowed"
+        $copy->update(["status" => "Borrowed"]);
+
+        // Load relationships for email
+        $bookRequest->load([
+            "catalogItem.authors",
+            "catalogItem.publisher",
+            "catalogItemCopy",
+        ]);
+
+        // Send Approval Email
+        \Illuminate\Support\Facades\Mail::to($bookRequest->email)->send(
+            new \App\Mail\BookRequestApproved($bookRequest),
+        );
+
+        // Schedule Due-Date Reminder
+        $this->scheduleDueDateReminder($bookRequest);
+
+        return back()->with("success", "Borrow record created and approved successfully.");
     }
 }

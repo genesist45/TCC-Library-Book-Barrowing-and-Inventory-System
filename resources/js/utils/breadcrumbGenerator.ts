@@ -97,11 +97,6 @@ export function generateBreadcrumbs(currentRoute: string): BreadcrumbItem[] {
         return breadcrumbs;
     }
 
-    // QR Scanner route
-    if (currentRoute === 'qr-scanner') {
-        return [{ label: 'QR Scanner', active: true }];
-    }
-
     // Email Reminder routes
     if (currentRoute.startsWith('email-reminder')) {
         return [{ label: 'Email Reminder', active: true }];

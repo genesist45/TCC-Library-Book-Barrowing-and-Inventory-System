@@ -15,7 +15,6 @@ use App\Http\Controllers\Shared\Circulation\BookRequestController;
 use App\Http\Controllers\Shared\Circulation\BookReturnController;
 use App\Http\Controllers\Shared\Members\MemberController;
 use App\Http\Controllers\Shared\Tools\EmailReminderController;
-use App\Http\Controllers\Shared\Tools\QrScannerController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -212,11 +211,6 @@ Route::middleware(["auth", "verified", "role:admin"])->group(function () {
 
 // Admin and Staff shared routes (all administrative functions except user management)
 Route::middleware(["auth", "verified", "role:admin|staff"])->group(function () {
-    // QR Scanner
-    Route::get("/qr-scanner", [QrScannerController::class, "index"])->name(
-        "qr-scanner",
-    );
-
     // Email Reminder
     Route::get("/email-reminder", [
         EmailReminderController::class,
@@ -286,6 +280,10 @@ Route::middleware(["auth", "verified", "role:admin|staff"])->group(function () {
                 BookRequestController::class,
                 "disapprove",
             ])->name("book-requests.disapprove");
+            Route::post("book-requests/store-approved", [
+                BookRequestController::class,
+                "storeApproved",
+            ])->name("book-requests.store-approved");
             Route::resource(
                 "book-requests",
                 BookRequestController::class,

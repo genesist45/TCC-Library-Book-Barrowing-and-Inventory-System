@@ -2,14 +2,16 @@ import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import { PageProps, BookRequest } from '@/types';
 import { useState, useEffect } from 'react';
-import { Pencil, Trash2, CheckCircle, XCircle, Eye, Search, RefreshCw, Printer } from 'lucide-react';
+import { Pencil, Trash2, CheckCircle, XCircle, Eye, Search, RefreshCw, Printer, UserPlus } from 'lucide-react';
 import { TableRowSkeleton } from '@/components/common/Loading';
 import { toast } from 'react-toastify';
 import ActionButton, { ActionButtonGroup } from '@/components/buttons/ActionButton';
 import ConfirmModal from '@/components/modals/ConfirmModal';
+import AddBorrowMemberModal, { CatalogItemFull } from '@/components/circulations/AddBorrowMemberModal';
 
 interface Props extends PageProps {
     bookRequests: BookRequest[];
+    catalogItems: CatalogItemFull[];
     flash?: {
         success?: string;
         error?: string;
@@ -18,12 +20,13 @@ interface Props extends PageProps {
 
 type ModalAction = 'approve' | 'disapprove' | 'delete' | null;
 
-export default function BookRequestsView({ bookRequests, flash }: Props) {
+export default function BookRequestsView({ bookRequests, catalogItems, flash }: Props) {
     const [selectedRequest, setSelectedRequest] = useState<BookRequest | null>(null);
     const [modalAction, setModalAction] = useState<ModalAction>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [processing, setProcessing] = useState(false);
+    const [showAddBorrowModal, setShowAddBorrowModal] = useState(false);
 
     useEffect(() => {
         if (flash?.success) {
@@ -246,6 +249,16 @@ export default function BookRequestsView({ bookRequests, flash }: Props) {
                             >
                                 <Printer className="h-5 w-5" />
                             </button>
+
+                            {/* Add Borrow Member Button */}
+                            <button
+                                onClick={() => setShowAddBorrowModal(true)}
+                                className="flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
+                                title="Add Borrow Member"
+                            >
+                                <UserPlus className="h-4 w-4" />
+                                <span className="hidden sm:inline">Add Borrow Member</span>
+                            </button>
                         </div>
                     </div>
 
@@ -397,6 +410,13 @@ export default function BookRequestsView({ bookRequests, flash }: Props) {
                 onCancel={closeModal}
                 processing={processing}
                 variant={modalConfig.variant}
+            />
+
+            {/* Add Borrow Member Modal */}
+            <AddBorrowMemberModal
+                isOpen={showAddBorrowModal}
+                onClose={() => setShowAddBorrowModal(false)}
+                catalogItems={catalogItems}
             />
         </AuthenticatedLayout>
     );
