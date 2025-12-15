@@ -197,7 +197,7 @@ export default function BookRequestShow({ bookRequest }: Props) {
                                         <div className="flex items-start">
                                             <Calendar className="mr-3 mt-0.5 h-5 w-5 text-gray-400" />
                                             <div>
-                                                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Return Date:</span>
+                                                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Record Date:</span>
                                                 <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
                                                     {new Date(bookRequest.return_date).toLocaleDateString('en-US', {
                                                         year: 'numeric',
@@ -211,7 +211,7 @@ export default function BookRequestShow({ bookRequest }: Props) {
                                         <div className="flex items-start">
                                             <Clock className="mr-3 mt-0.5 h-5 w-5 text-gray-400" />
                                             <div>
-                                                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Return Time:</span>
+                                                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Record Time:</span>
                                                 <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">{bookRequest.return_time}</p>
                                             </div>
                                         </div>

@@ -22,6 +22,11 @@ interface BorrowRecord {
     accession_no?: string;
     copy_no?: number;
     notes?: string | null;
+    // Book return specific fields
+    condition_on_return?: string | null;
+    penalty_amount?: number | null;
+    return_status?: string | null;
+    remarks?: string | null;
 }
 
 interface CopyInfo {
@@ -95,6 +100,21 @@ export default function CopyBorrowHistoryModal({
     };
 
     const getStatusBadge = (status: string, dateReturned: string | null) => {
+        // Handle book_return statuses first (Paid, Pending from lost books)
+        if (status === "Paid") {
+            return (
+                <span className="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                    Paid
+                </span>
+            );
+        }
+        if (status === "Pending") {
+            return (
+                <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+                    Pending
+                </span>
+            );
+        }
         if (status === "Returned" || dateReturned) {
             return (
                 <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
@@ -106,13 +126,6 @@ export default function CopyBorrowHistoryModal({
             return (
                 <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                     Borrowed
-                </span>
-            );
-        }
-        if (status === "Pending") {
-            return (
-                <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                    Pending
                 </span>
             );
         }
@@ -199,13 +212,12 @@ export default function CopyBorrowHistoryModal({
                                     Status:{" "}
                                 </span>
                                 <span
-                                    className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium ${
-                                        copy.status === "Available"
-                                            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                                            : copy.status === "Borrowed"
-                                              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
-                                              : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
-                                    }`}
+                                    className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium ${copy.status === "Available"
+                                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                                        : copy.status === "Borrowed"
+                                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                            : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
+                                        }`}
                                 >
                                     {copy.status}
                                 </span>

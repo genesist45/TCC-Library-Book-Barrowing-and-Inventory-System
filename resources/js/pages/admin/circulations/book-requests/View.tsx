@@ -156,12 +156,23 @@ export default function BookRequestsView({ bookRequests, catalogItems, flash }: 
     };
 
     const getStatusBadge = (status: string) => {
-        const styles = {
+        const styles: Record<string, string> = {
             Pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-            Approved: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+            Approved: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
             Disapproved: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+            Returned: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+            Paid: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
         };
-        return styles[status as keyof typeof styles] || 'bg-gray-100 text-gray-800';
+        return styles[status] || 'bg-gray-100 text-gray-800';
+    };
+
+    // Get the display status - use book_return status if available, otherwise use request status
+    const getDisplayStatus = (request: BookRequest) => {
+        // If book has been returned and has a book_return record, use its status
+        if (request.status === 'Returned' && request.book_return?.status) {
+            return request.book_return.status;
+        }
+        return request.status;
     };
 
     const modalConfig = getModalConfig();
@@ -336,11 +347,16 @@ export default function BookRequestsView({ bookRequests, catalogItems, flash }: 
                                                         : ''}
                                                 </td>
                                                 <td className="whitespace-nowrap px-6 py-4">
-                                                    <span
-                                                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadge(request.status)}`}
-                                                    >
-                                                        {request.status}
-                                                    </span>
+                                                    {(() => {
+                                                        const displayStatus = getDisplayStatus(request);
+                                                        return (
+                                                            <span
+                                                                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadge(displayStatus)}`}
+                                                            >
+                                                                {displayStatus}
+                                                            </span>
+                                                        );
+                                                    })()}
                                                 </td>
                                                 <td className="whitespace-nowrap px-6 py-4 text-sm print:hidden">
                                                     <ActionButtonGroup>

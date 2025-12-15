@@ -109,7 +109,7 @@ export default function MemberForm({
                 {mode === 'add' ? 'Add New Member' : 'Edit Member'}
             </h2>
             <p className="mt-1 text-sm text-gray-600 transition-colors duration-200 dark:text-gray-400">
-                {mode === 'add' 
+                {mode === 'add'
                     ? 'Fill in the information below to create a new member'
                     : 'Update the member information below'
                 }
@@ -238,18 +238,7 @@ export default function MemberForm({
                 <InputError message={showErrors.address ? errors.address : ''} className="mt-1" />
             </div>
 
-            <div className="mt-4">
-                <label className="flex items-center">
-                    <Checkbox
-                        checked={data.allow_login}
-                        onChange={(e) => handleChange('allow_login', e.target.checked)}
-                    />
-                    <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                        Allow this member to login to the system
-                    </span>
-                </label>
-                <InputError message={showErrors.allow_login ? errors.allow_login : ''} className="mt-1" />
-            </div>
+
 
             <div className="mt-6 flex justify-end gap-3">
                 <SecondaryButton type="button" onClick={onCancel}>

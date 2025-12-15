@@ -204,17 +204,28 @@ export default function EditCopyModal({
                         />
                         <select
                             id="edit_status"
-                            className="mt-1 block w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm transition-colors duration-200 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-indigo-600 dark:focus:ring-indigo-600"
+                            className={`mt-1 block w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm transition-colors duration-200 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-indigo-600 dark:focus:ring-indigo-600 ${copy?.status === 'Paid'
+                                    ? 'cursor-not-allowed bg-gray-100 dark:bg-gray-800'
+                                    : ''
+                                }`}
                             value={status}
                             onChange={(e) => setStatus(e.target.value)}
                             required
+                            disabled={copy?.status === 'Paid'}
                         >
                             <option value="Available">Available</option>
                             <option value="Borrowed">Borrowed</option>
                             <option value="Reserved">Reserved</option>
                             <option value="Lost">Lost</option>
                             <option value="Under Repair">Under Repair</option>
+                            <option value="Paid">Paid</option>
+                            <option value="Pending">Pending</option>
                         </select>
+                        {copy?.status === 'Paid' && (
+                            <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                                Status cannot be changed for copies with payment-related status.
+                            </p>
+                        )}
                         <InputError message={errors.status} className="mt-1" />
                     </div>
 

@@ -9,7 +9,6 @@ import {
     BorrowerDetailsSection,
     ContactInfoSection,
     AddressSection,
-    SettingsSection,
 } from '@/components/members/form-sections';
 
 export default function AddMember() {
@@ -119,12 +118,7 @@ export default function AddMember() {
                                 onDataChange={handleChange}
                             />
 
-                            <SettingsSection
-                                data={data}
-                                errors={errors}
-                                showErrors={showErrors}
-                                onDataChange={handleChange}
-                            />
+
 
                             <div className="mt-6 flex justify-end gap-3">
                                 <Link href={route('admin.members.index')}>

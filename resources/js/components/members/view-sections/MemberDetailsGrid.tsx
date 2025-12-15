@@ -2,7 +2,6 @@ import { Member } from '@/types';
 import DetailField from './DetailField';
 import MemberTypeBadge from './MemberTypeBadge';
 import StatusBadge from './StatusBadge';
-import LoginAccessBadge from './LoginAccessBadge';
 
 interface MemberDetailsGridProps {
     member: Member;
@@ -46,11 +45,7 @@ export default function MemberDetailsGrid({ member }: MemberDetailsGridProps) {
                 <DetailField label="Address" value={member.address} className="sm:col-span-2" />
             )}
 
-            <DetailField label="Login Access">
-                <p className="mt-1.5">
-                    <LoginAccessBadge allowLogin={member.allow_login} />
-                </p>
-            </DetailField>
+
 
             <DetailField label="Joined Date">
                 <p className="mt-1.5 text-base text-gray-900 transition-colors duration-200 dark:text-gray-100">

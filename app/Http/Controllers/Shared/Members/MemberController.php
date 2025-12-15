@@ -94,7 +94,7 @@ class MemberController extends Controller
                     'date_borrowed' => $request->created_at->toDateString(),
                     'due_date' => $request->return_date ? Carbon::parse($request->return_date)->toDateString() : '-',
                     'date_returned' => $request->bookReturn?->return_date ? Carbon::parse($request->bookReturn->return_date)->toDateString() : null,
-                    'status' => $request->bookReturn ? 'Returned' : $request->status,
+                    'status' => $request->bookReturn ? $request->bookReturn->status : $request->status,
                     'penalty_amount' => $request->bookReturn?->penalty_amount ?? null,
                 ];
             })

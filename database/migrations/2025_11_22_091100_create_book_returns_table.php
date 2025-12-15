@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -21,7 +20,7 @@ return new class extends Migration
             $table->enum('condition_on_return', ['Good', 'Damaged', 'Lost'])->default('Good');
             $table->text('remarks')->nullable();
             $table->decimal('penalty_amount', 10, 2)->default(0);
-            $table->enum('status', ['Returned', 'Pending'])->default('Pending');
+            $table->enum('status', ['Returned', 'Pending', 'Paid'])->default('Pending');
             $table->foreignId('processed_by')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });

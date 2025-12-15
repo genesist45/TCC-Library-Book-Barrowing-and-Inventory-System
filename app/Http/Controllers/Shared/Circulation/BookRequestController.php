@@ -16,6 +16,7 @@ class BookRequestController extends Controller
             "member",
             "catalogItem",
             "catalogItemCopy",
+            "bookReturn",
         ])
             ->latest()
             ->get();
@@ -369,7 +370,7 @@ class BookRequestController extends Controller
     /**
      * Store a new book request with auto-approval (for admin/staff use)
      */
-    public function storeApproved(\Illuminate\Http\Request $request)
+    public function storeApproved(Request $request)
     {
         $validated = $request->validate([
             "member_id" => "required|exists:members,member_no",

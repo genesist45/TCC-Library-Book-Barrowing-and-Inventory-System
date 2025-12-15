@@ -60,8 +60,25 @@ export default function MemberBorrowHistoryTable({
         const isOverdue =
             !dateReturned &&
             new Date(dueDate) < new Date() &&
-            status !== "Returned";
+            status !== "Returned" &&
+            status !== "Paid" &&
+            status !== "Pending";
 
+        // Handle book_return statuses first (Paid, Pending from lost books)
+        if (status === "Paid") {
+            return (
+                <span className="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                    Paid
+                </span>
+            );
+        }
+        if (status === "Pending") {
+            return (
+                <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+                    Pending
+                </span>
+            );
+        }
         if (status === "Returned" || dateReturned) {
             return (
                 <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
@@ -80,13 +97,6 @@ export default function MemberBorrowHistoryTable({
             return (
                 <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                     Borrowed
-                </span>
-            );
-        }
-        if (status === "Pending") {
-            return (
-                <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                    Pending
                 </span>
             );
         }
@@ -183,7 +193,7 @@ export default function MemberBorrowHistoryTable({
                                 Due Date
                             </th>
                             <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                                Return Date
+                                Record Date
                             </th>
                             <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
                                 Status

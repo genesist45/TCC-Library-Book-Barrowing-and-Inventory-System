@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -18,7 +17,7 @@ return new class extends Migration
             $table->integer('copy_no');
             $table->string('branch')->nullable();
             $table->enum('location', ['Filipianna', 'Circulation', 'Theses', 'Fiction', 'Reserve'])->nullable();
-            $table->enum('status', ['Available', 'Borrowed', 'Reserved', 'Lost', 'Under Repair'])->default('Available');
+            $table->enum('status', ['Available', 'Borrowed', 'Reserved', 'Lost', 'Under Repair', 'Paid', 'Pending'])->default('Available');
             $table->timestamps();
         });
     }

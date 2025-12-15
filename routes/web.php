@@ -254,6 +254,10 @@ Route::middleware(["auth", "verified", "role:admin|staff"])->group(function () {
                 CatalogItemCopyController::class,
                 "generateAccessionNo",
             ])->name("copies.generate-accession-no");
+            Route::get("copies/next-accession", [
+                CatalogItemCopyController::class,
+                "nextAccessionNo",
+            ])->name("copies.next-accession");
             Route::post("copies/validate-accession-no", [
                 CatalogItemCopyController::class,
                 "validateAccessionNo",

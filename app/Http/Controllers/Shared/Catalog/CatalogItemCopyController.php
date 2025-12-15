@@ -92,6 +92,13 @@ class CatalogItemCopyController extends Controller
         ]);
     }
 
+    public function nextAccessionNo()
+    {
+        return response()->json([
+            'next_accession_no' => CatalogItemCopy::generateAccessionNo(),
+        ]);
+    }
+
     public function validateAccessionNo(Request $request)
     {
         $exists = CatalogItemCopy::where('accession_no', $request->accession_no)->exists() ||
@@ -114,7 +121,7 @@ class CatalogItemCopyController extends Controller
                 'unique:catalog_items,accession_no',
             ],
             'location' => 'nullable|in:Filipianna,Circulation,Theses,Fiction,Reserve',
-            'status' => 'required|in:Available,Borrowed,Reserved,Lost,Under Repair',
+            'status' => 'required|in:Available,Borrowed,Reserved,Lost,Under Repair,Paid,Pending',
         ]);
 
         if ($validator->fails()) {
@@ -152,6 +159,13 @@ class CatalogItemCopyController extends Controller
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($request) use ($copy) {
+                // Get the actual return status from book_return if available
+                $bookReturn = $request->bookReturn;
+                $returnStatus = $bookReturn?->status ?? null;
+
+                // Determine display status: use book_return status if available, else book_request status
+                $displayStatus = $returnStatus ?? $request->status;
+
                 return [
                     'id' => $request->id,
                     'member_id' => $request->member_id,
@@ -160,10 +174,16 @@ class CatalogItemCopyController extends Controller
                     'member_type' => $request->member->type ?? 'N/A',
                     'email' => $request->email,
                     'phone' => $request->phone,
+                    'address' => $request->address,
                     'date_borrowed' => $request->created_at->toDateString(),
                     'due_date' => $request->return_date?->toDateString(),
-                    'date_returned' => $request->bookReturn?->return_date?->toDateString(),
-                    'status' => $request->status,
+                    'date_returned' => $bookReturn?->return_date,
+                    'status' => $displayStatus,
+                    // Book return specific fields
+                    'condition_on_return' => $bookReturn?->condition_on_return,
+                    'penalty_amount' => $bookReturn?->penalty_amount,
+                    'return_status' => $returnStatus,
+                    'remarks' => $bookReturn?->remarks,
                 ];
             });
 

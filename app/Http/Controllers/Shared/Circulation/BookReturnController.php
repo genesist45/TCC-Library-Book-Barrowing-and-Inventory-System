@@ -82,7 +82,7 @@ class BookReturnController extends Controller
             "condition_on_return" => "required|in:Good,Damaged,Lost",
             "remarks" => "nullable|string",
             "penalty_amount" => "required|numeric|min:0",
-            "status" => "required|in:Returned,Pending",
+            "status" => "required|in:Returned,Pending,Paid",
         ]);
 
         $validated["processed_by"] = auth()->id();
@@ -93,24 +93,26 @@ class BookReturnController extends Controller
         $bookRequest = BookRequest::find($validated["book_request_id"]);
 
         if ($bookRequest) {
-            // Mark the specific COPY as "Available" again (not the main catalog item)
+            // Mark the specific COPY status based on condition and status
             if ($bookRequest->catalog_item_copy_id) {
                 $copy = CatalogItemCopy::find(
                     $bookRequest->catalog_item_copy_id,
                 );
                 if ($copy) {
-                    // Set status based on condition
-                    $newStatus =
-                        $validated["condition_on_return"] === "Lost"
-                        ? "Lost"
-                        : ($validated["condition_on_return"] === "Damaged"
-                            ? "Under Repair"
-                            : "Available");
+                    // Set copy status based on condition and return status
+                    if ($validated["condition_on_return"] === "Lost") {
+                        // Lost book: status depends on payment
+                        $newStatus = $validated["status"] === "Paid" ? "Paid" : "Pending";
+                    } elseif ($validated["condition_on_return"] === "Damaged") {
+                        $newStatus = "Under Repair";
+                    } else {
+                        $newStatus = "Available";
+                    }
                     $copy->update(["status" => $newStatus]);
                 }
             }
 
-            // Update the BookRequest status to 'Returned'
+            // Update the BookRequest status
             $bookRequest->update(["status" => "Returned"]);
         }
 
@@ -161,12 +163,12 @@ class BookReturnController extends Controller
             "condition_on_return" => "required|in:Good,Damaged,Lost",
             "remarks" => "nullable|string",
             "penalty_amount" => "required|numeric|min:0",
-            "status" => "required|in:Returned,Pending",
+            "status" => "required|in:Returned,Pending,Paid",
         ]);
 
         $bookReturn->update($validated);
 
-        // Update the copy status based on condition if changed
+        // Update the copy status based on condition and status
         if (
             $bookReturn->bookRequest &&
             $bookReturn->bookRequest->catalog_item_copy_id
@@ -175,12 +177,15 @@ class BookReturnController extends Controller
                 $bookReturn->bookRequest->catalog_item_copy_id,
             );
             if ($copy) {
-                $newStatus =
-                    $validated["condition_on_return"] === "Lost"
-                    ? "Lost"
-                    : ($validated["condition_on_return"] === "Damaged"
-                        ? "Under Repair"
-                        : "Available");
+                // Set copy status based on condition and return status
+                if ($validated["condition_on_return"] === "Lost") {
+                    // Lost book: status depends on payment
+                    $newStatus = $validated["status"] === "Paid" ? "Paid" : "Pending";
+                } elseif ($validated["condition_on_return"] === "Damaged") {
+                    $newStatus = "Under Repair";
+                } else {
+                    $newStatus = "Available";
+                }
                 $copy->update(["status" => $newStatus]);
             }
         }

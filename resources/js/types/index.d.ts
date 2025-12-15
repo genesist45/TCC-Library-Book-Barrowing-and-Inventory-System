@@ -128,7 +128,7 @@ export interface BookRequest {
     return_date: string;
     return_time: string;
     notes?: string;
-    status: "Pending" | "Approved" | "Disapproved";
+    status: "Pending" | "Approved" | "Disapproved" | "Returned";
     created_at: string;
     updated_at: string;
     member?: Member;
@@ -136,6 +136,7 @@ export interface BookRequest {
     catalog_item?: CatalogItem;
     catalogItemCopy?: CatalogItemCopy;
     catalog_item_copy?: CatalogItemCopy;
+    book_return?: BookReturn;
 }
 
 export interface BookReturn {
@@ -148,7 +149,7 @@ export interface BookReturn {
     condition_on_return: "Good" | "Damaged" | "Lost";
     remarks?: string;
     penalty_amount: number;
-    status: "Returned" | "Pending";
+    status: "Returned" | "Pending" | "Paid";
     processed_by: number;
     created_at: string;
     member?: {
