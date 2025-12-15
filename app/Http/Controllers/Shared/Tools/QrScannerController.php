@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Shared\Tools;
 
 use App\Http\Controllers\Controller;
 use Inertia\Inertia;
@@ -16,4 +16,3 @@ class QrScannerController extends Controller
         return Inertia::render('admin/QRScanner');
     }
 }
-

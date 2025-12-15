@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Shared\Members;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMemberRequest;
 use App\Http\Requests\UpdateMemberRequest;
 use App\Models\BookRequest;
 use App\Models\Member;
+use Carbon\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\RedirectResponse;
@@ -91,8 +92,8 @@ class MemberController extends Controller
                     'book_title' => $request->catalogItem->title ?? 'Unknown',
                     'accession_no' => $request->catalogItem->accession_no ?? '-',
                     'date_borrowed' => $request->created_at->toDateString(),
-                    'due_date' => $request->return_date?->toDateString() ?? '-',
-                    'date_returned' => $request->bookReturn?->return_date?->toDateString(),
+                    'due_date' => $request->return_date ? Carbon::parse($request->return_date)->toDateString() : '-',
+                    'date_returned' => $request->bookReturn?->return_date ? Carbon::parse($request->bookReturn->return_date)->toDateString() : null,
                     'status' => $request->bookReturn ? 'Returned' : $request->status,
                     'penalty_amount' => $request->bookReturn?->penalty_amount ?? null,
                 ];
