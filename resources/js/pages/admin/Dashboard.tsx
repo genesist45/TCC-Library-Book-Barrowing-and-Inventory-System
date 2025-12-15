@@ -5,6 +5,7 @@ import {
     StatCard,
     NewArrivalsCard,
     CheckoutsCard,
+    ComparisonChart,
 } from "@/components/dashboard";
 import { PageProps } from "@/types";
 
@@ -73,6 +74,13 @@ interface StatData {
     };
 }
 
+interface ChartDataPoint {
+    label: string;
+    titles: number;
+    members: number;
+    checkouts: number;
+}
+
 interface DashboardProps {
     stats: {
         titles: StatData;
@@ -82,15 +90,66 @@ interface DashboardProps {
     };
     newArrivals: NewArrivalItem[];
     activeCheckouts: CheckoutItem[];
+    comparisonChartData?: ChartDataPoint[];
 }
 
 export default function Dashboard({
     stats,
     newArrivals,
     activeCheckouts,
+    comparisonChartData,
 }: DashboardProps) {
     const { auth } = usePage<PageProps>().props;
     const isAdmin = auth.user.role === "admin";
+
+    // Generate chart data from stats if not provided by backend
+    const chartData: ChartDataPoint[] = comparisonChartData || (() => {
+        // Use the month graphData from stats to generate comparison data
+        const titlesData = stats.titles.periodData.month.graphData || [];
+        const membersData = stats.members.periodData.month.graphData || [];
+        const checkoutsData = stats.checkouts.periodData.month.graphData || [];
+
+        // Create a map to combine data by label
+        const dataMap = new Map<string, ChartDataPoint>();
+
+        titlesData.forEach((point) => {
+            if (!dataMap.has(point.label)) {
+                dataMap.set(point.label, {
+                    label: point.label,
+                    titles: 0,
+                    members: 0,
+                    checkouts: 0,
+                });
+            }
+            dataMap.get(point.label)!.titles = point.value;
+        });
+
+        membersData.forEach((point) => {
+            if (!dataMap.has(point.label)) {
+                dataMap.set(point.label, {
+                    label: point.label,
+                    titles: 0,
+                    members: 0,
+                    checkouts: 0,
+                });
+            }
+            dataMap.get(point.label)!.members = point.value;
+        });
+
+        checkoutsData.forEach((point) => {
+            if (!dataMap.has(point.label)) {
+                dataMap.set(point.label, {
+                    label: point.label,
+                    titles: 0,
+                    members: 0,
+                    checkouts: 0,
+                });
+            }
+            dataMap.get(point.label)!.checkouts = point.value;
+        });
+
+        return Array.from(dataMap.values());
+    })();
 
     return (
         <AuthenticatedLayout>
@@ -139,6 +198,13 @@ export default function Dashboard({
                             />
                         )}
                     </div>
+
+                    {/* Comparison Chart - Full Width */}
+                    {chartData.length > 0 && (
+                        <div className="mt-6">
+                            <ComparisonChart data={chartData} />
+                        </div>
+                    )}
 
                     {/* New Arrivals and Checkouts Row */}
                     <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">

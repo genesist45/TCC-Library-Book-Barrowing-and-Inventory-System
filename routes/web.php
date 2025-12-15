@@ -82,6 +82,11 @@ Route::middleware(["auth", "verified"])->group(function () {
         "dashboard",
     );
 
+    // Dashboard chart data API
+    Route::get("/dashboard/chart-data", [DashboardController::class, "getChartData"])->name(
+        "admin.dashboard.chart-data",
+    );
+
     // Profile routes
     Route::get("/profile", [ProfileController::class, "edit"])->name(
         "profile.edit",

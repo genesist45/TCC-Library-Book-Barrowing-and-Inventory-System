@@ -51,15 +51,30 @@ class DashboardController extends Controller
             // Get active checkouts (currently borrowed books)
             $activeCheckouts = $this->getActiveCheckouts();
 
+            // Get comparison chart data (weekly data - default)
+            $comparisonChartData = $this->getComparisonChartData('week');
+
             return Inertia::render("admin/Dashboard", [
                 "stats" => $stats,
                 "newArrivals" => $newArrivals,
                 "activeCheckouts" => $activeCheckouts,
+                "comparisonChartData" => $comparisonChartData,
             ]);
         }
 
         // Fallback - should not be reached since all authenticated users have a role
         abort(403, 'Unauthorized access.');
+    }
+
+    /**
+     * Get chart data for a specific time period (API endpoint).
+     */
+    public function getChartData(Request $request)
+    {
+        $period = $request->get('period', 'month');
+        $data = $this->getComparisonChartData($period);
+
+        return response()->json($data);
     }
 
     /**
@@ -303,6 +318,119 @@ class DashboardController extends Controller
         }
 
         return $months;
+    }
+
+    /**
+     * Get comparison chart data based on period.
+     * Returns data for titles, members, and checkouts.
+     * 
+     * @param string $period - 'day', 'week', 'month', or 'year'
+     */
+    private function getComparisonChartData(string $period = 'day'): array
+    {
+        $data = [];
+        $now = Carbon::now();
+
+        switch ($period) {
+            case 'day':
+                // Last 24 hours - hourly data
+                for ($i = 23; $i >= 0; $i--) {
+                    $hourStart = $now->copy()->subHours($i)->startOfHour();
+                    $hourEnd = $now->copy()->subHours($i)->endOfHour();
+
+                    $titlesCount = CatalogItem::whereBetween("created_at", [$hourStart, $hourEnd])->count() +
+                        CatalogItemCopy::whereBetween("created_at", [$hourStart, $hourEnd])->count();
+
+                    $membersCount = Member::whereBetween("created_at", [$hourStart, $hourEnd])->count();
+
+                    $checkoutsCount = BookRequest::whereIn("status", ["Approved", "Returned"])
+                        ->whereBetween("created_at", [$hourStart, $hourEnd])
+                        ->count();
+
+                    $data[] = [
+                        "label" => $hourStart->format("g A"),
+                        "titles" => $titlesCount,
+                        "members" => $membersCount,
+                        "checkouts" => $checkoutsCount,
+                    ];
+                }
+                break;
+
+            case 'week':
+                // Last 7 days - daily data
+                for ($i = 6; $i >= 0; $i--) {
+                    $dayStart = $now->copy()->subDays($i)->startOfDay();
+                    $dayEnd = $now->copy()->subDays($i)->endOfDay();
+
+                    $titlesCount = CatalogItem::whereBetween("created_at", [$dayStart, $dayEnd])->count() +
+                        CatalogItemCopy::whereBetween("created_at", [$dayStart, $dayEnd])->count();
+
+                    $membersCount = Member::whereBetween("created_at", [$dayStart, $dayEnd])->count();
+
+                    $checkoutsCount = BookRequest::whereIn("status", ["Approved", "Returned"])
+                        ->whereBetween("created_at", [$dayStart, $dayEnd])
+                        ->count();
+
+                    $data[] = [
+                        "label" => $dayStart->format("D"),
+                        "titles" => $titlesCount,
+                        "members" => $membersCount,
+                        "checkouts" => $checkoutsCount,
+                    ];
+                }
+                break;
+
+            case 'year':
+                // Last 12 months - monthly data
+                for ($i = 11; $i >= 0; $i--) {
+                    $monthStart = $now->copy()->subMonths($i)->startOfMonth();
+                    $monthEnd = $now->copy()->subMonths($i)->endOfMonth();
+
+                    $titlesCount = CatalogItem::whereBetween("created_at", [$monthStart, $monthEnd])->count() +
+                        CatalogItemCopy::whereBetween("created_at", [$monthStart, $monthEnd])->count();
+
+                    $membersCount = Member::whereBetween("created_at", [$monthStart, $monthEnd])->count();
+
+                    $checkoutsCount = BookRequest::whereIn("status", ["Approved", "Returned"])
+                        ->whereBetween("created_at", [$monthStart, $monthEnd])
+                        ->count();
+
+                    $data[] = [
+                        "label" => $monthStart->format("M"),
+                        "titles" => $titlesCount,
+                        "members" => $membersCount,
+                        "checkouts" => $checkoutsCount,
+                    ];
+                }
+                break;
+
+            case 'month':
+            default:
+                // Last 30 days - daily data
+                for ($i = 29; $i >= 0; $i--) {
+                    $dayStart = $now->copy()->subDays($i)->startOfDay();
+                    $dayEnd = $now->copy()->subDays($i)->endOfDay();
+
+                    $titlesCount = CatalogItem::whereBetween("created_at", [$dayStart, $dayEnd])->count() +
+                        CatalogItemCopy::whereBetween("created_at", [$dayStart, $dayEnd])->count();
+
+                    $membersCount = Member::whereBetween("created_at", [$dayStart, $dayEnd])->count();
+
+                    $checkoutsCount = BookRequest::whereIn("status", ["Approved", "Returned"])
+                        ->whereBetween("created_at", [$dayStart, $dayEnd])
+                        ->count();
+
+                    $data[] = [
+                        "label" => $dayStart->format("j"),
+                        "titles" => $titlesCount,
+                        "members" => $membersCount,
+                        "checkouts" => $checkoutsCount,
+                    ];
+                }
+                break;
+        }
+
+        return $data;
     }
 
     /**
