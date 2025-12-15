@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Shared\Catalog;
 
 use App\Http\Controllers\Controller;
 use App\Models\CatalogItem;
@@ -95,7 +95,7 @@ class CatalogItemCopyController extends Controller
     public function validateAccessionNo(Request $request)
     {
         $exists = CatalogItemCopy::where('accession_no', $request->accession_no)->exists() ||
-                  CatalogItem::where('accession_no', $request->accession_no)->exists();
+            CatalogItem::where('accession_no', $request->accession_no)->exists();
 
         return response()->json([
             'valid' => !$exists,
