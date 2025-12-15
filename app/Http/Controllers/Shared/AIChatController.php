@@ -38,7 +38,7 @@ class AIChatController extends Controller
         if (isset($request->id)) {
             $conversation = AiConversation::where('user_id', auth()->id())
                 ->findOrFail($request->id);
-            
+
             $conversation->update([
                 'title' => $request->title,
                 'messages' => $request->messages,
@@ -81,7 +81,7 @@ class AIChatController extends Controller
 
         try {
             $messages = [];
-            
+
             $messages[] = [
                 'role' => 'system',
                 'content' => 'You are a helpful AI assistant. Be concise and friendly. Keep responses brief unless asked for details.'
@@ -113,11 +113,11 @@ class AIChatController extends Controller
                 'HTTP-Referer' => env('APP_URL', 'http://localhost'),
                 'X-Title' => 'Library Management System',
             ])->timeout(60)->post('https://openrouter.ai/api/v1/chat/completions', [
-                'model' => 'tngtech/deepseek-r1t2-chimera:free',
-                'messages' => $messages,
-                'max_tokens' => 1000,
-                'temperature' => 0.7,
-            ]);
+                        'model' => 'tngtech/deepseek-r1t2-chimera:free',
+                        'messages' => $messages,
+                        'max_tokens' => 1000,
+                        'temperature' => 0.7,
+                    ]);
 
             if (!$response->successful()) {
                 Log::error('OpenRouter API Error', [
@@ -130,12 +130,12 @@ class AIChatController extends Controller
             }
 
             $data = $response->json();
-            
+
             Log::info('OpenRouter API Response received', [
                 'has_choices' => isset($data['choices']),
                 'data' => $data
             ]);
-            
+
             // Safely access nested array with null coalescing
             $aiResponse = $data['choices'][0]['message']['content'] ?? 'I couldn\'t generate a response. Please try again.';
 
@@ -161,7 +161,7 @@ class AIChatController extends Controller
     {
         $lowerMessage = strtolower($message);
         $thinking = $this->generateThinking($message);
-        
+
         // Greeting responses
         if (preg_match('/\b(hi|hello|hey|greetings|good morning|good afternoon|good evening)\b/i', $lowerMessage)) {
             return $this->jsonResponse(
@@ -279,14 +279,14 @@ class AIChatController extends Controller
                 $thinking
             );
         }
-        
+
         if (preg_match('/calculator|math|add|subtract|multiply|divide/i', $lowerMessage)) {
             return $this->jsonResponse(
                 "Here's a simple Python calculator:\n\n```python\ndef calculator():\n    print(\"Simple Calculator\")\n    print(\"1. Add\")\n    print(\"2. Subtract\")\n    print(\"3. Multiply\")\n    print(\"4. Divide\")\n    \n    choice = input(\"Enter choice (1-4): \")\n    \n    num1 = float(input(\"Enter first number: \"))\n    num2 = float(input(\"Enter second number: \"))\n    \n    if choice == '1':\n        print(f\"{num1} + {num2} = {num1 + num2}\")\n    elif choice == '2':\n        print(f\"{num1} - {num2} = {num1 - num2}\")\n    elif choice == '3':\n        print(f\"{num1} * {num2} = {num1 * num2}\")\n    elif choice == '4':\n        if num2 != 0:\n            print(f\"{num1} / {num2} = {num1 / num2}\")\n        else:\n            print(\"Error: Division by zero!\")\n    else:\n        print(\"Invalid choice\")\n\ncalculator()\n```\n\nThis calculator can add, subtract, multiply, and divide numbers!",
                 $thinking
             );
         }
-        
+
         // Default Python example
         return $this->jsonResponse(
             "Here's a useful Python code example:\n\n```python\n# List operations\nfruits = ['apple', 'banana', 'orange', 'grape']\n\n# Print all fruits\nfor fruit in fruits:\n    print(f\"I like {fruit}\")\n\n# List comprehension\nuppercase_fruits = [fruit.upper() for fruit in fruits]\nprint(uppercase_fruits)\n\n# Dictionary example\nperson = {\n    'name': 'John',\n    'age': 30,\n    'city': 'New York'\n}\n\nprint(f\"{person['name']} is {person['age']} years old.\")\n\n# Function with default parameters\ndef greet(name, greeting=\"Hello\"):\n    return f\"{greeting}, {name}!\"\n\nprint(greet(\"Alice\"))\nprint(greet(\"Bob\", \"Good morning\"))\n```\n\nWhat specific Python topic would you like to learn more about?",
@@ -297,7 +297,7 @@ class AIChatController extends Controller
     private function handleJavaScriptRequest(?string $thinking): \Illuminate\Http\JsonResponse
     {
         return $this->jsonResponse(
-            "Here's a JavaScript code example:\n\n```javascript\n// Variables (ES6+)\nconst name = \"John\";\nlet age = 25;\n\n// Template literals\nconsole.log(`My name is ${name} and I'm ${age} years old.`);\n\n// Arrow functions\nconst greet = (person) => {\n    return `Hello, ${person}!`;\n};\n\nconsole.log(greet(\"Alice\"));\n\n// Array methods\nconst numbers = [1, 2, 3, 4, 5];\nconst doubled = numbers.map(num => num * 2);\nconst evens = numbers.filter(num => num % 2 === 0);\n\nconsole.log(\"Doubled:\", doubled);\nconsole.log(\"Even numbers:\", evens);\n\n// Object\nconst person = {\n    firstName: \"Jane\",\n    lastName: \"Doe\",\n    getFullName() {\n        return `${this.firstName} ${this.lastName}`;\n    }\n};\n\nconsole.log(person.getFullName());\n```\n\nThis covers modern JavaScript features. Need help with something specific?",
+            "Here's a JavaScript code example:\n\n```javascript\n// Variables (ES6+)\nconst name = \"John\";\nlet age = 25;\n\n// Template literals\nconsole.log(`My name is \${name} and I'm \${age} years old.`);\n\n// Arrow functions\nconst greet = (person) => {\n    return `Hello, \${person}!`;\n};\n\nconsole.log(greet(\"Alice\"));\n\n// Array methods\nconst numbers = [1, 2, 3, 4, 5];\nconst doubled = numbers.map(num => num * 2);\nconst evens = numbers.filter(num => num % 2 === 0);\n\nconsole.log(\"Doubled:\", doubled);\nconsole.log(\"Even numbers:\", evens);\n\n// Object\nconst person = {\n    firstName: \"Jane\",\n    lastName: \"Doe\",\n    getFullName() {\n        return `\${this.firstName} \${this.lastName}`;\n    }\n};\n\nconsole.log(person.getFullName());\n```\n\nThis covers modern JavaScript features. Need help with something specific?",
             $thinking
         );
     }
@@ -322,25 +322,25 @@ class AIChatController extends Controller
     {
         preg_match_all('/\d+/', $lowerMessage, $matches);
         if (count($matches[0]) >= 2) {
-            $num1 = (int)$matches[0][0];
-            $num2 = (int)$matches[0][1];
-            
+            $num1 = (int) $matches[0][0];
+            $num2 = (int) $matches[0][1];
+
             if ($this->strContains($lowerMessage, 'plus') || $this->strContains($lowerMessage, '+')) {
                 $result = $num1 + $num2;
                 return $this->jsonResponse("$num1 + $num2 = $result", 'Calculating...');
             }
-            
+
             if ($this->strContains($lowerMessage, 'minus') || $this->strContains($lowerMessage, '-')) {
                 $result = $num1 - $num2;
                 return $this->jsonResponse("$num1 - $num2 = $result", 'Calculating...');
             }
-            
+
             if ($this->strContains($lowerMessage, 'times') || $this->strContains($lowerMessage, '*') || $this->strContains($lowerMessage, 'multiply')) {
                 $result = $num1 * $num2;
                 return $this->jsonResponse("$num1 × $num2 = $result", 'Calculating...');
             }
         }
-        
+
         return null;
     }
 
