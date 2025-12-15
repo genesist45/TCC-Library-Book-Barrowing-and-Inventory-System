@@ -9,8 +9,8 @@ import axios from "axios";
 import { Info, Copy, BookOpen } from "lucide-react";
 import CatalogItemReview from "@/components/catalog-items/CatalogItemReview";
 import { PreviewCopy } from "@/components/catalog-items/RelatedCopiesPreview";
-import PreviewCopyModal from "@/components/catalog-items/PreviewCopyModal";
-import PreviewMultipleCopiesModal from "@/components/catalog-items/PreviewMultipleCopiesModal";
+import PreviewCopyBookModal from "@/components/catalog-items/PreviewCopyModal";
+import PreviewAddMultipleCopiesModal from "@/components/catalog-items/PreviewMultipleCopiesModal";
 import {
     ItemInfoTabContent,
     DetailTabContent,
@@ -167,47 +167,33 @@ export default function CatalogItemAdd({
         setPreviewCopies(updatedCopies);
     };
 
-    // Handle copy modal save
-    const handlePreviewCopySave = (copyData: { accession_no: string; branch: string; location: string }) => {
+    // Handle copy modal save (single copy - from PreviewCopyBookModal)
+    const handlePreviewCopySave = (savedCopy: PreviewCopy) => {
         if (editingPreviewCopy) {
             // Update existing copy
             setPreviewCopies(previewCopies.map(copy =>
-                copy.id === editingPreviewCopy.id
-                    ? { ...copy, ...copyData }
-                    : copy
+                copy.id === savedCopy.id ? savedCopy : copy
             ));
         } else {
             // Add new copy
-            const newCopy: PreviewCopy = {
-                id: nextCopyId,
-                copy_no: previewCopies.length + 1,
-                accession_no: copyData.accession_no || generateAccessionNo(),
-                branch: copyData.branch,
-                location: copyData.location,
-                status: 'Available',
-            };
-            setPreviewCopies([...previewCopies, newCopy]);
-            setNextCopyId(nextCopyId + 1);
+            setPreviewCopies([...previewCopies, savedCopy]);
+            setNextCopyId(savedCopy.id + 1);
         }
         setShowPreviewCopyModal(false);
         setEditingPreviewCopy(null);
     };
 
-    // Handle multiple copies add
-    const handlePreviewMultipleCopiesSave = (count: number, branch: string, location: string) => {
-        const newCopies: PreviewCopy[] = [];
-        for (let i = 0; i < count; i++) {
-            newCopies.push({
-                id: nextCopyId + i,
-                copy_no: previewCopies.length + i + 1,
-                accession_no: generateAccessionNo(),
-                branch: branch,
-                location: location,
-                status: 'Available',
-            });
-        }
-        setPreviewCopies([...previewCopies, ...newCopies]);
-        setNextCopyId(nextCopyId + count);
+    // Handle multiple copies from PreviewCopyBookModal (via Multiple tab)
+    const handlePreviewMultipleCopiesSave = (newCopies: PreviewCopy[]) => {
+        // Re-number all copies properly
+        const allCopies = [...previewCopies, ...newCopies];
+        const renumbered = allCopies.map((copy, index) => ({
+            ...copy,
+            copy_no: index + 1,
+        }));
+        setPreviewCopies(renumbered);
+        setNextCopyId(Math.max(...newCopies.map(c => c.id)) + 1);
+        setShowPreviewCopyModal(false);
         setShowPreviewMultipleCopiesModal(false);
     };
 
@@ -609,21 +595,27 @@ export default function CatalogItemAdd({
             />
 
             {/* Preview Copy Modals */}
-            <PreviewCopyModal
+            <PreviewCopyBookModal
                 show={showPreviewCopyModal}
-                copy={editingPreviewCopy}
+                title={data.title || "New Catalog Item"}
+                editingCopy={editingPreviewCopy}
                 onClose={() => {
                     setShowPreviewCopyModal(false);
                     setEditingPreviewCopy(null);
                 }}
-                onSave={handlePreviewCopySave}
-                nextAccessionNo={String(nextAccessionNo).padStart(7, '0')}
+                onSaveSingle={handlePreviewCopySave}
+                onSaveMultiple={handlePreviewMultipleCopiesSave}
+                existingCopies={previewCopies}
+                nextCopyId={nextCopyId}
             />
 
-            <PreviewMultipleCopiesModal
+            <PreviewAddMultipleCopiesModal
                 show={showPreviewMultipleCopiesModal}
+                title={data.title || "New Catalog Item"}
                 onClose={() => setShowPreviewMultipleCopiesModal(false)}
                 onSave={handlePreviewMultipleCopiesSave}
+                existingCopies={previewCopies}
+                nextCopyId={nextCopyId}
             />
         </AuthenticatedLayout>
     );

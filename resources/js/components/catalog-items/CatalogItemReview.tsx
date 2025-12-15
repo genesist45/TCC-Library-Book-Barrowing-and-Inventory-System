@@ -271,17 +271,6 @@ export default function CatalogItemReview({
                                     <DisplayValue label="Description" value={data.description} />
                                 </div>
                             </div>
-
-                            {/* Related Copies Preview Section */}
-                            <div className="mt-8">
-                                <RelatedCopiesPreview
-                                    copies={previewCopies}
-                                    onAddCopy={onAddPreviewCopy}
-                                    onAddMultipleCopies={onAddMultiplePreviewCopies}
-                                    onEditCopy={onEditPreviewCopy}
-                                    onDeleteCopy={onDeletePreviewCopy}
-                                />
-                            </div>
                         </div>
                     )}
 
@@ -385,6 +374,19 @@ export default function CatalogItemReview({
                     </div>
                 </div>
             </div>
+
+            {/* Related Copies Preview Section - Full Width */}
+            {activeTab === "item-info" && (
+                <div className="mt-8">
+                    <RelatedCopiesPreview
+                        copies={previewCopies}
+                        onAddCopy={onAddPreviewCopy}
+                        onAddMultipleCopies={onAddMultiplePreviewCopies}
+                        onEditCopy={onEditPreviewCopy}
+                        onDeleteCopy={onDeletePreviewCopy}
+                    />
+                </div>
+            )}
 
             {/* Confirm Button */}
             <div className="mt-8 flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-[#3a3a3a]">

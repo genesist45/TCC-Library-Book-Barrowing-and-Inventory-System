@@ -1,5 +1,6 @@
-import { Plus, Copy, Pencil, Trash2, History } from "lucide-react";
+import { Plus, Copy, Pencil, Trash2 } from "lucide-react";
 import ConfirmModal from "@/components/modals/ConfirmModal";
+import Pagination from "@/components/common/Pagination";
 import { useState } from "react";
 
 export interface PreviewCopy {
@@ -29,6 +30,10 @@ export default function RelatedCopiesPreview({
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [copyToDelete, setCopyToDelete] = useState<PreviewCopy | null>(null);
 
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+
     const handleDeleteClick = (copy: PreviewCopy) => {
         setCopyToDelete(copy);
         setShowDeleteModal(true);
@@ -46,6 +51,18 @@ export default function RelatedCopiesPreview({
         setShowDeleteModal(false);
         setCopyToDelete(null);
     };
+
+    // Calculate paginated copies
+    const totalItems = copies.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedCopies = copies.slice(startIndex, endIndex);
+
+    // Reset to first page if current page exceeds total pages
+    if (currentPage > totalPages && totalPages > 0) {
+        setCurrentPage(1);
+    }
 
     if (copies.length === 0) {
         return (
@@ -89,6 +106,9 @@ export default function RelatedCopiesPreview({
             <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-3 transition-colors duration-300 dark:border-[#3a3a3a] dark:bg-[#3a3a3a]">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                     Related Copies
+                    <span className="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
+                        ({totalItems} {totalItems === 1 ? "copy" : "copies"})
+                    </span>
                 </h3>
                 <div className="flex items-center gap-2">
                     <button
@@ -110,64 +130,61 @@ export default function RelatedCopiesPreview({
                 </div>
             </div>
             <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full table-fixed">
                     <thead className="border-b border-gray-200 bg-gray-50 transition-colors duration-300 dark:border-[#3a3a3a] dark:bg-[#3a3a3a]">
                         <tr>
-                            <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:px-4">
+                            <th className="w-[12%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300">
                                 Copy No.
                             </th>
-                            <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:px-4">
+                            <th className="w-[20%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300">
                                 Accession No.
                             </th>
-                            <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:px-4">
+                            <th className="w-[18%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300">
                                 Branch
                             </th>
-                            <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:px-4">
+                            <th className="w-[18%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300">
                                 Location
                             </th>
-                            <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:px-4">
+                            <th className="w-[16%] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300">
                                 Status
                             </th>
-                            <th className="px-3 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300 sm:px-4">
+                            <th className="w-[16%] px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-700 transition-colors duration-300 dark:text-gray-300">
                                 Actions
                             </th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white transition-colors duration-300 dark:divide-[#3a3a3a] dark:bg-[#2a2a2a]">
-                        {copies.map((copy) => (
+                        {paginatedCopies.map((copy) => (
                             <tr
                                 key={copy.id}
                                 className="transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]"
                             >
-                                <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:px-4">
+                                <td className="px-4 py-3 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400">
                                     Copy #{copy.copy_no}
                                 </td>
-                                <td className="whitespace-nowrap px-3 py-2 text-sm font-medium text-gray-900 transition-colors duration-300 dark:text-gray-100 sm:px-4">
+                                <td className="px-4 py-3 text-sm font-medium text-gray-900 transition-colors duration-300 dark:text-gray-100">
                                     {copy.accession_no}
                                 </td>
-                                <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:px-4">
+                                <td className="px-4 py-3 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400">
                                     {copy.branch || "-"}
                                 </td>
-                                <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:px-4">
+                                <td className="px-4 py-3 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400">
                                     {copy.location || "-"}
                                 </td>
-                                <td className="whitespace-nowrap px-3 py-2 sm:px-4">
+                                <td className="px-4 py-3">
                                     <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
                                         {copy.status}
                                     </span>
                                 </td>
-                                <td className="whitespace-nowrap px-3 py-2 text-center text-sm sm:px-4">
-                                    <div className="flex items-center justify-center gap-1 sm:gap-2">
+                                <td className="px-4 py-3 text-center text-sm">
+                                    <div className="flex items-center justify-center gap-2">
                                         <button
                                             type="button"
                                             onClick={() => onEditCopy(copy)}
                                             className="flex items-center justify-center rounded-lg bg-blue-100 p-1.5 text-blue-600 transition hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
                                             title="Edit"
                                         >
-                                            <Pencil
-                                                size={16}
-                                                className="sm:h-4 sm:w-4"
-                                            />
+                                            <Pencil size={16} />
                                         </button>
                                         <button
                                             type="button"
@@ -175,10 +192,7 @@ export default function RelatedCopiesPreview({
                                             className="flex items-center justify-center rounded-lg bg-red-100 p-1.5 text-red-600 transition hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
                                             title="Delete"
                                         >
-                                            <Trash2
-                                                size={16}
-                                                className="sm:h-4 sm:w-4"
-                                            />
+                                            <Trash2 size={16} />
                                         </button>
                                     </div>
                                 </td>
@@ -187,6 +201,16 @@ export default function RelatedCopiesPreview({
                     </tbody>
                 </table>
             </div>
+
+            {/* Pagination */}
+            <Pagination
+                currentPage={currentPage}
+                totalItems={totalItems}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setCurrentPage}
+                onItemsPerPageChange={setItemsPerPage}
+                itemsPerPageOptions={[10, 25, 50]}
+            />
 
             <ConfirmModal
                 show={showDeleteModal}
