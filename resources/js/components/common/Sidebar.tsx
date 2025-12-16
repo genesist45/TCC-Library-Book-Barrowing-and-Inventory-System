@@ -201,8 +201,8 @@ export default function Sidebar({
                                             />
                                         </div>
                                         <span className={`whitespace-nowrap transition-all duration-300 ease-in-out ${isVisuallyExpanded
-                                                ? 'opacity-100 translate-x-0 relative'
-                                                : 'opacity-0 absolute w-0 overflow-hidden pointer-events-none'
+                                            ? 'opacity-100 translate-x-0 relative'
+                                            : 'opacity-0 absolute w-0 overflow-hidden pointer-events-none'
                                             }`}>{item.name}</span>
                                         {hasChildren && isVisuallyExpanded && (
                                             <span className="ml-auto pr-2 text-gray-400 dark:text-gray-400">
@@ -221,13 +221,18 @@ export default function Sidebar({
                                                     {item.children.map((child: NonNullable<MenuItem['children']>[0], index: number) => {
                                                         const isLast = index === item.children!.length - 1;
                                                         const ChildIcon = child.icon;
-                                                        const ChildComponent = child.href ? Link : 'button';
-                                                        const childProps = child.href
-                                                            ? { href: route(child.href) }
-                                                            : {
-                                                                type: 'button' as const,
-                                                                onClick: child.onClick
-                                                            };
+
+                                                        // Handle click with auto-collapse
+                                                        const handleSubMenuClick = () => {
+                                                            if (child.href) {
+                                                                // Navigate and collapse sidebar
+                                                                router.visit(route(child.href));
+                                                                onToggle?.(); // Auto-collapse sidebar
+                                                            } else if (child.onClick) {
+                                                                child.onClick();
+                                                                onToggle?.(); // Auto-collapse sidebar
+                                                            }
+                                                        };
 
                                                         return (
                                                             <div key={child.name} className="relative pl-6">
@@ -240,16 +245,17 @@ export default function Sidebar({
                                                                 {/* Horizontal Line */}
                                                                 <div className="absolute left-0 top-1/2 h-px w-4 bg-gray-500 dark:bg-[#3a3a3a]" />
 
-                                                                <ChildComponent
-                                                                    {...childProps}
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={handleSubMenuClick}
                                                                     className={`flex w-full items-center gap-3 rounded-lg py-2 px-2 text-sm transition-colors ${child.active
-                                                                            ? 'bg-white/10 text-white font-bold dark:bg-[#3a3a3a] dark:text-gray-100'
-                                                                            : 'text-gray-300 hover:bg-white/10 dark:text-gray-100 dark:hover:bg-[#3a3a3a]'
+                                                                        ? 'bg-white/10 text-white font-bold dark:bg-[#3a3a3a] dark:text-gray-100'
+                                                                        : 'text-gray-300 hover:bg-white/10 dark:text-gray-100 dark:hover:bg-[#3a3a3a]'
                                                                         }`}
                                                                 >
                                                                     {ChildIcon && <ChildIcon size={16} className="text-gray-400 dark:text-gray-400" />}
                                                                     <span>{child.name}</span>
-                                                                </ChildComponent>
+                                                                </button>
                                                             </div>
                                                         );
                                                     })}
@@ -362,8 +368,8 @@ export default function Sidebar({
                                 </div>
                             </div>
                             <div className={`flex flex-1 min-w-0 items-center justify-between overflow-hidden transition-all duration-300 ease-in-out ${isVisuallyExpanded
-                                    ? 'opacity-100 translate-x-0 relative'
-                                    : 'opacity-0 absolute w-0 pointer-events-none'
+                                ? 'opacity-100 translate-x-0 relative'
+                                : 'opacity-0 absolute w-0 pointer-events-none'
                                 }`}>
                                 <span className="truncate text-sm font-medium text-gray-100 dark:text-gray-100">
                                     {user.first_name} {user.last_name}
@@ -387,25 +393,28 @@ export default function Sidebar({
                         {hoveredMenu.name}
                     </div>
                     {hoveredMenu.children?.map((child) => {
-                        const ChildComponent = child.href ? Link : 'button';
-                        const childProps = child.href
-                            ? { href: route(child.href) }
-                            : {
-                                type: 'button' as const,
-                                onClick: child.onClick
-                            };
+                        // Handle click for floating menu items
+                        const handleFloatingMenuClick = () => {
+                            setHoveredMenu(null); // Close floating menu
+                            if (child.href) {
+                                router.visit(route(child.href));
+                            } else if (child.onClick) {
+                                child.onClick();
+                            }
+                        };
 
                         return (
-                            <ChildComponent
+                            <button
                                 key={child.name}
-                                {...childProps}
+                                type="button"
+                                onClick={handleFloatingMenuClick}
                                 className={`block w-full px-4 py-2 text-left text-sm transition-colors ${child.active
-                                        ? 'bg-gray-100 text-black font-bold dark:bg-[#3a3a3a] dark:text-gray-100'
-                                        : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#3a3a3a]'
+                                    ? 'bg-gray-100 text-black font-bold dark:bg-[#3a3a3a] dark:text-gray-100'
+                                    : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#3a3a3a]'
                                     }`}
                             >
                                 {child.name}
-                            </ChildComponent>
+                            </button>
                         );
                     })}
                 </div>

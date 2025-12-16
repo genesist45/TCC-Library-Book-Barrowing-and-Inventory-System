@@ -1,6 +1,8 @@
-import { BookOpen } from "lucide-react";
+import { BookOpen, Calendar, User as UserIcon, Copy, ArrowRight, Heart } from "lucide-react";
 import { CatalogItem, User } from "@/types";
 import { router } from "@inertiajs/react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 interface PopularBooksSectionProps {
     books: CatalogItem[];
@@ -8,205 +10,191 @@ interface PopularBooksSectionProps {
     onBookClick: (book: CatalogItem) => void;
 }
 
+interface LikeState {
+    [bookId: number]: {
+        liked: boolean;
+        count: number;
+        loading: boolean;
+    };
+}
+
 export default function PopularBooksSection({
     books,
     user,
     onBookClick,
 }: PopularBooksSectionProps) {
+    const [likeStates, setLikeStates] = useState<LikeState>({});
+
+    // Initialize like states from book data
+    useEffect(() => {
+        const initialStates: LikeState = {};
+        books.forEach(book => {
+            initialStates[book.id] = {
+                liked: false,
+                count: (book as any).likes_count || 0,
+                loading: false,
+            };
+        });
+        setLikeStates(initialStates);
+    }, [books]);
+
+    const handleLikeClick = async (e: React.MouseEvent, bookId: number) => {
+        e.stopPropagation(); // Prevent card click
+
+        // Set loading state
+        setLikeStates(prev => ({
+            ...prev,
+            [bookId]: { ...prev[bookId], loading: true }
+        }));
+
+        try {
+            const response = await axios.post(route('books.like.toggle', bookId));
+            setLikeStates(prev => ({
+                ...prev,
+                [bookId]: {
+                    liked: response.data.liked,
+                    count: response.data.likes_count,
+                    loading: false,
+                }
+            }));
+        } catch (error) {
+            console.error('Failed to toggle like:', error);
+            setLikeStates(prev => ({
+                ...prev,
+                [bookId]: { ...prev[bookId], loading: false }
+            }));
+        }
+    };
+
     if (books.length === 0) {
-        return null;
+        return (
+            <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+                    <BookOpen className="h-8 w-8 text-gray-400" />
+                </div>
+                <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                    No books found
+                </h3>
+                <p className="text-sm text-gray-500">
+                    Try adjusting your filters to see more results
+                </p>
+            </div>
+        );
     }
 
     return (
-        <div className="mt-8">
-            {/* Books Table */}
-            {books.length > 0 ? (
-                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b border-gray-200 bg-gradient-to-r from-indigo-600 to-purple-600">
-                                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white">
-                                        Title
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white">
-                                        Authors/Editors
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white">
-                                        Publisher
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white">
-                                        Type
-                                    </th>
-                                    <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-white">
-                                        Copies
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200">
-                                {books.slice(0, 10).map((book) => (
-                                    <tr
-                                        key={book.id}
-                                        onClick={() =>
-                                            router.visit(
-                                                route("books.show", book.id),
-                                            )
-                                        }
-                                        className="cursor-pointer border-b border-gray-200 transition-colors hover:bg-indigo-50/50"
-                                    >
-                                        <td className="px-4 py-3">
-                                            <div className="flex items-start gap-3">
-                                                {/* Book Cover Thumbnail */}
-                                                <div className="h-16 w-12 flex-shrink-0 overflow-hidden rounded bg-gray-100">
-                                                    {book.cover_image ? (
-                                                        <img
-                                                            src={`/storage/${book.cover_image}`}
-                                                            alt={book.title}
-                                                            className="h-full w-full object-cover"
-                                                        />
-                                                    ) : (
-                                                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-                                                            <BookOpen className="h-5 w-5 text-gray-400" />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                {/* Title and Details */}
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="font-semibold text-indigo-600 hover:text-indigo-700">
-                                                        {book.title}
-                                                    </p>
-                                                    <div className="mt-1 space-y-0.5 text-xs text-gray-500">
-                                                        {book.edition && (
-                                                            <p>
-                                                                <span className="text-gray-400">
-                                                                    Edition:
-                                                                </span>{" "}
-                                                                <span className="italic">
-                                                                    {
-                                                                        book.edition
-                                                                    }
-                                                                </span>
-                                                            </p>
-                                                        )}
-                                                        {book.volume && (
-                                                            <p>
-                                                                <span className="text-gray-400">
-                                                                    Volume:
-                                                                </span>{" "}
-                                                                <span className="italic">
-                                                                    {
-                                                                        book.volume
-                                                                    }
-                                                                </span>
-                                                            </p>
-                                                        )}
-                                                        {book.year && (
-                                                            <p>
-                                                                <span className="text-gray-400">
-                                                                    Year:
-                                                                </span>{" "}
-                                                                <span className="italic">
-                                                                    {book.year}
-                                                                </span>
-                                                            </p>
-                                                        )}
-                                                        {book.isbn && (
-                                                            <p>
-                                                                <span className="text-gray-400">
-                                                                    ISBN:
-                                                                </span>{" "}
-                                                                {book.isbn}
-                                                            </p>
-                                                        )}
-                                                        {book.isbn13 && (
-                                                            <p>
-                                                                <span className="text-gray-400">
-                                                                    ISBN 13:
-                                                                </span>{" "}
-                                                                {book.isbn13}
-                                                            </p>
-                                                        )}
-                                                        {book.issn && (
-                                                            <p>
-                                                                <span className="text-gray-400">
-                                                                    ISSN:
-                                                                </span>{" "}
-                                                                {book.issn}
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            {book.authors &&
-                                                book.authors.length > 0 ? (
-                                                <div className="space-y-0.5">
-                                                    {book.authors.map(
-                                                        (author) => (
-                                                            <p
-                                                                key={author.id}
-                                                                className="text-sm text-indigo-600 hover:underline"
-                                                            >
-                                                                {author.name}
-                                                            </p>
-                                                        ),
-                                                    )}
-                                                </div>
-                                            ) : (
-                                                <span className="text-sm text-gray-400">
-                                                    —
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            {book.publisher ? (
-                                                <p className="text-sm text-indigo-600 hover:underline">
-                                                    {book.publisher.name}
-                                                </p>
-                                            ) : (
-                                                <span className="text-sm text-gray-400">
-                                                    —
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            <span className="text-sm text-gray-700">
-                                                {book.type || "—"}
-                                            </span>
-                                        </td>
-                                        <td className="px-4 py-3 text-center">
-                                            <span className="text-sm font-medium text-gray-700">
-                                                {book.copies_count ??
-                                                    book.copies?.length ??
-                                                    0}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+        <div>
+            {/* Books Grid */}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {books.slice(0, 9).map((book) => {
+                    const likeState = likeStates[book.id] || { liked: false, count: (book as any).likes_count || 0, loading: false };
 
-                    {/* Footer with page info */}
-                    <div className="border-t border-gray-200 bg-gray-50 px-4 py-3">
-                        <p className="text-sm text-gray-600">
-                            Showing {Math.min(books.length, 10)} of{" "}
-                            {books.length} titles
-                        </p>
-                    </div>
-                </div>
-            ) : (
-                <div className="rounded-xl border-2 border-dashed border-gray-300 bg-white p-12 text-center">
-                    <BookOpen className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-4 text-lg font-semibold text-gray-900">
-                        No books found
-                    </h3>
-                    <p className="mt-2 text-sm text-gray-600">
-                        Try adjusting your filters to see more results
-                    </p>
-                </div>
-            )}
+                    return (
+                        <div
+                            key={book.id}
+                            onClick={() => router.visit(route("books.show", book.id))}
+                            className="group cursor-pointer rounded-xl border-2 border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 hover:border-rose-300 hover:shadow-md"
+                        >
+                            <div className="flex gap-4">
+                                {/* Book Cover */}
+                                <div className="relative h-24 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 shadow-sm">
+                                    {book.cover_image ? (
+                                        <img
+                                            src={`/storage/${book.cover_image}`}
+                                            alt={book.title}
+                                            className="h-full w-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="flex h-full w-full items-center justify-center">
+                                            <BookOpen className="h-6 w-6 text-gray-400" />
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Book Info */}
+                                <div className="min-w-0 flex-1">
+                                    <div className="flex items-start justify-between gap-2">
+                                        <h3 className="line-clamp-2 text-sm font-semibold text-gray-900 transition-colors group-hover:text-blue-600">
+                                            {book.title}
+                                        </h3>
+
+                                        {/* Like Button */}
+                                        <button
+                                            onClick={(e) => handleLikeClick(e, book.id)}
+                                            disabled={likeState.loading}
+                                            className={`flex flex-shrink-0 items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-all ${likeState.liked
+                                                    ? 'bg-rose-100 text-rose-600'
+                                                    : 'bg-gray-100 text-gray-500 hover:bg-rose-50 hover:text-rose-500'
+                                                } ${likeState.loading ? 'opacity-50' : ''}`}
+                                        >
+                                            <Heart
+                                                className={`h-3.5 w-3.5 ${likeState.liked ? 'fill-rose-500' : ''}`}
+                                            />
+                                            <span>{likeState.count}</span>
+                                        </button>
+                                    </div>
+
+                                    {/* Author */}
+                                    {book.authors && book.authors.length > 0 && (
+                                        <div className="mt-1 flex items-center gap-1.5 text-xs text-gray-500">
+                                            <UserIcon className="h-3 w-3" />
+                                            <span className="line-clamp-1">
+                                                {book.authors.map(a => a.name).join(", ")}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {/* Meta Info */}
+                                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                                        {/* Type Badge */}
+                                        <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                                            {book.type || "Book"}
+                                        </span>
+
+                                        {/* Year */}
+                                        {book.year && (
+                                            <span className="inline-flex items-center gap-1 text-xs text-gray-400">
+                                                <Calendar className="h-3 w-3" />
+                                                {book.year}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* Copies Info */}
+                                    <div className="mt-2 flex items-center justify-between">
+                                        <div className="flex items-center gap-1.5">
+                                            <Copy className="h-3 w-3 text-gray-400" />
+                                            <span className="text-xs text-gray-500">
+                                                {book.copies_count ?? book.copies?.length ?? 0} copies
+                                            </span>
+                                        </div>
+                                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${(book.available_copies_count ?? 0) > 0
+                                            ? "bg-green-50 text-green-700"
+                                            : "bg-amber-50 text-amber-700"
+                                            }`}>
+                                            {(book.available_copies_count ?? 0) > 0 ? "Available" : "Borrowed"}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            {/* Footer */}
+            <div className="mt-6 flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
+                <p className="text-sm text-gray-600">
+                    Showing <span className="font-medium">{Math.min(books.length, 9)}</span> of{" "}
+                    <span className="font-medium">{books.length}</span> titles
+                </p>
+                {books.length > 9 && (
+                    <button className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700">
+                        View all
+                        <ArrowRight className="h-4 w-4" />
+                    </button>
+                )}
+            </div>
         </div>
     );
 }

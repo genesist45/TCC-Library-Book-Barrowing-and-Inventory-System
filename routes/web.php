@@ -44,6 +44,16 @@ Route::get("/", function () {
     ]);
 });
 
+// About Us page
+Route::get("/about", function () {
+    return Inertia::render("About");
+})->name("about");
+
+// Contact Us page
+Route::get("/contact", function () {
+    return Inertia::render("Contact");
+})->name("contact");
+
 // Public book search routes
 Route::get("/books/search", [BookSearchController::class, "search"])->name(
     "books.search",
@@ -65,6 +75,10 @@ Route::get("/api/catalog-items/{id}", [
     BookSearchController::class,
     "getBookDetails",
 ])->name("api.catalog-items.show");
+
+// Book like routes
+Route::post("/books/{catalogItem}/like", [\App\Http\Controllers\BookLikeController::class, "toggle"])->name("books.like.toggle");
+Route::get("/books/{catalogItem}/like-status", [\App\Http\Controllers\BookLikeController::class, "status"])->name("books.like.status");
 
 // API endpoint for member lookup by member number
 Route::get("/api/members/{memberNo}", function ($memberNo) {

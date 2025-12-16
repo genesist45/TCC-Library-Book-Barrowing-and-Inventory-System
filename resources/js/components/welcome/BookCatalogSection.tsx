@@ -2,6 +2,7 @@ import { CatalogItem, User } from "@/types";
 import SearchBar from "./SearchBar";
 import FilterOptions from "./FilterOptions";
 import PopularBooksSection from "./PopularBooksSection";
+import { Library } from "lucide-react";
 
 interface SearchResult {
     id: number;
@@ -50,33 +51,27 @@ export default function BookCatalogSection({
     onBookClick,
 }: BookCatalogSectionProps) {
     return (
-        <section className="container mx-auto px-4 py-16 sm:px-6 sm:py-20">
-            <div className="mx-auto max-w-7xl">
-                {/* Search Card */}
-                <div className="relative rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 p-8 shadow-md transition-shadow hover:shadow-lg sm:p-10">
-                    {/* Decorative Elements */}
-                    <div className="pointer-events-none absolute -right-4 -top-4 h-24 w-24 rounded-full bg-indigo-200 opacity-20 blur-2xl"></div>
-                    <div className="pointer-events-none absolute -bottom-4 -left-4 h-32 w-32 rounded-full bg-purple-200 opacity-20 blur-2xl"></div>
+        <section id="catalogs-section" className="bg-white py-16 sm:py-20">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-12">
+                <div className="mx-auto max-w-6xl">
+                    {/* Section Header */}
+                    <div className="mb-8 text-center">
+                        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-pink-100 to-rose-100 px-4 py-2 text-sm font-medium text-rose-600 shadow-sm">
+                            <Library className="h-4 w-4" />
+                            Browse Collection
+                        </div>
+                        <h2 className="mb-3 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                            Our Catalog
+                        </h2>
+                        <p className="mx-auto max-w-xl text-gray-600">
+                            Explore our extensive collection of books, journals, and resources.
+                        </p>
+                    </div>
 
-                    {/* Content */}
-                    <div className="relative">
-                        {/* Book Catalog Title & Search/Filters Section */}
-                        <div className="mb-6">
-                            {/* Book Catalog Title - Left Aligned */}
-                            <div className="mb-4">
-                                <h2 className="font-jakarta text-2xl font-extrabold tracking-tight sm:text-3xl">
-                                    <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                                        Catalogs
-                                    </span>
-                                </h2>
-                                <p className="mt-1 font-jakarta text-xs font-medium text-gray-600 sm:text-sm">
-                                    Explore our extensive collection of books,
-                                    journals, and resources.
-                                </p>
-                            </div>
-
-                            {/* Search Bar and Filters Row */}
-                            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
+                    {/* Search and Filters Card */}
+                    <div className="mb-6 rounded-xl border border-pink-100 bg-gradient-to-r from-pink-50/50 via-white to-rose-50/50 p-4 sm:p-6 shadow-sm">
+                        <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+                            <div className="flex-1">
                                 <SearchBar
                                     searchQuery={searchQuery}
                                     onSearchChange={onSearchChange}
@@ -86,30 +81,24 @@ export default function BookCatalogSection({
                                     onFocus={onSearchFocus}
                                     onResultClick={onSearchResultClick}
                                 />
-
-                                <FilterOptions
-                                    typeFilter={typeFilter}
-                                    yearFilter={yearFilter}
-                                    availabilityFilter={availabilityFilter}
-                                    onTypeChange={onTypeFilterChange}
-                                    onYearChange={onYearFilterChange}
-                                    onAvailabilityChange={
-                                        onAvailabilityFilterChange
-                                    }
-                                />
                             </div>
+                            <FilterOptions
+                                typeFilter={typeFilter}
+                                yearFilter={yearFilter}
+                                availabilityFilter={availabilityFilter}
+                                onTypeChange={onTypeFilterChange}
+                                onYearChange={onYearFilterChange}
+                                onAvailabilityChange={onAvailabilityFilterChange}
+                            />
                         </div>
-
-                        {/* Horizontal Divider */}
-                        <hr className="border-gray-200" />
-
-                        {/* Popular Books Section */}
-                        <PopularBooksSection
-                            books={filteredBooks}
-                            user={user}
-                            onBookClick={onBookClick}
-                        />
                     </div>
+
+                    {/* Books Table */}
+                    <PopularBooksSection
+                        books={filteredBooks}
+                        user={user}
+                        onBookClick={onBookClick}
+                    />
                 </div>
             </div>
         </section>
