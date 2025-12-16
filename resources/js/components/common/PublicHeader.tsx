@@ -1,6 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
-import tccLogo from '@/assets/images/logos/tcc-logo.png';
+import tccLogo from '@/assets/images/logos/tcc-logo-home.png';
 import { User } from '@/types';
 import { Menu, X, ChevronDown } from 'lucide-react';
 
