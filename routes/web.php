@@ -258,6 +258,7 @@ Route::middleware(["auth", "verified", "role:admin|staff"])->group(function () {
             ]);
             Route::post("catalog-items/validate", [CatalogItemController::class, "validateForReview"])->name("catalog-items.validate");
             Route::resource("catalog-items", CatalogItemController::class);
+            Route::get("members/search", [MemberController::class, "search"])->name("members.search");
             Route::resource("members", MemberController::class);
 
             // Catalog Item Copies

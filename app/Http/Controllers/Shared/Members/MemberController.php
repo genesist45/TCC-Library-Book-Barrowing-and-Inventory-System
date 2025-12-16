@@ -21,6 +21,25 @@ class MemberController extends Controller
         ]);
     }
 
+    /**
+     * Search members for AJAX autocomplete
+     */
+    public function search(\Illuminate\Http\Request $request)
+    {
+        $query = $request->input('query', '');
+
+        $members = Member::query()
+            ->where('status', 'Active')
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'LIKE', "%{$query}%")
+                    ->orWhere('member_no', 'LIKE', "%{$query}%");
+            })
+            ->limit(10)
+            ->get(['id', 'member_no', 'name', 'type', 'borrower_category', 'status']);
+
+        return response()->json($members);
+    }
+
     public function create(): Response
     {
         return Inertia::render('admin/members/Add');

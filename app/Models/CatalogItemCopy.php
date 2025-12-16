@@ -14,11 +14,22 @@ class CatalogItemCopy extends Model
         'branch',
         'location',
         'status',
+        'reserved_by_member_id',
+        'reserved_at',
+    ];
+
+    protected $casts = [
+        'reserved_at' => 'datetime',
     ];
 
     public function catalogItem(): BelongsTo
     {
         return $this->belongsTo(CatalogItem::class);
+    }
+
+    public function reservedByMember(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Member::class, 'reserved_by_member_id');
     }
 
     public static function generateAccessionNo(): string

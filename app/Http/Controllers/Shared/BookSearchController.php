@@ -36,7 +36,7 @@ class BookSearchController extends Controller
             "category",
             "publisher",
             "authors",
-            "copies",
+            "copies.reservedByMember",
         ])
             ->withCount("copies")
             ->withCount([
@@ -161,7 +161,7 @@ class BookSearchController extends Controller
         $validated["member_id"] = $member->id;
 
         $bookRequest = \App\Models\BookRequest::create($validated);
-        
+
         // Load relationships needed for notifications
         $bookRequest->load(['member', 'catalogItem']);
 

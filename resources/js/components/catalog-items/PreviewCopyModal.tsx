@@ -47,12 +47,14 @@ export default function PreviewCopyBookModal({
 
     // Single copy state
     const [accessionNo, setAccessionNo] = useState("");
+    const [branch, setBranch] = useState("");
     const [location, setLocation] = useState("");
     const [status, setStatus] = useState("Available");
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     // Multiple copies state
     const [numberOfCopies, setNumberOfCopies] = useState(2);
+    const [multiBranch, setMultiBranch] = useState("");
     const [multiLocation, setMultiLocation] = useState("");
     const [multiStatus, setMultiStatus] = useState("Available");
     const [baseAccessionNo, setBaseAccessionNo] = useState(0);
@@ -63,6 +65,7 @@ export default function PreviewCopyBookModal({
                 // Editing mode
                 setActiveTab("single");
                 setAccessionNo(editingCopy.accession_no);
+                setBranch(editingCopy.branch || "");
                 setLocation(editingCopy.location || "");
                 setStatus(editingCopy.status);
             } else {
@@ -134,6 +137,7 @@ export default function PreviewCopyBookModal({
             id: editingCopy?.id || nextCopyId,
             copy_no: editingCopy?.copy_no || existingCopies.length + 1,
             accession_no: accessionNo,
+            branch: branch || undefined,
             location: location || undefined,
             status: status,
         };
@@ -153,6 +157,7 @@ export default function PreviewCopyBookModal({
                 id: nextCopyId + i,
                 copy_no: existingCopies.length + i + 1,
                 accession_no: String(currentAccNo + i).padStart(7, "0"),
+                branch: multiBranch || undefined,
                 location: multiLocation || undefined,
                 status: multiStatus,
             });
@@ -164,10 +169,12 @@ export default function PreviewCopyBookModal({
 
     const resetForm = () => {
         setAccessionNo("");
+        setBranch("");
         setLocation("");
         setStatus("Available");
         setErrors({});
         setNumberOfCopies(2);
+        setMultiBranch("");
         setMultiLocation("");
         setMultiStatus("Available");
     };
@@ -205,6 +212,20 @@ export default function PreviewCopyBookModal({
                     Auto-generated. You can edit if needed (must be 7 digits and unique).
                 </p>
                 <InputError message={errors.accession_no} className="mt-1" />
+            </div>
+
+            <div>
+                <InputLabel htmlFor="branch" value="Branch" />
+                <select
+                    id="branch"
+                    className={selectClassName}
+                    value={branch}
+                    onChange={(e) => setBranch(e.target.value)}
+                >
+                    <option value="">Select branch</option>
+                    <option value="Main">Main</option>
+                    <option value="Trial">Trial</option>
+                </select>
             </div>
 
             <div>
@@ -272,6 +293,23 @@ export default function PreviewCopyBookModal({
                 />
                 <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
                     Enter the number of copies to create (2-50). Accession numbers will be auto-generated.
+                </p>
+            </div>
+
+            <div>
+                <InputLabel htmlFor="multi_branch" value="Branch" />
+                <select
+                    id="multi_branch"
+                    className={selectClassName}
+                    value={multiBranch}
+                    onChange={(e) => setMultiBranch(e.target.value)}
+                >
+                    <option value="">Select branch</option>
+                    <option value="Main">Main</option>
+                    <option value="Trial">Trial</option>
+                </select>
+                <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                    All copies will be assigned to this branch.
                 </p>
             </div>
 
@@ -355,8 +393,8 @@ export default function PreviewCopyBookModal({
                                         type="button"
                                         onClick={() => handleTabChange(tab.id)}
                                         className={`flex items-center gap-1.5 whitespace-nowrap border-b-2 px-1 py-2 text-sm font-medium transition-colors ${activeTab === tab.id
-                                                ? "border-indigo-500 text-indigo-600 dark:text-indigo-400"
-                                                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                            ? "border-indigo-500 text-indigo-600 dark:text-indigo-400"
+                                            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                                             }`}
                                     >
                                         <Icon size={15} className="flex-shrink-0" />

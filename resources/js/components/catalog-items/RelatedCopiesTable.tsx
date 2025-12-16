@@ -16,6 +16,14 @@ interface CopyItem {
     branch?: string;
     location?: string;
     status: string;
+    reserved_by_member_id?: number | null;
+    reserved_by_member?: {
+        id: number;
+        name: string;
+        member_no: string;
+        type?: string;
+    } | null;
+    reserved_at?: string | null;
 }
 
 interface RelatedCopiesTableProps {

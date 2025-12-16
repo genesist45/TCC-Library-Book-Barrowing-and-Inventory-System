@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 interface BorrowRecord {
-    id: number;
+    id: number | string;
     member_id: number;
     member_name: string;
     member_no: string;
@@ -25,7 +25,7 @@ interface BorrowRecord {
     address?: string | null;
     date_borrowed: string;
     date_returned: string | null;
-    due_date: string;
+    due_date: string | null;
     status: string;
     book_title?: string;
     accession_no?: string;
@@ -316,10 +316,10 @@ export default function BorrowRecordDetailModal({
                                         Condition
                                     </span>
                                     <p className={`font-medium ${record.condition_on_return === 'Good'
-                                            ? 'text-green-600 dark:text-green-400'
-                                            : record.condition_on_return === 'Lost'
-                                                ? 'text-red-600 dark:text-red-400'
-                                                : 'text-orange-600 dark:text-orange-400'
+                                        ? 'text-green-600 dark:text-green-400'
+                                        : record.condition_on_return === 'Lost'
+                                            ? 'text-red-600 dark:text-red-400'
+                                            : 'text-orange-600 dark:text-orange-400'
                                         }`}>
                                         {record.condition_on_return}
                                     </p>
@@ -342,10 +342,10 @@ export default function BorrowRecordDetailModal({
                                     </span>
                                     <p>
                                         <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${record.return_status === 'Paid'
-                                                ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
-                                                : record.return_status === 'Pending'
-                                                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
-                                                    : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
+                                            : record.return_status === 'Pending'
+                                                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                                                : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
                                             }`}>
                                             {record.return_status}
                                         </span>

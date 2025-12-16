@@ -39,7 +39,15 @@ export interface CatalogItemCopy {
     copy_no: number;
     branch?: string;
     location?: string;
-    status: "Available" | "Borrowed" | "Reserved" | "Lost" | "Under Repair";
+    status: "Available" | "Borrowed" | "Reserved" | "Lost" | "Under Repair" | "Paid" | "Pending";
+    reserved_by_member_id?: number | null;
+    reserved_by_member?: {
+        id: number;
+        name: string;
+        member_no: string;
+        type?: string;
+    } | null;
+    reserved_at?: string | null;
     created_at: string;
     updated_at: string;
 }

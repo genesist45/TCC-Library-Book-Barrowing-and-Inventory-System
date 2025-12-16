@@ -105,7 +105,7 @@ class CatalogItemController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Catalog item created successfully.',
-            'catalogItem' => $catalogItem->load(['authors', 'copies']),
+            'catalogItem' => $catalogItem->load(['authors', 'copies.reservedByMember']),
         ], 201);
     }
 
@@ -155,7 +155,7 @@ class CatalogItemController extends Controller
                 "category",
                 "publisher",
                 "authors",
-                "copies",
+                "copies.reservedByMember",
             ]),
             "borrowHistory" => $borrowHistory,
         ]);
@@ -203,7 +203,7 @@ class CatalogItemController extends Controller
             });
 
         return Inertia::render("admin/catalog-items/Edit", [
-            "catalogItem" => $catalogItem->load(["authors", "copies"]),
+            "catalogItem" => $catalogItem->load(["authors", "copies.reservedByMember"]),
             "categories" => Category::where("is_published", true)
                 ->orderBy("name")
                 ->get(["id", "name"]),
