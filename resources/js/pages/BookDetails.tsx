@@ -2,9 +2,10 @@ import { PageProps, CatalogItem, CatalogItemCopy } from "@/types";
 import { Head, router, usePage } from "@inertiajs/react";
 import PublicHeader from "@/components/common/PublicHeader";
 import { useEffect, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Heart } from "lucide-react";
 import { toast } from "react-toastify";
 import Toast from "@/components/common/Toast";
+import axios from "axios";
 
 // Book detail components
 import BookDetailsTabs, { BookDetailTab } from "@/components/books/BookDetailsTabs";
@@ -17,6 +18,7 @@ interface Props extends PageProps {
         copies?: CatalogItemCopy[];
         copies_count?: number;
         available_copies_count?: number;
+        likes_count?: number;
     };
     hasAvailableCopies: boolean;
     hasCopies: boolean;
@@ -35,6 +37,11 @@ export default function BookDetails({
     const [showRequestModal, setShowRequestModal] = useState(false);
     const [selectedCopyId, setSelectedCopyId] = useState<number | null>(null);
 
+    // Like state
+    const [liked, setLiked] = useState(false);
+    const [likesCount, setLikesCount] = useState(catalogItem.likes_count || 0);
+    const [likeLoading, setLikeLoading] = useState(false);
+
     // Show flash messages
     useEffect(() => {
         if (flash?.success) {
@@ -44,6 +51,16 @@ export default function BookDetails({
             toast.error(flash.error);
         }
     }, [flash]);
+
+    // Check initial like status
+    useEffect(() => {
+        axios.get(route('books.like.status', catalogItem.id))
+            .then(response => {
+                setLiked(response.data.liked);
+                setLikesCount(response.data.likes_count);
+            })
+            .catch(console.error);
+    }, [catalogItem.id]);
 
     const handleGoBack = () => {
         router.visit("/");
@@ -57,6 +74,19 @@ export default function BookDetails({
     const handleCloseModal = () => {
         setShowRequestModal(false);
         setSelectedCopyId(null);
+    };
+
+    const handleLikeClick = async () => {
+        setLikeLoading(true);
+        try {
+            const response = await axios.post(route('books.like.toggle', catalogItem.id));
+            setLiked(response.data.liked);
+            setLikesCount(response.data.likes_count);
+        } catch (error) {
+            console.error('Failed to toggle like:', error);
+        } finally {
+            setLikeLoading(false);
+        }
     };
 
     return (
@@ -80,9 +110,26 @@ export default function BookDetails({
                         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
                             {/* Header */}
                             <div className="border-b border-gray-200 bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
-                                <h1 className="text-2xl font-bold text-white">
-                                    {catalogItem.title}
-                                </h1>
+                                <div className="flex items-center justify-between gap-4">
+                                    <h1 className="text-2xl font-bold text-white">
+                                        {catalogItem.title}
+                                    </h1>
+
+                                    {/* Like Button */}
+                                    <button
+                                        onClick={handleLikeClick}
+                                        disabled={likeLoading}
+                                        className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all ${liked
+                                                ? 'bg-white text-rose-600'
+                                                : 'bg-white/20 text-white hover:bg-white/30'
+                                            } ${likeLoading ? 'opacity-70' : ''}`}
+                                    >
+                                        <Heart
+                                            className={`h-5 w-5 ${liked ? 'fill-rose-500 text-rose-500' : ''}`}
+                                        />
+                                        <span>{likesCount} {likesCount === 1 ? 'Like' : 'Likes'}</span>
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Tabs Navigation */}

@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 interface BorrowRecord {
-    id: number;
+    id: number | string;
     member_id: number;
     member_name: string;
     member_no: string;
@@ -25,12 +25,17 @@ interface BorrowRecord {
     address?: string | null;
     date_borrowed: string;
     date_returned: string | null;
-    due_date: string;
+    due_date: string | null;
     status: string;
     book_title?: string;
     accession_no?: string;
     copy_no?: number;
     notes?: string | null;
+    // Book return specific fields
+    condition_on_return?: string | null;
+    penalty_amount?: number | null;
+    return_status?: string | null;
+    remarks?: string | null;
 }
 
 interface BorrowRecordDetailModalProps {
@@ -55,6 +60,23 @@ export default function BorrowRecordDetailModal({
     };
 
     const getStatusInfo = (status: string, dateReturned: string | null) => {
+        // Handle book_return statuses first
+        if (status === "Paid") {
+            return {
+                label: "Paid",
+                color: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
+                icon: CheckCircle,
+                iconColor: "text-purple-500",
+            };
+        }
+        if (status === "Pending") {
+            return {
+                label: "Pending",
+                color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
+                icon: Clock,
+                iconColor: "text-yellow-500",
+            };
+        }
         if (status === "Returned" || dateReturned) {
             return {
                 label: "Returned",
@@ -69,14 +91,6 @@ export default function BorrowRecordDetailModal({
                 color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
                 icon: BookOpen,
                 iconColor: "text-blue-500",
-            };
-        }
-        if (status === "Pending") {
-            return {
-                label: "Pending",
-                color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
-                icon: Clock,
-                iconColor: "text-yellow-500",
             };
         }
         return {
@@ -287,6 +301,70 @@ export default function BorrowRecordDetailModal({
                         </div>
                     </div>
                 </div>
+
+                {/* Return Information - Full Width Below Grid */}
+                {(record.condition_on_return || record.penalty_amount !== undefined || record.return_status) && (
+                    <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-[#3a3a3a] dark:bg-[#3a3a3a]">
+                        <h3 className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-gray-700 dark:text-gray-300">
+                            <FileText size={14} />
+                            Return Information
+                        </h3>
+                        <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
+                            {record.condition_on_return && (
+                                <div>
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                                        Condition
+                                    </span>
+                                    <p className={`font-medium ${record.condition_on_return === 'Good'
+                                        ? 'text-green-600 dark:text-green-400'
+                                        : record.condition_on_return === 'Lost'
+                                            ? 'text-red-600 dark:text-red-400'
+                                            : 'text-orange-600 dark:text-orange-400'
+                                        }`}>
+                                        {record.condition_on_return}
+                                    </p>
+                                </div>
+                            )}
+                            {record.penalty_amount !== undefined && record.penalty_amount !== null && (
+                                <div>
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                                        Penalty
+                                    </span>
+                                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                                        ₱{Number(record.penalty_amount).toFixed(2)}
+                                    </p>
+                                </div>
+                            )}
+                            {record.return_status && (
+                                <div>
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                                        Status
+                                    </span>
+                                    <p>
+                                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${record.return_status === 'Paid'
+                                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
+                                            : record.return_status === 'Pending'
+                                                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                                                : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                            }`}>
+                                            {record.return_status}
+                                        </span>
+                                    </p>
+                                </div>
+                            )}
+                            {record.remarks && (
+                                <div className="col-span-2 md:col-span-1">
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                                        Remarks
+                                    </span>
+                                    <p className="font-medium text-gray-900 dark:text-gray-100 truncate" title={record.remarks}>
+                                        {record.remarks}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 {/* Notes - Full Width Below Grid */}
                 {record.notes && (

@@ -1,22 +1,20 @@
 <?php
 
-use App\Http\Controllers\Admin\AuthorController;
-use App\Http\Controllers\Admin\BookRequestController;
-use App\Http\Controllers\Admin\BookReturnController;
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\CatalogItemController;
-use App\Http\Controllers\Admin\CatalogItemCopyController;
-use App\Http\Controllers\Admin\EmailReminderController;
-use App\Http\Controllers\Admin\MemberController;
-use App\Http\Controllers\Admin\PublisherController;
-use App\Http\Controllers\Admin\QrScannerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\SetupController;
 use App\Http\Controllers\Shared\AIChatController;
 use App\Http\Controllers\Shared\BookSearchController;
 use App\Http\Controllers\Shared\DashboardController;
 use App\Http\Controllers\Shared\ProfileController;
-use Illuminate\Foundation\Application;
+use App\Http\Controllers\Shared\Catalog\AuthorController;
+use App\Http\Controllers\Shared\Catalog\CategoryController;
+use App\Http\Controllers\Shared\Catalog\CatalogItemController;
+use App\Http\Controllers\Shared\Catalog\CatalogItemCopyController;
+use App\Http\Controllers\Shared\Catalog\PublisherController;
+use App\Http\Controllers\Shared\Circulation\BookRequestController;
+use App\Http\Controllers\Shared\Circulation\BookReturnController;
+use App\Http\Controllers\Shared\Members\MemberController;
+use App\Http\Controllers\Shared\Tools\EmailReminderController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -46,6 +44,16 @@ Route::get("/", function () {
     ]);
 });
 
+// About Us page
+Route::get("/about", function () {
+    return Inertia::render("About");
+})->name("about");
+
+// Contact Us page
+Route::get("/contact", function () {
+    return Inertia::render("Contact");
+})->name("contact");
+
 // Public book search routes
 Route::get("/books/search", [BookSearchController::class, "search"])->name(
     "books.search",
@@ -68,6 +76,10 @@ Route::get("/api/catalog-items/{id}", [
     "getBookDetails",
 ])->name("api.catalog-items.show");
 
+// Book like routes
+Route::post("/books/{catalogItem}/like", [\App\Http\Controllers\BookLikeController::class, "toggle"])->name("books.like.toggle");
+Route::get("/books/{catalogItem}/like-status", [\App\Http\Controllers\BookLikeController::class, "status"])->name("books.like.status");
+
 // API endpoint for member lookup by member number
 Route::get("/api/members/{memberNo}", function ($memberNo) {
     $member = \App\Models\Member::where("member_no", $memberNo)->first();
@@ -82,6 +94,11 @@ Route::middleware(["auth", "verified"])->group(function () {
     // Unified dashboard route - displays different views based on role
     Route::get("/dashboard", [DashboardController::class, "index"])->name(
         "dashboard",
+    );
+
+    // Dashboard chart data API
+    Route::get("/dashboard/chart-data", [DashboardController::class, "getChartData"])->name(
+        "admin.dashboard.chart-data",
     );
 
     // Profile routes
@@ -213,11 +230,6 @@ Route::middleware(["auth", "verified", "role:admin"])->group(function () {
 
 // Admin and Staff shared routes (all administrative functions except user management)
 Route::middleware(["auth", "verified", "role:admin|staff"])->group(function () {
-    // QR Scanner
-    Route::get("/qr-scanner", [QrScannerController::class, "index"])->name(
-        "qr-scanner",
-    );
-
     // Email Reminder
     Route::get("/email-reminder", [
         EmailReminderController::class,
@@ -246,6 +258,7 @@ Route::middleware(["auth", "verified", "role:admin|staff"])->group(function () {
             ]);
             Route::post("catalog-items/validate", [CatalogItemController::class, "validateForReview"])->name("catalog-items.validate");
             Route::resource("catalog-items", CatalogItemController::class);
+            Route::get("members/search", [MemberController::class, "search"])->name("members.search");
             Route::resource("members", MemberController::class);
 
             // Catalog Item Copies
@@ -261,6 +274,10 @@ Route::middleware(["auth", "verified", "role:admin|staff"])->group(function () {
                 CatalogItemCopyController::class,
                 "generateAccessionNo",
             ])->name("copies.generate-accession-no");
+            Route::get("copies/next-accession", [
+                CatalogItemCopyController::class,
+                "nextAccessionNo",
+            ])->name("copies.next-accession");
             Route::post("copies/validate-accession-no", [
                 CatalogItemCopyController::class,
                 "validateAccessionNo",
@@ -287,6 +304,10 @@ Route::middleware(["auth", "verified", "role:admin|staff"])->group(function () {
                 BookRequestController::class,
                 "disapprove",
             ])->name("book-requests.disapprove");
+            Route::post("book-requests/store-approved", [
+                BookRequestController::class,
+                "storeApproved",
+            ])->name("book-requests.store-approved");
             Route::resource(
                 "book-requests",
                 BookRequestController::class,

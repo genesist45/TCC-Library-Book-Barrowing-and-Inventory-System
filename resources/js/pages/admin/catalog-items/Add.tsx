@@ -8,6 +8,9 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { Info, Copy, BookOpen } from "lucide-react";
 import CatalogItemReview from "@/components/catalog-items/CatalogItemReview";
+import { PreviewCopy } from "@/components/catalog-items/RelatedCopiesPreview";
+import PreviewCopyBookModal from "@/components/catalog-items/PreviewCopyModal";
+import PreviewAddMultipleCopiesModal from "@/components/catalog-items/PreviewMultipleCopiesModal";
 import {
     ItemInfoTabContent,
     DetailTabContent,
@@ -87,6 +90,113 @@ export default function CatalogItemAdd({
     const [showReview, setShowReview] = useState(false);
     const [isValidating, setIsValidating] = useState(false);
 
+    // Preview copies state
+    const [previewCopies, setPreviewCopies] = useState<PreviewCopy[]>([]);
+    const [nextCopyId, setNextCopyId] = useState(2);
+    const [nextAccessionNo, setNextAccessionNo] = useState(1);
+
+    // Copy modals state
+    const [showPreviewCopyModal, setShowPreviewCopyModal] = useState(false);
+    const [showPreviewMultipleCopiesModal, setShowPreviewMultipleCopiesModal] = useState(false);
+    const [editingPreviewCopy, setEditingPreviewCopy] = useState<PreviewCopy | null>(null);
+
+    // Generate accession number
+    const generateAccessionNo = () => {
+        const accNo = String(nextAccessionNo).padStart(7, '0');
+        setNextAccessionNo(prev => prev + 1);
+        return accNo;
+    };
+
+    // Initialize default copy when entering review mode
+    const initializeDefaultCopy = async () => {
+        try {
+            // Fetch the next accession number from the server
+            const response = await axios.get(route('admin.copies.next-accession'));
+            const startAccNo = parseInt(response.data.next_accession_no) || 1;
+            setNextAccessionNo(startAccNo + 1);
+
+            setPreviewCopies([{
+                id: 1,
+                copy_no: 1,
+                accession_no: String(startAccNo).padStart(7, '0'),
+                branch: '',
+                location: '',
+                status: 'Available',
+            }]);
+            setNextCopyId(2);
+        } catch (error) {
+            // Fallback to local generation if API fails
+            setPreviewCopies([{
+                id: 1,
+                copy_no: 1,
+                accession_no: '0000001',
+                branch: '',
+                location: '',
+                status: 'Available',
+            }]);
+            setNextCopyId(2);
+            setNextAccessionNo(2);
+        }
+    };
+
+    // Add a single copy
+    const handleAddPreviewCopy = () => {
+        setEditingPreviewCopy(null);
+        setShowPreviewCopyModal(true);
+    };
+
+    // Add multiple copies
+    const handleAddMultiplePreviewCopies = () => {
+        setShowPreviewMultipleCopiesModal(true);
+    };
+
+    // Edit a copy
+    const handleEditPreviewCopy = (copy: PreviewCopy) => {
+        setEditingPreviewCopy(copy);
+        setShowPreviewCopyModal(true);
+    };
+
+    // Delete a copy
+    const handleDeletePreviewCopy = (id: number) => {
+        const updatedCopies = previewCopies
+            .filter(copy => copy.id !== id)
+            .map((copy, index) => ({
+                ...copy,
+                copy_no: index + 1,
+            }));
+        setPreviewCopies(updatedCopies);
+    };
+
+    // Handle copy modal save (single copy - from PreviewCopyBookModal)
+    const handlePreviewCopySave = (savedCopy: PreviewCopy) => {
+        if (editingPreviewCopy) {
+            // Update existing copy
+            setPreviewCopies(previewCopies.map(copy =>
+                copy.id === savedCopy.id ? savedCopy : copy
+            ));
+        } else {
+            // Add new copy
+            setPreviewCopies([...previewCopies, savedCopy]);
+            setNextCopyId(savedCopy.id + 1);
+        }
+        setShowPreviewCopyModal(false);
+        setEditingPreviewCopy(null);
+    };
+
+    // Handle multiple copies from PreviewCopyBookModal (via Multiple tab)
+    const handlePreviewMultipleCopiesSave = (newCopies: PreviewCopy[]) => {
+        // Re-number all copies properly
+        const allCopies = [...previewCopies, ...newCopies];
+        const renumbered = allCopies.map((copy, index) => ({
+            ...copy,
+            copy_no: index + 1,
+        }));
+        setPreviewCopies(renumbered);
+        setNextCopyId(Math.max(...newCopies.map(c => c.id)) + 1);
+        setShowPreviewCopyModal(false);
+        setShowPreviewMultipleCopiesModal(false);
+    };
+
     const handleReview = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsValidating(true);
@@ -120,6 +230,7 @@ export default function CatalogItemAdd({
             // Validation passed - show review page
             setShowReview(true);
             setActiveTab("item-info");
+            initializeDefaultCopy(); // Initialize with 1 default copy
             window.scrollTo({ top: 0, behavior: "smooth" });
         } catch (error: any) {
             if (error.response?.status === 422) {
@@ -174,22 +285,66 @@ export default function CatalogItemAdd({
         }
     };
 
-    const handleConfirmSubmit = () => {
+    const handleConfirmSubmit = async () => {
         console.log("Submitting form data:", data);
-        post(route("admin.catalog-items.store"), {
-            forceFormData: true,
-            onSuccess: () => {
-                toast.success("Catalog item created successfully!");
-            },
-            onError: (errors) => {
-                console.log("Validation errors:", errors);
-                const firstError = Object.values(errors)[0];
-                if (firstError) {
-                    toast.error(firstError as string);
-                }
-                setShowReview(false); // Go back to form on error
-            },
+        console.log("Preview copies:", previewCopies);
+
+        // Create FormData to include copies
+        const formData = new FormData();
+        Object.entries(data).forEach(([key, value]) => {
+            if (key === 'author_ids' && Array.isArray(value)) {
+                value.forEach((id, index) => {
+                    formData.append(`author_ids[${index}]`, id.toString());
+                });
+            } else if (key === 'cover_image' && value instanceof File) {
+                formData.append(key, value);
+            } else if (value !== null && value !== undefined) {
+                formData.append(key, typeof value === 'boolean' ? (value ? '1' : '0') : String(value));
+            }
         });
+
+        // Add preview copies to form data
+        previewCopies.forEach((copy, index) => {
+            formData.append(`copies[${index}][accession_no]`, copy.accession_no);
+            formData.append(`copies[${index}][branch]`, copy.branch || '');
+            formData.append(`copies[${index}][location]`, copy.location || '');
+        });
+
+        try {
+            const response = await axios.post(route("admin.catalog-items.store"), formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (response.data.success || response.status === 200 || response.status === 201) {
+                toast.success("Catalog item created successfully!");
+                router.visit(route("admin.catalog-items.index"));
+            }
+        } catch (error: any) {
+            console.log("Submission error:", error);
+
+            if (error.response?.status === 422) {
+                const validationErrors = error.response.data.errors || {};
+                const errorKeys = Object.keys(validationErrors);
+                const firstError = Object.values(validationErrors)[0];
+
+                if (firstError && Array.isArray(firstError)) {
+                    toast.error(firstError[0] as string);
+                } else if (typeof firstError === 'string') {
+                    toast.error(firstError);
+                }
+
+                // Only go back to form if there are errors OTHER than cover_image
+                const hasOnlyCoverImageError = errorKeys.length === 1 && errorKeys[0] === 'cover_image';
+
+                if (!hasOnlyCoverImageError) {
+                    setShowReview(false);
+                }
+            } else {
+                toast.error("Failed to create catalog item. Please try again.");
+            }
+        }
     };
 
     const handleBackToForm = () => {
@@ -334,6 +489,11 @@ export default function CatalogItemAdd({
                                     error={errors.cover_image}
                                     onImageChange={handleImageChange}
                                     onRemoveImage={handleRemoveImage}
+                                    previewCopies={previewCopies}
+                                    onAddPreviewCopy={handleAddPreviewCopy}
+                                    onAddMultiplePreviewCopies={handleAddMultiplePreviewCopies}
+                                    onEditPreviewCopy={handleEditPreviewCopy}
+                                    onDeletePreviewCopy={handleDeletePreviewCopy}
                                 />
                             </div>
                         ) : (
@@ -432,6 +592,30 @@ export default function CatalogItemAdd({
                         setData('author_ids', [...data.author_ids, authorId]);
                     }
                 }}
+            />
+
+            {/* Preview Copy Modals */}
+            <PreviewCopyBookModal
+                show={showPreviewCopyModal}
+                title={data.title || "New Catalog Item"}
+                editingCopy={editingPreviewCopy}
+                onClose={() => {
+                    setShowPreviewCopyModal(false);
+                    setEditingPreviewCopy(null);
+                }}
+                onSaveSingle={handlePreviewCopySave}
+                onSaveMultiple={handlePreviewMultipleCopiesSave}
+                existingCopies={previewCopies}
+                nextCopyId={nextCopyId}
+            />
+
+            <PreviewAddMultipleCopiesModal
+                show={showPreviewMultipleCopiesModal}
+                title={data.title || "New Catalog Item"}
+                onClose={() => setShowPreviewMultipleCopiesModal(false)}
+                onSave={handlePreviewMultipleCopiesSave}
+                existingCopies={previewCopies}
+                nextCopyId={nextCopyId}
             />
         </AuthenticatedLayout>
     );

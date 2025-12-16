@@ -39,7 +39,7 @@ export default function BookReturnForm({
         condition_on_return: (bookReturn?.condition_on_return || 'Good') as 'Good' | 'Damaged' | 'Lost',
         remarks: bookReturn?.remarks || '',
         penalty_amount: bookReturn?.penalty_amount ?? 0,
-        status: (bookReturn?.status || 'Returned') as 'Returned' | 'Pending',
+        status: (bookReturn?.status || 'Returned') as 'Returned' | 'Pending' | 'Paid',
     });
     const [availableRequests, setAvailableRequests] = useState<AvailableRequest[]>([]);
     const [loading, setLoading] = useState(false);
@@ -90,6 +90,15 @@ export default function BookReturnForm({
     const handleFieldChange = (field: keyof typeof data, value: any) => {
         setData(field, value);
 
+        // If condition changes to Lost, reset status to Pending (not Returned)
+        if (field === 'condition_on_return' && value === 'Lost' && data.status === 'Returned') {
+            setData('status', 'Pending');
+        }
+        // If condition changes from Lost to something else, reset status to Returned
+        if (field === 'condition_on_return' && value !== 'Lost' && (data.status === 'Pending' || data.status === 'Paid')) {
+            setData('status', 'Returned');
+        }
+
         if (errors[field]) {
             clearErrors(field);
         }
@@ -102,11 +111,22 @@ export default function BookReturnForm({
         setData('penalty_amount', penaltyAmount);
 
         setTimeout(() => {
+            // Determine appropriate success message based on status
+            const getSuccessMessage = (status: string, isAdd: boolean) => {
+                if (status === 'Paid') {
+                    return 'Lost book marked as paid successfully!';
+                } else if (status === 'Pending') {
+                    return 'Lost book recorded - Awaiting payment';
+                } else {
+                    return isAdd ? 'Book record added successfully!' : 'Book record updated successfully!';
+                }
+            };
+
             if (mode === 'add') {
                 post(route('admin.book-returns.store'), {
                     preserveScroll: true,
                     onSuccess: () => {
-                        toast.success('Book return recorded successfully!');
+                        toast.success(getSuccessMessage(data.status, true));
                         reset();
                         onSuccess();
                     },
@@ -115,7 +135,7 @@ export default function BookReturnForm({
                 patch(route('admin.book-returns.update', bookReturn.id), {
                     preserveScroll: true,
                     onSuccess: () => {
-                        toast.success('Book return updated successfully!');
+                        toast.success(getSuccessMessage(data.status, false));
                         onSuccess();
                     },
                 });
@@ -128,12 +148,12 @@ export default function BookReturnForm({
     return (
         <div className="p-4">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                {mode === 'add' ? 'Add New Return' : 'Edit Return'}
+                {mode === 'add' ? 'Add New Record' : 'Edit Record'}
             </h2>
             <p className="text-xs text-gray-600 dark:text-gray-400">
                 {mode === 'add'
-                    ? 'Record a new book return by filling out the form'
-                    : 'Update the return information'}
+                    ? 'Record a new book record by filling out the form'
+                    : 'Update the record information'}
             </p>
 
             <form onSubmit={handleSubmit} className="mt-4 space-y-3">
@@ -249,26 +269,33 @@ export default function BookReturnForm({
                         )}
                     </div>
 
-                    {/* Status - Only show in Add mode */}
-                    {mode === 'add' && (
-                        <div>
-                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Status <span className="text-red-500">*</span>
-                            </label>
-                            <select
-                                value={data.status}
-                                onChange={(e) => handleFieldChange('status', e.target.value)}
-                                className="block w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white"
-                                required
-                            >
-                                <option value="Returned">Returned</option>
-                                <option value="Pending">Pending</option>
-                            </select>
-                            {errors.status && (
-                                <p className="mt-0.5 text-xs text-red-600">{errors.status}</p>
+                    {/* Status */}
+                    <div>
+                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Status <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                            value={data.status}
+                            onChange={(e) => handleFieldChange('status', e.target.value)}
+                            className="block w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white"
+                            required
+                        >
+                            {data.condition_on_return === 'Lost' ? (
+                                <>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Paid">Paid</option>
+                                </>
+                            ) : (
+                                <>
+                                    <option value="Returned">Returned</option>
+                                    <option value="Pending">Pending</option>
+                                </>
                             )}
-                        </div>
-                    )}
+                        </select>
+                        {errors.status && (
+                            <p className="mt-0.5 text-xs text-red-600">{errors.status}</p>
+                        )}
+                    </div>
                 </div>
 
                 {/* Remarks */}
@@ -302,7 +329,7 @@ export default function BookReturnForm({
                         disabled={processing}
                         className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
                     >
-                        {processing ? 'Saving...' : mode === 'add' ? 'Add Return' : 'Update Return'}
+                        {processing ? 'Saving...' : mode === 'add' ? 'Add Record' : 'Update Record'}
                     </button>
                 </div>
             </form>

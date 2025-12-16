@@ -68,9 +68,9 @@ export function generateBreadcrumbs(currentRoute: string): BreadcrumbItem[] {
         return breadcrumbs;
     }
 
-    // Book Returns routes
+    // Book Records routes
     if (currentRoute.startsWith('admin.book-returns')) {
-        breadcrumbs.push({ label: 'Book Returns', active: true });
+        breadcrumbs.push({ label: 'Book Records', active: true });
         return breadcrumbs;
     }
 
@@ -95,11 +95,6 @@ export function generateBreadcrumbs(currentRoute: string): BreadcrumbItem[] {
     if (currentRoute.startsWith('profile.')) {
         breadcrumbs.push({ label: 'Profile', active: true });
         return breadcrumbs;
-    }
-
-    // QR Scanner route
-    if (currentRoute === 'qr-scanner') {
-        return [{ label: 'QR Scanner', active: true }];
     }
 
     // Email Reminder routes

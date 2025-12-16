@@ -75,7 +75,7 @@ export default function AvailableCopiesTable({
                         {paginatedCopies.map((copy) => (
                             <tr key={copy.id} className="transition-colors hover:bg-gray-50">
                                 <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-900">
-                                    {copy.branch || "Main"}
+                                    {copy.branch || "—"}
                                 </td>
                                 <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900">
                                     {copy.accession_no}
@@ -92,8 +92,8 @@ export default function AvailableCopiesTable({
                                 <td className="whitespace-nowrap px-4 py-3 text-center">
                                     <span
                                         className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${copy.status === "Available"
-                                                ? "bg-green-100 text-green-800"
-                                                : "bg-red-100 text-red-800"
+                                            ? "bg-green-100 text-green-800"
+                                            : "bg-red-100 text-red-800"
                                             }`}
                                     >
                                         {copy.status === "Available" ? "Yes" : "No"}

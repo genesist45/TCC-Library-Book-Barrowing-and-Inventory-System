@@ -2,14 +2,16 @@ import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import { PageProps, BookRequest } from '@/types';
 import { useState, useEffect } from 'react';
-import { Pencil, Trash2, CheckCircle, XCircle, Eye, Search, RefreshCw, Printer } from 'lucide-react';
+import { Pencil, Trash2, CheckCircle, XCircle, Eye, Search, RefreshCw, Printer, UserPlus } from 'lucide-react';
 import { TableRowSkeleton } from '@/components/common/Loading';
 import { toast } from 'react-toastify';
 import ActionButton, { ActionButtonGroup } from '@/components/buttons/ActionButton';
 import ConfirmModal from '@/components/modals/ConfirmModal';
+import AddBorrowMemberModal, { CatalogItemFull } from '@/components/circulations/AddBorrowMemberModal';
 
 interface Props extends PageProps {
     bookRequests: BookRequest[];
+    catalogItems: CatalogItemFull[];
     flash?: {
         success?: string;
         error?: string;
@@ -18,12 +20,13 @@ interface Props extends PageProps {
 
 type ModalAction = 'approve' | 'disapprove' | 'delete' | null;
 
-export default function BookRequestsView({ bookRequests, flash }: Props) {
+export default function BookRequestsView({ bookRequests, catalogItems, flash }: Props) {
     const [selectedRequest, setSelectedRequest] = useState<BookRequest | null>(null);
     const [modalAction, setModalAction] = useState<ModalAction>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [processing, setProcessing] = useState(false);
+    const [showAddBorrowModal, setShowAddBorrowModal] = useState(false);
 
     useEffect(() => {
         if (flash?.success) {
@@ -153,12 +156,23 @@ export default function BookRequestsView({ bookRequests, flash }: Props) {
     };
 
     const getStatusBadge = (status: string) => {
-        const styles = {
+        const styles: Record<string, string> = {
             Pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-            Approved: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+            Approved: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
             Disapproved: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+            Returned: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+            Paid: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
         };
-        return styles[status as keyof typeof styles] || 'bg-gray-100 text-gray-800';
+        return styles[status] || 'bg-gray-100 text-gray-800';
+    };
+
+    // Get the display status - use book_return status if available, otherwise use request status
+    const getDisplayStatus = (request: BookRequest) => {
+        // If book has been returned and has a book_return record, use its status
+        if (request.status === 'Returned' && request.book_return?.status) {
+            return request.book_return.status;
+        }
+        return request.status;
     };
 
     const modalConfig = getModalConfig();
@@ -246,6 +260,16 @@ export default function BookRequestsView({ bookRequests, flash }: Props) {
                             >
                                 <Printer className="h-5 w-5" />
                             </button>
+
+                            {/* Add Borrow Member Button */}
+                            <button
+                                onClick={() => setShowAddBorrowModal(true)}
+                                className="flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
+                                title="Add Borrow Member"
+                            >
+                                <UserPlus className="h-4 w-4" />
+                                <span className="hidden sm:inline">Add Borrow Member</span>
+                            </button>
                         </div>
                     </div>
 
@@ -323,11 +347,16 @@ export default function BookRequestsView({ bookRequests, flash }: Props) {
                                                         : ''}
                                                 </td>
                                                 <td className="whitespace-nowrap px-6 py-4">
-                                                    <span
-                                                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadge(request.status)}`}
-                                                    >
-                                                        {request.status}
-                                                    </span>
+                                                    {(() => {
+                                                        const displayStatus = getDisplayStatus(request);
+                                                        return (
+                                                            <span
+                                                                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadge(displayStatus)}`}
+                                                            >
+                                                                {displayStatus}
+                                                            </span>
+                                                        );
+                                                    })()}
                                                 </td>
                                                 <td className="whitespace-nowrap px-6 py-4 text-sm print:hidden">
                                                     <ActionButtonGroup>
@@ -397,6 +426,13 @@ export default function BookRequestsView({ bookRequests, flash }: Props) {
                 onCancel={closeModal}
                 processing={processing}
                 variant={modalConfig.variant}
+            />
+
+            {/* Add Borrow Member Modal */}
+            <AddBorrowMemberModal
+                isOpen={showAddBorrowModal}
+                onClose={() => setShowAddBorrowModal(false)}
+                catalogItems={catalogItems}
             />
         </AuthenticatedLayout>
     );

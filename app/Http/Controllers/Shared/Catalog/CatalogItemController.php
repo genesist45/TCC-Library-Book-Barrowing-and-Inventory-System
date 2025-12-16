@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Shared\Catalog;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCatalogItemRequest;
 use App\Http\Requests\UpdateCatalogItemRequest;
 use App\Models\CatalogItem;
+use App\Models\CatalogItemCopy;
 use App\Models\Category;
 use App\Models\Publisher;
 use App\Models\Author;
@@ -62,7 +63,7 @@ class CatalogItemController extends Controller
         return response()->json(['success' => true, 'message' => 'Validation passed']);
     }
 
-    public function store(StoreCatalogItemRequest $request): RedirectResponse
+    public function store(StoreCatalogItemRequest $request): JsonResponse
     {
         $data = $request->validated();
 
@@ -75,15 +76,37 @@ class CatalogItemController extends Controller
         $authorIds = $data["author_ids"] ?? [];
         unset($data["author_ids"]);
 
+        // Remove copies from validated data (they're handled separately)
+        $copiesData = $request->input('copies', []);
+        unset($data['copies']);
+
         $catalogItem = CatalogItem::create($data);
 
         if (!empty($authorIds)) {
             $catalogItem->authors()->attach($authorIds);
         }
 
-        return redirect()
-            ->route("admin.catalog-items.index")
-            ->with("success", "Catalog item created successfully.");
+        // Create copies if provided
+        if (!empty($copiesData)) {
+            foreach ($copiesData as $index => $copyData) {
+                CatalogItemCopy::create([
+                    'catalog_item_id' => $catalogItem->id,
+                    'accession_no' => !empty($copyData['accession_no'])
+                        ? $copyData['accession_no']
+                        : CatalogItemCopy::generateAccessionNo(),
+                    'copy_no' => $index + 1,
+                    'branch' => $copyData['branch'] ?? null,
+                    'location' => $copyData['location'] ?? null,
+                    'status' => 'Available',
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Catalog item created successfully.',
+            'catalogItem' => $catalogItem->load(['authors', 'copies.reservedByMember']),
+        ], 201);
     }
 
     public function show(CatalogItem $catalogItem): Response
@@ -95,6 +118,13 @@ class CatalogItemController extends Controller
             ->orderBy("created_at", "desc")
             ->get()
             ->map(function ($request) {
+                // Get the actual return status from book_return if available
+                $bookReturn = $request->bookReturn;
+                $returnStatus = $bookReturn?->status ?? null;
+
+                // Determine display status: use book_return status if available, else book_request status
+                $displayStatus = $returnStatus ?? $request->status;
+
                 return [
                     "id" => $request->id,
                     "member_id" => $request->member_id,
@@ -104,13 +134,19 @@ class CatalogItemController extends Controller
                     "member_type" => $request->member->type ?? "N/A",
                     "email" => $request->email,
                     "phone" => $request->phone,
+                    "address" => $request->address,
                     "date_borrowed" => $request->created_at->toDateString(),
                     "due_date" => $request->return_date?->toDateString(),
-                    "date_returned" => $request->bookReturn?->return_date?->toDateString(),
-                    "status" => $request->status,
+                    "date_returned" => $bookReturn?->return_date,
+                    "status" => $displayStatus,
                     "accession_no" =>
                         $request->catalogItemCopy?->accession_no ?? null,
                     "copy_no" => $request->catalogItemCopy?->copy_no ?? null,
+                    // Book return specific fields
+                    "condition_on_return" => $bookReturn?->condition_on_return,
+                    "penalty_amount" => $bookReturn?->penalty_amount,
+                    "return_status" => $returnStatus,
+                    "remarks" => $bookReturn?->remarks,
                 ];
             });
 
@@ -119,7 +155,7 @@ class CatalogItemController extends Controller
                 "category",
                 "publisher",
                 "authors",
-                "copies",
+                "copies.reservedByMember",
             ]),
             "borrowHistory" => $borrowHistory,
         ]);
@@ -134,6 +170,13 @@ class CatalogItemController extends Controller
             ->orderBy("created_at", "desc")
             ->get()
             ->map(function ($request) {
+                // Get the actual return status from book_return if available
+                $bookReturn = $request->bookReturn;
+                $returnStatus = $bookReturn?->status ?? null;
+
+                // Determine display status: use book_return status if available, else book_request status
+                $displayStatus = $returnStatus ?? $request->status;
+
                 return [
                     "id" => $request->id,
                     "member_id" => $request->member_id,
@@ -143,18 +186,24 @@ class CatalogItemController extends Controller
                     "member_type" => $request->member->type ?? "N/A",
                     "email" => $request->email,
                     "phone" => $request->phone,
+                    "address" => $request->address,
                     "date_borrowed" => $request->created_at->toDateString(),
                     "due_date" => $request->return_date?->toDateString(),
-                    "date_returned" => $request->bookReturn?->return_date?->toDateString(),
-                    "status" => $request->status,
+                    "date_returned" => $bookReturn?->return_date,
+                    "status" => $displayStatus,
                     "accession_no" =>
                         $request->catalogItemCopy?->accession_no ?? null,
                     "copy_no" => $request->catalogItemCopy?->copy_no ?? null,
+                    // Book return specific fields
+                    "condition_on_return" => $bookReturn?->condition_on_return,
+                    "penalty_amount" => $bookReturn?->penalty_amount,
+                    "return_status" => $returnStatus,
+                    "remarks" => $bookReturn?->remarks,
                 ];
             });
 
         return Inertia::render("admin/catalog-items/Edit", [
-            "catalogItem" => $catalogItem->load(["authors", "copies"]),
+            "catalogItem" => $catalogItem->load(["authors", "copies.reservedByMember"]),
             "categories" => Category::where("is_published", true)
                 ->orderBy("name")
                 ->get(["id", "name"]),

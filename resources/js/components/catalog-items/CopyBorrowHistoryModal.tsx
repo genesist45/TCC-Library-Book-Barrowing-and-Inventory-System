@@ -6,7 +6,8 @@ import { Eye, Calendar, History, X } from "lucide-react";
 import axios from "axios";
 
 interface BorrowRecord {
-    id: number;
+    id: number | string;
+    type?: 'borrow' | 'reservation';
     member_id: number;
     member_name: string;
     member_no: string;
@@ -16,12 +17,17 @@ interface BorrowRecord {
     address?: string | null;
     date_borrowed: string;
     date_returned: string | null;
-    due_date: string;
+    due_date: string | null;
     status: string;
     book_title?: string;
     accession_no?: string;
     copy_no?: number;
     notes?: string | null;
+    // Book return specific fields
+    condition_on_return?: string | null;
+    penalty_amount?: number | null;
+    return_status?: string | null;
+    remarks?: string | null;
 }
 
 interface CopyInfo {
@@ -30,6 +36,13 @@ interface CopyInfo {
     copy_no: number;
     location?: string;
     status: string;
+    reserved_by_member_id?: number | null;
+    reserved_by_member?: {
+        id: number;
+        name: string;
+        member_no: string;
+    } | null;
+    reserved_at?: string | null;
 }
 
 interface CopyBorrowHistoryModalProps {
@@ -95,6 +108,28 @@ export default function CopyBorrowHistoryModal({
     };
 
     const getStatusBadge = (status: string, dateReturned: string | null) => {
+        // Handle book_return statuses first (Paid, Pending from lost books)
+        if (status === "Paid") {
+            return (
+                <span className="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                    Paid
+                </span>
+            );
+        }
+        if (status === "Pending") {
+            return (
+                <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+                    Pending
+                </span>
+            );
+        }
+        if (status === "Reserved") {
+            return (
+                <span className="inline-flex items-center rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-800 dark:bg-orange-900/30 dark:text-orange-300">
+                    Reserved
+                </span>
+            );
+        }
         if (status === "Returned" || dateReturned) {
             return (
                 <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
@@ -106,13 +141,6 @@ export default function CopyBorrowHistoryModal({
             return (
                 <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                     Borrowed
-                </span>
-            );
-        }
-        if (status === "Pending") {
-            return (
-                <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                    Pending
                 </span>
             );
         }
@@ -199,13 +227,12 @@ export default function CopyBorrowHistoryModal({
                                     Status:{" "}
                                 </span>
                                 <span
-                                    className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium ${
-                                        copy.status === "Available"
-                                            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                                            : copy.status === "Borrowed"
-                                              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
-                                              : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
-                                    }`}
+                                    className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium ${copy.status === "Available"
+                                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                                        : copy.status === "Borrowed"
+                                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                            : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
+                                        }`}
                                 >
                                     {copy.status}
                                 </span>
@@ -235,16 +262,16 @@ export default function CopyBorrowHistoryModal({
                                     <thead className="border-b border-gray-200 bg-gray-50 dark:border-[#3a3a3a] dark:bg-[#3a3a3a]">
                                         <tr>
                                             <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                                                Type
+                                            </th>
+                                            <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
                                                 Member
                                             </th>
                                             <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                                                Borrowed
+                                                Date
                                             </th>
                                             <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
                                                 Due Date
-                                            </th>
-                                            <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                                                Returned
                                             </th>
                                             <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
                                                 Status
@@ -261,6 +288,14 @@ export default function CopyBorrowHistoryModal({
                                                 className="transition-colors hover:bg-gray-50 dark:hover:bg-[#3a3a3a]"
                                             >
                                                 <td className="whitespace-nowrap px-3 py-2">
+                                                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${record.type === 'reservation'
+                                                        ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
+                                                        : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                                                        }`}>
+                                                        {record.type === 'reservation' ? 'Reserved' : 'Borrowed'}
+                                                    </span>
+                                                </td>
+                                                <td className="whitespace-nowrap px-3 py-2">
                                                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                                         {record.member_name}
                                                     </p>
@@ -274,13 +309,8 @@ export default function CopyBorrowHistoryModal({
                                                     )}
                                                 </td>
                                                 <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-600 dark:text-gray-400">
-                                                    {formatDate(
+                                                    {record.type === 'reservation' ? '-' : formatDate(
                                                         record.due_date,
-                                                    )}
-                                                </td>
-                                                <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-600 dark:text-gray-400">
-                                                    {formatDate(
-                                                        record.date_returned,
                                                     )}
                                                 </td>
                                                 <td className="whitespace-nowrap px-3 py-2">
@@ -290,17 +320,19 @@ export default function CopyBorrowHistoryModal({
                                                     )}
                                                 </td>
                                                 <td className="whitespace-nowrap px-3 py-2 text-center">
-                                                    <button
-                                                        onClick={() =>
-                                                            handleViewRecord(
-                                                                record,
-                                                            )
-                                                        }
-                                                        className="inline-flex items-center justify-center rounded-lg bg-indigo-100 p-1 text-indigo-600 transition hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50"
-                                                        title="View Details"
-                                                    >
-                                                        <Eye size={14} />
-                                                    </button>
+                                                    {record.type !== 'reservation' && (
+                                                        <button
+                                                            onClick={() =>
+                                                                handleViewRecord(
+                                                                    record,
+                                                                )
+                                                            }
+                                                            className="inline-flex items-center justify-center rounded-lg bg-indigo-100 p-1 text-indigo-600 transition hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50"
+                                                            title="View Details"
+                                                        >
+                                                            <Eye size={14} />
+                                                        </button>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))}

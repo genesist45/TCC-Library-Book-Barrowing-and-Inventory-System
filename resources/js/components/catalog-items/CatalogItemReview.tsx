@@ -3,6 +3,7 @@ import { ArrowLeft, Plus } from "lucide-react";
 import PrimaryButton from "@/components/buttons/PrimaryButton";
 import SecondaryButton from "@/components/buttons/SecondaryButton";
 import { CatalogFormTabs, TabType, CoverImageSection } from "./form-sections";
+import RelatedCopiesPreview, { PreviewCopy } from "./RelatedCopiesPreview";
 
 interface ReviewData {
     title: string;
@@ -63,6 +64,12 @@ interface CatalogItemReviewProps {
     onShowPublisherModal: () => void;
     onImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onRemoveImage: () => void;
+    // Related Copies Preview props
+    previewCopies: PreviewCopy[];
+    onAddPreviewCopy: () => void;
+    onAddMultiplePreviewCopies: () => void;
+    onEditPreviewCopy: (copy: PreviewCopy) => void;
+    onDeletePreviewCopy: (id: number) => void;
 }
 
 const DisplayValue = ({ value, label }: { value: string | number | undefined | null; label: string }) => (
@@ -92,6 +99,11 @@ export default function CatalogItemReview({
     onShowPublisherModal,
     onImageChange,
     onRemoveImage,
+    previewCopies,
+    onAddPreviewCopy,
+    onAddMultiplePreviewCopies,
+    onEditPreviewCopy,
+    onDeletePreviewCopy,
 }: CatalogItemReviewProps) {
     const getCategoryName = () => {
         const cat = categories.find((c) => c.id.toString() === data.category_id);
@@ -362,6 +374,19 @@ export default function CatalogItemReview({
                     </div>
                 </div>
             </div>
+
+            {/* Related Copies Preview Section - Full Width */}
+            {activeTab === "item-info" && (
+                <div className="mt-8">
+                    <RelatedCopiesPreview
+                        copies={previewCopies}
+                        onAddCopy={onAddPreviewCopy}
+                        onAddMultipleCopies={onAddMultiplePreviewCopies}
+                        onEditCopy={onEditPreviewCopy}
+                        onDeleteCopy={onDeletePreviewCopy}
+                    />
+                </div>
+            )}
 
             {/* Confirm Button */}
             <div className="mt-8 flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-[#3a3a3a]">

@@ -39,7 +39,15 @@ export interface CatalogItemCopy {
     copy_no: number;
     branch?: string;
     location?: string;
-    status: "Available" | "Borrowed" | "Reserved" | "Lost" | "Under Repair";
+    status: "Available" | "Borrowed" | "Reserved" | "Lost" | "Under Repair" | "Paid" | "Pending";
+    reserved_by_member_id?: number | null;
+    reserved_by_member?: {
+        id: number;
+        name: string;
+        member_no: string;
+        type?: string;
+    } | null;
+    reserved_at?: string | null;
     created_at: string;
     updated_at: string;
 }
@@ -128,7 +136,7 @@ export interface BookRequest {
     return_date: string;
     return_time: string;
     notes?: string;
-    status: "Pending" | "Approved" | "Disapproved";
+    status: "Pending" | "Approved" | "Disapproved" | "Returned";
     created_at: string;
     updated_at: string;
     member?: Member;
@@ -136,6 +144,7 @@ export interface BookRequest {
     catalog_item?: CatalogItem;
     catalogItemCopy?: CatalogItemCopy;
     catalog_item_copy?: CatalogItemCopy;
+    book_return?: BookReturn;
 }
 
 export interface BookReturn {
@@ -148,7 +157,7 @@ export interface BookReturn {
     condition_on_return: "Good" | "Damaged" | "Lost";
     remarks?: string;
     penalty_amount: number;
-    status: "Returned" | "Pending";
+    status: "Returned" | "Pending" | "Paid";
     processed_by: number;
     created_at: string;
     member?: {

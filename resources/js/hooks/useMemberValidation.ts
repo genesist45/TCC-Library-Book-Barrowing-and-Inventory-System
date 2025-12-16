@@ -21,11 +21,16 @@ export function useMemberValidation(memberId: string) {
             const timer = setTimeout(() => {
                 axios
                     .get(`/api/members/${memberId}`)
-                    .then(() => {
+                    .then((response) => {
+                        const memberData = response.data;
+                        const category = memberData.borrower_category || "Student";
+                        const maxDays = category === "Faculty" ? 5 : 2;
+                        const memberName = memberData.name || "";
+
                         setValidation({
                             isValid: true,
                             isChecking: false,
-                            message: "Valid member number",
+                            message: `Valid member (${category}) - ${memberName} - Return date set to ${maxDays} days`,
                         });
                     })
                     .catch(() => {

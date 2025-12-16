@@ -31,7 +31,7 @@ export default function BookReturnTable({
                 <thead className="bg-gray-50 dark:bg-[#3a3a3a]">
                     <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                            Return ID
+                            ID
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
                             Member Name
@@ -40,7 +40,7 @@ export default function BookReturnTable({
                             Book Title
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                            Return Date
+                            Date
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
                             Status

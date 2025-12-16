@@ -1,18 +1,13 @@
 import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
-import { Head } from "@inertiajs/react";
-import { Users, BookMarked } from "lucide-react";
+import { Head, usePage } from "@inertiajs/react";
+import { Users, BookMarked, Book, UserCheck } from "lucide-react";
 import {
     StatCard,
-    OpacStatsCard,
     NewArrivalsCard,
     CheckoutsCard,
+    ComparisonChart,
 } from "@/components/dashboard";
-
-interface MonthlyData {
-    month: string;
-    titles: number;
-    members: number;
-}
+import { PageProps } from "@/types";
 
 interface Author {
     id: number;
@@ -27,7 +22,7 @@ interface Category {
 interface NewArrivalItem {
     id: number;
     title: string;
-    accession_no?: string; // Deprecated: belongs to copies only
+    accession_no?: string;
     isbn?: string;
     isbn13?: string;
     cover_image?: string;
@@ -45,61 +40,171 @@ interface CheckoutItem {
     catalog_item_id: number;
     book_title: string;
     cover_image?: string;
-    accession_no?: string; // From the borrowed copy
+    accession_no?: string;
     due_date: string;
     date_borrowed: string;
     is_overdue: boolean;
 }
 
+interface PeriodData {
+    current: number;
+    previous: number;
+}
+
+interface GraphDataPoint {
+    label: string;
+    date: string;
+    value: number;
+}
+
+interface FullPeriodData {
+    current: number;
+    previous: number;
+    graphData: GraphDataPoint[];
+}
+
+interface StatData {
+    total: number;
+    periodData: {
+        current: FullPeriodData;
+        day: FullPeriodData;
+        week: FullPeriodData;
+        month: FullPeriodData;
+        year: FullPeriodData;
+    };
+}
+
+interface ChartDataPoint {
+    label: string;
+    titles: number;
+    members: number;
+    checkouts: number;
+}
+
 interface DashboardProps {
     stats: {
-        members: { total: number; previous: number };
-        checkouts: { total: number; previous: number };
-        users: { total: number; previous: number };
-    };
-    opacStats: {
-        titles: number;
-        members: number;
-        monthlyData: MonthlyData[];
+        titles: StatData;
+        members: StatData;
+        checkouts: StatData;
+        users: StatData;
     };
     newArrivals: NewArrivalItem[];
     activeCheckouts: CheckoutItem[];
+    comparisonChartData?: ChartDataPoint[];
 }
 
 export default function Dashboard({
     stats,
-    opacStats,
     newArrivals,
     activeCheckouts,
+    comparisonChartData,
 }: DashboardProps) {
+    const { auth } = usePage<PageProps>().props;
+    const isAdmin = auth.user.role === "admin";
+
+    // Generate chart data from stats if not provided by backend
+    const chartData: ChartDataPoint[] = comparisonChartData || (() => {
+        // Use the month graphData from stats to generate comparison data
+        const titlesData = stats.titles.periodData.month.graphData || [];
+        const membersData = stats.members.periodData.month.graphData || [];
+        const checkoutsData = stats.checkouts.periodData.month.graphData || [];
+
+        // Create a map to combine data by label
+        const dataMap = new Map<string, ChartDataPoint>();
+
+        titlesData.forEach((point) => {
+            if (!dataMap.has(point.label)) {
+                dataMap.set(point.label, {
+                    label: point.label,
+                    titles: 0,
+                    members: 0,
+                    checkouts: 0,
+                });
+            }
+            dataMap.get(point.label)!.titles = point.value;
+        });
+
+        membersData.forEach((point) => {
+            if (!dataMap.has(point.label)) {
+                dataMap.set(point.label, {
+                    label: point.label,
+                    titles: 0,
+                    members: 0,
+                    checkouts: 0,
+                });
+            }
+            dataMap.get(point.label)!.members = point.value;
+        });
+
+        checkoutsData.forEach((point) => {
+            if (!dataMap.has(point.label)) {
+                dataMap.set(point.label, {
+                    label: point.label,
+                    titles: 0,
+                    members: 0,
+                    checkouts: 0,
+                });
+            }
+            dataMap.get(point.label)!.checkouts = point.value;
+        });
+
+        return Array.from(dataMap.values());
+    })();
+
     return (
         <AuthenticatedLayout>
             <Head title="Dashboard" />
 
             <div className="p-6">
                 <div className="mx-auto max-w-7xl">
-                    {/* Stats Row */}
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                        <OpacStatsCard
-                            titles={opacStats.titles}
-                            members={opacStats.members}
-                            monthlyData={opacStats.monthlyData}
+                    {/* Stats Row - 4 cards for Admin, 3 cards for Staff */}
+                    <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2 ${isAdmin ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
+                        {/* Titles Card */}
+                        <StatCard
+                            title="Total Titles"
+                            value={stats.titles.total}
+                            periodData={stats.titles.periodData}
+                            icon={Book}
+                            color="bg-teal-500"
+                            defaultPeriod="current"
                         />
+                        {/* Members Card */}
+                        <StatCard
+                            title="Total Members"
+                            value={stats.members.total}
+                            periodData={stats.members.periodData}
+                            icon={UserCheck}
+                            color="bg-amber-500"
+                            defaultPeriod="current"
+                        />
+                        {/* Checkouts Card */}
                         <StatCard
                             title="Total Checkouts"
                             value={stats.checkouts.total}
-                            previous={stats.checkouts.previous}
+                            periodData={stats.checkouts.periodData}
                             icon={BookMarked}
                             color="bg-purple-500"
+                            defaultPeriod="current"
                         />
-                        <StatCard
-                            title="Total Users"
-                            value={stats.users.total}
-                            previous={stats.users.previous}
-                            icon={Users}
-                            color="bg-emerald-500"
-                        />
+                        {/* Only show Total Users card for Admin users */}
+                        {isAdmin && (
+                            <StatCard
+                                title="Total Users"
+                                value={stats.users.total}
+                                periodData={stats.users.periodData}
+                                icon={Users}
+                                color="bg-emerald-500"
+                                defaultPeriod="current"
+                            />
+                        )}
                     </div>
+
+                    {/* Comparison Chart - Full Width */}
+                    {chartData.length > 0 && (
+                        <div className="mt-6">
+                            <ComparisonChart data={chartData} />
+                        </div>
+                    )}
 
                     {/* New Arrivals and Checkouts Row */}
                     <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">

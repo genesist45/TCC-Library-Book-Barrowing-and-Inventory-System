@@ -7,7 +7,6 @@ A modern library management system built with **Laravel 12**, **Breeze**, **Iner
 - 🔐 **Role-Based Authentication** (Admin & Staff)
 - 👥 **User Management** (CRUD operations)
 - 📧 **Scheduled Email Reminders** for book returns
-- 📱 **QR Code Scanner** for book tracking
 - 🌙 **Dark Mode Support**
 - 💼 **Profile Management** with avatar upload
 - 📊 **Role-Based Dashboards**
@@ -20,7 +19,7 @@ A modern library management system built with **Laravel 12**, **Breeze**, **Iner
 | **Front-end** | React 18, TypeScript, Inertia.js 2.0, Tailwind CSS 3, Vite 7 | User interface, styling, and build tools |
 | **Back-end** | PHP 8.2+, Laravel 12, Laravel Breeze | Server-side logic, authentication, and API |
 | **Database** | PostgreSQL | Data storage and management |
-| **Others** | Git, Composer, npm, Lucide React, React Toastify, html5-qrcode | Version control, package management, icons, notifications, and QR scanning |
+| **Others** | Git, Composer, npm, Lucide React, React Toastify | Version control, package management, icons, and notifications |
 
 ## 📦 Installation
 
@@ -114,18 +113,7 @@ The backend handles all server-side logic, database operations, and API response
 app/
 ├── Http/
 │   ├── Controllers/
-│   │   ├── Admin/              # Admin-only controllers (full access)
-│   │   │   ├── AuthorController.php
-│   │   │   ├── BookRequestController.php
-│   │   │   ├── BookReturnController.php
-│   │   │   ├── CatalogItemController.php
-│   │   │   ├── CatalogItemCopyController.php
-│   │   │   ├── CategoryController.php
-│   │   │   ├── DashboardController.php
-│   │   │   ├── EmailReminderController.php
-│   │   │   ├── MemberController.php
-│   │   │   ├── PublisherController.php
-│   │   │   ├── QrScannerController.php
+│   │   ├── Admin/              # Admin-only controllers
 │   │   │   └── UserController.php
 │   │   │
 │   │   ├── Auth/               # Authentication controllers (login, register, password)
@@ -134,9 +122,22 @@ app/
 │   │   │   ├── AIChatController.php
 │   │   │   ├── BookSearchController.php
 │   │   │   ├── DashboardController.php
-│   │   │   └── ProfileController.php
+│   │   │   ├── ProfileController.php
+│   │   │   ├── Catalog/        # Catalog management
+│   │   │   │   ├── AuthorController.php
+│   │   │   │   ├── CatalogItemController.php
+│   │   │   │   ├── CatalogItemCopyController.php
+│   │   │   │   ├── CategoryController.php
+│   │   │   │   └── PublisherController.php
+│   │   │   ├── Circulation/    # Book borrowing/returns
+│   │   │   │   ├── BookRequestController.php
+│   │   │   │   └── BookReturnController.php
+│   │   │   ├── Members/        # Member management
+│   │   │   │   └── MemberController.php
+│   │   │   └── Tools/          # Utility tools
+│   │   │       └── EmailReminderController.php
 │   │   │
-│   │   └── Staff/              # Staff-only controllers (limited access)
+│   │   └── SetupController.php
 │   │
 │   ├── Middleware/             # Request filters (auth, roles, etc.)
 │   │

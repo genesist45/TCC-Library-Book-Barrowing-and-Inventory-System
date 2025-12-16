@@ -21,14 +21,14 @@ export default function BookReturnDeleteModal({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
             <div className="relative w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-[#2a2a2a]">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    Delete Return Record
+                    Delete Record
                 </h3>
                 <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     Are you sure you want to delete this return record? This action cannot be undone.
                 </p>
                 <div className="mt-4 rounded-lg bg-red-50 p-3 dark:bg-red-900/10">
                     <p className="text-sm text-gray-700 dark:text-gray-300">
-                        <strong>Return ID:</strong> {bookReturn.id}
+                        <strong>Record ID:</strong> {bookReturn.id}
                     </p>
                     <p className="text-sm text-gray-700 dark:text-gray-300">
                         <strong>Member:</strong> {bookReturn.member?.name || 'N/A'}

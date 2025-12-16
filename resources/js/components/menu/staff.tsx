@@ -42,7 +42,7 @@ export const getStaffMenuItems = (currentRoute: string): MenuItem[] => {
                     active: currentRoute === 'admin.book-requests.index' || currentRoute.startsWith('admin.book-requests.'),
                 },
                 {
-                    name: 'Book Returns',
+                    name: 'Book Records',
                     icon: Book,
                     href: 'admin.book-returns.index',
                     active: currentRoute === 'admin.book-returns.index' || currentRoute.startsWith('admin.book-returns.'),

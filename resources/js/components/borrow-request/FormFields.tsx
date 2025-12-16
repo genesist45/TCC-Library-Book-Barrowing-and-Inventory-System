@@ -104,7 +104,21 @@ export function TextField({
                             clipRule="evenodd"
                         />
                     </svg>
-                    {validationMessage}
+                    {(() => {
+                        // Parse message to make member name bold
+                        // Format: "Valid member (Category) - Name - Return date set to X days"
+                        const match = validationMessage.match(/^(Valid member \([^)]+\) - )([^-]+)( - Return date set to \d+ days)$/);
+                        if (match) {
+                            return (
+                                <>
+                                    {match[1]}
+                                    <span className="font-bold">{match[2]}</span>
+                                    {match[3]}
+                                </>
+                            );
+                        }
+                        return validationMessage;
+                    })()}
                 </p>
             )}
             {validationState === "invalid" && validationMessage && (

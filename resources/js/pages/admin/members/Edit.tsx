@@ -11,7 +11,6 @@ import {
     BorrowerDetailsSection,
     ContactInfoSection,
     AddressSection,
-    SettingsSection,
 } from "@/components/members/form-sections";
 import MemberBorrowHistoryTable from "@/components/members/MemberBorrowHistoryTable";
 
@@ -79,8 +78,8 @@ function EditTabs({
                                 type="button"
                                 onClick={() => onTabChange(tab.id)}
                                 className={`flex items-center gap-1.5 whitespace-nowrap border-b-2 px-1 py-3 text-xs font-medium transition-colors sm:gap-2 sm:text-sm ${activeTab === tab.id
-                                        ? "border-indigo-500 text-indigo-600 dark:text-indigo-400"
-                                        : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                    ? "border-indigo-500 text-indigo-600 dark:text-indigo-400"
+                                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                                     }`}
                             >
                                 <Icon size={16} className="flex-shrink-0" />
@@ -93,8 +92,8 @@ function EditTabs({
                                 {count !== undefined && count > 0 && (
                                     <span
                                         className={`ml-0.5 rounded-full px-1.5 py-0.5 text-xs font-medium sm:ml-1 sm:px-2 ${activeTab === tab.id
-                                                ? "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400"
-                                                : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
+                                            ? "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400"
+                                            : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
                                             }`}
                                     >
                                         {count}
@@ -276,12 +275,7 @@ export default function EditMember({
                                             onDataChange={handleChange}
                                         />
 
-                                        <SettingsSection
-                                            data={data}
-                                            errors={errors}
-                                            showErrors={showErrors}
-                                            onDataChange={handleChange}
-                                        />
+
 
                                         <div className="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-[#3a3a3a]">
                                             <SecondaryButton

@@ -25,52 +25,24 @@ class DashboardController extends Controller
         // Render admin dashboard for both admin and staff users
         // Both roles have access to the same features (except Users page which is admin-only)
         if ($user->role === "admin" || $user->role === "staff") {
-            $lastMonth = now()->subMonth();
-
+            // Get all period data for each stat type
             $stats = [
+                "titles" => [
+                    "total" => CatalogItem::count() + CatalogItemCopy::count(),
+                    "periodData" => $this->getAllPeriodData('titles'),
+                ],
                 "members" => [
                     "total" => Member::count(),
-                    "previous" => Member::where(
-                        "created_at",
-                        "<",
-                        $lastMonth,
-                    )->count(),
+                    "periodData" => $this->getAllPeriodData('members'),
                 ],
                 "checkouts" => [
-                    "total" => BookRequest::whereIn("status", [
-                        "Approved",
-                        "Returned",
-                    ])->count(),
-                    "previous" => BookRequest::whereIn("status", [
-                        "Approved",
-                        "Returned",
-                    ])
-                        ->where("created_at", "<", $lastMonth)
-                        ->count(),
+                    "total" => BookRequest::whereIn("status", ["Approved", "Returned"])->count(),
+                    "periodData" => $this->getAllPeriodData('checkouts'),
                 ],
                 "users" => [
                     "total" => User::count(),
-                    "previous" => User::where(
-                        "created_at",
-                        "<",
-                        $lastMonth,
-                    )->count(),
+                    "periodData" => $this->getAllPeriodData('users'),
                 ],
-            ];
-
-            // OPAC Stats - Total titles (catalog items + copies)
-            $totalCatalogItems = CatalogItem::count();
-            $totalCopies = CatalogItemCopy::count();
-            $totalTitles = $totalCatalogItems + $totalCopies;
-            $totalMembers = Member::count();
-
-            // Get monthly trend data for the last 6 months
-            $monthlyTrends = $this->getMonthlyTrends();
-
-            $opacStats = [
-                "titles" => $totalTitles,
-                "members" => $totalMembers,
-                "monthlyData" => $monthlyTrends,
             ];
 
             // Get new arrivals (recently added catalog items - NOT copies)
@@ -79,16 +51,231 @@ class DashboardController extends Controller
             // Get active checkouts (currently borrowed books)
             $activeCheckouts = $this->getActiveCheckouts();
 
+            // Get comparison chart data (weekly data - default)
+            $comparisonChartData = $this->getComparisonChartData('week');
+
             return Inertia::render("admin/Dashboard", [
                 "stats" => $stats,
-                "opacStats" => $opacStats,
                 "newArrivals" => $newArrivals,
                 "activeCheckouts" => $activeCheckouts,
+                "comparisonChartData" => $comparisonChartData,
             ]);
         }
 
-        // Default to staff dashboard
-        return Inertia::render("staff/Dashboard");
+        // Fallback - should not be reached since all authenticated users have a role
+        abort(403, 'Unauthorized access.');
+    }
+
+    /**
+     * Get chart data for a specific time period (API endpoint).
+     */
+    public function getChartData(Request $request)
+    {
+        $period = $request->get('period', 'month');
+        $data = $this->getComparisonChartData($period);
+
+        return response()->json($data);
+    }
+
+    /**
+     * Get data for all time periods for a specific stat type.
+     */
+    private function getAllPeriodData(string $statType): array
+    {
+        $periods = ['current', 'day', 'week', 'month', 'year'];
+        $result = [];
+
+        foreach ($periods as $period) {
+            $dateRanges = $this->getDateRanges($period);
+            $currentStart = $dateRanges['current_start'];
+            $currentEnd = $dateRanges['current_end'];
+            $previousStart = $dateRanges['previous_start'];
+            $previousEnd = $dateRanges['previous_end'];
+
+            switch ($statType) {
+                case 'titles':
+                    $result[$period] = [
+                        'current' => CatalogItem::whereBetween("created_at", [$currentStart, $currentEnd])->count() +
+                            CatalogItemCopy::whereBetween("created_at", [$currentStart, $currentEnd])->count(),
+                        'previous' => CatalogItem::whereBetween("created_at", [$previousStart, $previousEnd])->count() +
+                            CatalogItemCopy::whereBetween("created_at", [$previousStart, $previousEnd])->count(),
+                        'graphData' => $this->getGraphData($statType, $period),
+                    ];
+                    break;
+                case 'members':
+                    $result[$period] = [
+                        'current' => Member::whereBetween("created_at", [$currentStart, $currentEnd])->count(),
+                        'previous' => Member::whereBetween("created_at", [$previousStart, $previousEnd])->count(),
+                        'graphData' => $this->getGraphData($statType, $period),
+                    ];
+                    break;
+                case 'checkouts':
+                    $result[$period] = [
+                        'current' => BookRequest::whereIn("status", ["Approved", "Returned"])
+                            ->whereBetween("created_at", [$currentStart, $currentEnd])
+                            ->count(),
+                        'previous' => BookRequest::whereIn("status", ["Approved", "Returned"])
+                            ->whereBetween("created_at", [$previousStart, $previousEnd])
+                            ->count(),
+                        'graphData' => $this->getGraphData($statType, $period),
+                    ];
+                    break;
+                case 'users':
+                    $result[$period] = [
+                        'current' => User::whereBetween("created_at", [$currentStart, $currentEnd])->count(),
+                        'previous' => User::whereBetween("created_at", [$previousStart, $previousEnd])->count(),
+                        'graphData' => $this->getGraphData($statType, $period),
+                    ];
+                    break;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get time-series graph data for a specific stat type and period.
+     */
+    private function getGraphData(string $statType, string $period): array
+    {
+        $now = Carbon::now();
+        $data = [];
+
+        switch ($period) {
+            case 'current':
+                // Hourly data points for today (from midnight to now)
+                $currentHour = (int) $now->format('G');
+                for ($i = 0; $i <= $currentHour; $i++) {
+                    $hourStart = $now->copy()->startOfDay()->addHours($i);
+                    $hourEnd = $hourStart->copy()->endOfHour();
+                    $data[] = [
+                        'label' => $hourStart->format('g A'),
+                        'date' => $hourStart->format('M j, g A'),
+                        'value' => $this->getCountForPeriod($statType, $hourStart, $hourEnd),
+                    ];
+                }
+                break;
+            case 'day':
+                // 24 hourly data points for the last 24 hours
+                for ($i = 23; $i >= 0; $i--) {
+                    $hourStart = $now->copy()->subHours($i)->startOfHour();
+                    $hourEnd = $now->copy()->subHours($i)->endOfHour();
+                    $data[] = [
+                        'label' => $hourStart->format('g A'),
+                        'date' => $hourStart->format('M j, g A'),
+                        'value' => $this->getCountForPeriod($statType, $hourStart, $hourEnd),
+                    ];
+                }
+                break;
+            case 'week':
+                // 7 daily data points for the last 7 days
+                for ($i = 6; $i >= 0; $i--) {
+                    $dayStart = $now->copy()->subDays($i)->startOfDay();
+                    $dayEnd = $now->copy()->subDays($i)->endOfDay();
+                    $data[] = [
+                        'label' => $dayStart->format('D'),
+                        'date' => $dayStart->format('M j'),
+                        'value' => $this->getCountForPeriod($statType, $dayStart, $dayEnd),
+                    ];
+                }
+                break;
+            case 'month':
+                // 30 daily data points for the last 30 days
+                for ($i = 29; $i >= 0; $i--) {
+                    $dayStart = $now->copy()->subDays($i)->startOfDay();
+                    $dayEnd = $now->copy()->subDays($i)->endOfDay();
+                    $data[] = [
+                        'label' => $dayStart->format('j'),
+                        'date' => $dayStart->format('M j'),
+                        'value' => $this->getCountForPeriod($statType, $dayStart, $dayEnd),
+                    ];
+                }
+                break;
+            case 'year':
+                // 12 monthly data points for the last 12 months
+                for ($i = 11; $i >= 0; $i--) {
+                    $monthStart = $now->copy()->subMonths($i)->startOfMonth();
+                    $monthEnd = $now->copy()->subMonths($i)->endOfMonth();
+                    $data[] = [
+                        'label' => $monthStart->format('M'),
+                        'date' => $monthStart->format('F Y'),
+                        'value' => $this->getCountForPeriod($statType, $monthStart, $monthEnd),
+                    ];
+                }
+                break;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get count for a specific stat type within a date range.
+     */
+    private function getCountForPeriod(string $statType, Carbon $start, Carbon $end): int
+    {
+        switch ($statType) {
+            case 'titles':
+                return CatalogItem::whereBetween("created_at", [$start, $end])->count() +
+                    CatalogItemCopy::whereBetween("created_at", [$start, $end])->count();
+            case 'members':
+                return Member::whereBetween("created_at", [$start, $end])->count();
+            case 'checkouts':
+                return BookRequest::whereIn("status", ["Approved", "Returned"])
+                    ->whereBetween("created_at", [$start, $end])
+                    ->count();
+            case 'users':
+                return User::whereBetween("created_at", [$start, $end])->count();
+            default:
+                return 0;
+        }
+    }
+
+    /**
+     * Get date ranges for the selected period.
+     */
+    private function getDateRanges(string $period): array
+    {
+        $now = Carbon::now();
+
+        switch ($period) {
+            case 'current':
+                // Current = Today's data, compared to yesterday
+                return [
+                    'current_start' => $now->copy()->startOfDay(),
+                    'current_end' => $now->copy()->endOfDay(),
+                    'previous_start' => $now->copy()->subDay()->startOfDay(),
+                    'previous_end' => $now->copy()->subDay()->endOfDay(),
+                ];
+            case 'day':
+                return [
+                    'current_start' => $now->copy()->startOfDay(),
+                    'current_end' => $now->copy()->endOfDay(),
+                    'previous_start' => $now->copy()->subDay()->startOfDay(),
+                    'previous_end' => $now->copy()->subDay()->endOfDay(),
+                ];
+            case 'week':
+                return [
+                    'current_start' => $now->copy()->startOfWeek(),
+                    'current_end' => $now->copy()->endOfWeek(),
+                    'previous_start' => $now->copy()->subWeek()->startOfWeek(),
+                    'previous_end' => $now->copy()->subWeek()->endOfWeek(),
+                ];
+            case 'year':
+                return [
+                    'current_start' => $now->copy()->startOfYear(),
+                    'current_end' => $now->copy()->endOfYear(),
+                    'previous_start' => $now->copy()->subYear()->startOfYear(),
+                    'previous_end' => $now->copy()->subYear()->endOfYear(),
+                ];
+            case 'month':
+            default:
+                return [
+                    'current_start' => $now->copy()->startOfMonth(),
+                    'current_end' => $now->copy()->endOfMonth(),
+                    'previous_start' => $now->copy()->subMonth()->startOfMonth(),
+                    'previous_end' => $now->copy()->subMonth()->endOfMonth(),
+                ];
+        }
     }
 
     /**
@@ -131,6 +318,119 @@ class DashboardController extends Controller
         }
 
         return $months;
+    }
+
+    /**
+     * Get comparison chart data based on period.
+     * Returns data for titles, members, and checkouts.
+     * 
+     * @param string $period - 'day', 'week', 'month', or 'year'
+     */
+    private function getComparisonChartData(string $period = 'day'): array
+    {
+        $data = [];
+        $now = Carbon::now();
+
+        switch ($period) {
+            case 'day':
+                // Last 24 hours - hourly data
+                for ($i = 23; $i >= 0; $i--) {
+                    $hourStart = $now->copy()->subHours($i)->startOfHour();
+                    $hourEnd = $now->copy()->subHours($i)->endOfHour();
+
+                    $titlesCount = CatalogItem::whereBetween("created_at", [$hourStart, $hourEnd])->count() +
+                        CatalogItemCopy::whereBetween("created_at", [$hourStart, $hourEnd])->count();
+
+                    $membersCount = Member::whereBetween("created_at", [$hourStart, $hourEnd])->count();
+
+                    $checkoutsCount = BookRequest::whereIn("status", ["Approved", "Returned"])
+                        ->whereBetween("created_at", [$hourStart, $hourEnd])
+                        ->count();
+
+                    $data[] = [
+                        "label" => $hourStart->format("g A"),
+                        "titles" => $titlesCount,
+                        "members" => $membersCount,
+                        "checkouts" => $checkoutsCount,
+                    ];
+                }
+                break;
+
+            case 'week':
+                // Last 7 days - daily data
+                for ($i = 6; $i >= 0; $i--) {
+                    $dayStart = $now->copy()->subDays($i)->startOfDay();
+                    $dayEnd = $now->copy()->subDays($i)->endOfDay();
+
+                    $titlesCount = CatalogItem::whereBetween("created_at", [$dayStart, $dayEnd])->count() +
+                        CatalogItemCopy::whereBetween("created_at", [$dayStart, $dayEnd])->count();
+
+                    $membersCount = Member::whereBetween("created_at", [$dayStart, $dayEnd])->count();
+
+                    $checkoutsCount = BookRequest::whereIn("status", ["Approved", "Returned"])
+                        ->whereBetween("created_at", [$dayStart, $dayEnd])
+                        ->count();
+
+                    $data[] = [
+                        "label" => $dayStart->format("D"),
+                        "titles" => $titlesCount,
+                        "members" => $membersCount,
+                        "checkouts" => $checkoutsCount,
+                    ];
+                }
+                break;
+
+            case 'year':
+                // Last 12 months - monthly data
+                for ($i = 11; $i >= 0; $i--) {
+                    $monthStart = $now->copy()->subMonths($i)->startOfMonth();
+                    $monthEnd = $now->copy()->subMonths($i)->endOfMonth();
+
+                    $titlesCount = CatalogItem::whereBetween("created_at", [$monthStart, $monthEnd])->count() +
+                        CatalogItemCopy::whereBetween("created_at", [$monthStart, $monthEnd])->count();
+
+                    $membersCount = Member::whereBetween("created_at", [$monthStart, $monthEnd])->count();
+
+                    $checkoutsCount = BookRequest::whereIn("status", ["Approved", "Returned"])
+                        ->whereBetween("created_at", [$monthStart, $monthEnd])
+                        ->count();
+
+                    $data[] = [
+                        "label" => $monthStart->format("M"),
+                        "titles" => $titlesCount,
+                        "members" => $membersCount,
+                        "checkouts" => $checkoutsCount,
+                    ];
+                }
+                break;
+
+            case 'month':
+            default:
+                // Last 30 days - daily data
+                for ($i = 29; $i >= 0; $i--) {
+                    $dayStart = $now->copy()->subDays($i)->startOfDay();
+                    $dayEnd = $now->copy()->subDays($i)->endOfDay();
+
+                    $titlesCount = CatalogItem::whereBetween("created_at", [$dayStart, $dayEnd])->count() +
+                        CatalogItemCopy::whereBetween("created_at", [$dayStart, $dayEnd])->count();
+
+                    $membersCount = Member::whereBetween("created_at", [$dayStart, $dayEnd])->count();
+
+                    $checkoutsCount = BookRequest::whereIn("status", ["Approved", "Returned"])
+                        ->whereBetween("created_at", [$dayStart, $dayEnd])
+                        ->count();
+
+                    $data[] = [
+                        "label" => $dayStart->format("j"),
+                        "titles" => $titlesCount,
+                        "members" => $membersCount,
+                        "checkouts" => $checkoutsCount,
+                    ];
+                }
+                break;
+        }
+
+        return $data;
     }
 
     /**
@@ -187,7 +487,7 @@ class DashboardController extends Controller
             ->take($limit)
             ->get()
             ->map(function ($request) use ($today) {
-                $dueDate = $request->return_date;
+                $dueDate = $request->return_date ? Carbon::parse($request->return_date) : null;
                 $isOverdue = $dueDate && $dueDate->lt($today);
 
                 return [

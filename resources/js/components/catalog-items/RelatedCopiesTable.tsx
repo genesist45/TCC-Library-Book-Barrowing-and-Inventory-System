@@ -4,6 +4,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import EditCopyModal from "@/components/catalog-items/EditCopyModal";
 import CopyBorrowHistoryModal from "@/components/catalog-items/CopyBorrowHistoryModal";
+import ConfirmModal from "@/components/modals/ConfirmModal";
 import Pagination from "@/components/common/Pagination";
 
 const DEFAULT_ITEMS_PER_PAGE = 10;
@@ -15,6 +16,14 @@ interface CopyItem {
     branch?: string;
     location?: string;
     status: string;
+    reserved_by_member_id?: number | null;
+    reserved_by_member?: {
+        id: number;
+        name: string;
+        member_no: string;
+        type?: string;
+    } | null;
+    reserved_at?: string | null;
 }
 
 interface RelatedCopiesTableProps {
@@ -37,6 +46,8 @@ export default function RelatedCopiesTable({
     const [editingCopy, setEditingCopy] = useState<CopyItem | null>(null);
     const [showHistoryModal, setShowHistoryModal] = useState(false);
     const [historyCopy, setHistoryCopy] = useState<CopyItem | null>(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [copyToDelete, setCopyToDelete] = useState<CopyItem | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(DEFAULT_ITEMS_PER_PAGE);
 
@@ -86,18 +97,19 @@ export default function RelatedCopiesTable({
         setHistoryCopy(null);
     };
 
-    const handleDelete = async (copy: CopyItem) => {
-        if (
-            !confirm(`Are you sure you want to delete copy #${copy.copy_no}?`)
-        ) {
-            return;
-        }
+    const handleDeleteClick = (copy: CopyItem) => {
+        setCopyToDelete(copy);
+        setShowDeleteModal(true);
+    };
 
-        setDeletingId(copy.id);
+    const handleDeleteConfirm = async () => {
+        if (!copyToDelete) return;
+
+        setDeletingId(copyToDelete.id);
 
         try {
             const response = await axios.delete(
-                route("admin.copies.destroy", copy.id),
+                route("admin.copies.destroy", copyToDelete.id),
             );
 
             if (response.data.success) {
@@ -109,7 +121,14 @@ export default function RelatedCopiesTable({
             console.error("Delete error:", error);
         } finally {
             setDeletingId(null);
+            setShowDeleteModal(false);
+            setCopyToDelete(null);
         }
+    };
+
+    const handleDeleteCancel = () => {
+        setShowDeleteModal(false);
+        setCopyToDelete(null);
     };
 
     if (copies.length === 0) {
@@ -223,14 +242,14 @@ export default function RelatedCopiesTable({
                                 <td className="whitespace-nowrap px-3 py-2 sm:px-4">
                                     <span
                                         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${copy.status === "Available"
-                                                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                                                : copy.status === "Borrowed"
-                                                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
-                                                    : copy.status === "Reserved"
-                                                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                                                        : copy.status === "Lost"
-                                                            ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
-                                                            : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
+                                            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                                            : copy.status === "Borrowed"
+                                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                                : copy.status === "Reserved"
+                                                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                                                    : copy.status === "Lost"
+                                                        ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                                                        : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
                                             }`}
                                     >
                                         {copy.status}
@@ -261,7 +280,7 @@ export default function RelatedCopiesTable({
                                             />
                                         </button>
                                         <button
-                                            onClick={() => handleDelete(copy)}
+                                            onClick={() => handleDeleteClick(copy)}
                                             disabled={deletingId === copy.id}
                                             className="flex items-center justify-center rounded-lg bg-red-100 p-1.5 text-red-600 transition hover:bg-red-200 disabled:opacity-50 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
                                             title="Delete"
@@ -291,6 +310,18 @@ export default function RelatedCopiesTable({
                 copy={historyCopy}
                 catalogItemTitle={catalogItemTitle}
                 onClose={handleCloseHistoryModal}
+            />
+
+            <ConfirmModal
+                show={showDeleteModal}
+                title="Delete Copy"
+                message={`Are you sure you want to delete copy #${copyToDelete?.copy_no}?`}
+                confirmText="Delete"
+                cancelText="Cancel"
+                onConfirm={handleDeleteConfirm}
+                onCancel={handleDeleteCancel}
+                processing={deletingId !== null}
+                variant="danger"
             />
 
             {/* Pagination */}

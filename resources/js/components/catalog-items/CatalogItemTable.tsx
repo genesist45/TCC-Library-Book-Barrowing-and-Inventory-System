@@ -65,7 +65,7 @@ interface CatalogItemTableProps {
 /**
  * Compute the display status based on available copies
  * - "Available" if at least one copy is available
- * - "Borrowed" if all copies are borrowed (available_copies_count === 0)
+ * - "Unavailable" if all copies are unavailable (borrowed, reserved, lost, under repair, pending, paid)
  * - "No Copies" if there are no copies at all
  */
 function getComputedStatus(item: CatalogItemWithAvailability): {
@@ -83,7 +83,7 @@ function getComputedStatus(item: CatalogItemWithAvailability): {
         return { label: "Available", isAvailable: true };
     }
 
-    return { label: "Borrowed", isAvailable: false };
+    return { label: "Unavailable", isAvailable: false };
 }
 
 export default function CatalogItemTable({

@@ -109,7 +109,7 @@ export default function BookDetailsModal({ book, isOpen, onClose }: BookDetailsM
                         setMemberValidation({
                             isValid: true,
                             isChecking: false,
-                            message: `Valid member (${category}) - Return date set to ${getMaxBorrowDays(category)} days`,
+                            message: `Valid member (${category}) - ${memberData.name || ""} - Return date set to ${getMaxBorrowDays(category)} days`,
                         });
                     })
                     .catch(() => {

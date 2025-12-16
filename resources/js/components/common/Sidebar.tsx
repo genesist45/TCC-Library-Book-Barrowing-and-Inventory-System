@@ -102,7 +102,7 @@ export default function Sidebar({
     return (
         <>
             <aside
-                className={`fixed left-0 top-0 h-screen overflow-x-hidden sidebar-no-scrollbar bg-white border-r border-gray-200 shadow-sm transition-all duration-300 ease-in-out dark:bg-[#2a2a2a] dark:border-[#3a3a3a] dark:shadow-black/50 ${isVisuallyExpanded ? 'w-64' : 'w-20'
+                className={`fixed left-0 top-0 h-screen overflow-x-hidden sidebar-no-scrollbar bg-[#030229] border-r border-[#1a1a4e] shadow-sm transition-all duration-300 ease-in-out dark:bg-[#2a2a2a] dark:border-[#3a3a3a] dark:shadow-black/50 ${isVisuallyExpanded ? 'w-64' : 'w-20'
                     } ${collapsed && isVisuallyExpanded ? 'z-50' : 'z-40'}`}
             >
                 <div className="flex h-full flex-col">
@@ -118,7 +118,7 @@ export default function Sidebar({
                             />
                             <button
                                 onClick={onToggle}
-                                className="rounded-md p-1 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-[#3a3a3a]"
+                                className="rounded-md p-1 text-gray-300 hover:bg-white/10 dark:text-gray-400 dark:hover:bg-[#3a3a3a]"
                             >
                                 <PanelLeftClose size={20} />
                             </button>
@@ -129,7 +129,7 @@ export default function Sidebar({
                             }`}>
                             <button
                                 onClick={onToggle}
-                                className="group relative flex h-10 w-10 items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-[#3a3a3a]"
+                                className="group relative flex h-10 w-10 items-center justify-center rounded-md hover:bg-white/10 dark:hover:bg-[#3a3a3a]"
                                 style={{ cursor: 'ew-resize' }}
                             >
                                 <img
@@ -146,7 +146,7 @@ export default function Sidebar({
                     </div>
 
                     {/* Divider - Full width */}
-                    <hr className="border-gray-200 transition-colors duration-300 dark:border-[#3a3a3a]" />
+                    <hr className="border-[#1a1a4e] transition-colors duration-300 dark:border-[#3a3a3a]" />
 
                     {/* Menu Section */}
                     <nav className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden py-4 px-3 scrollbar-hide">
@@ -155,7 +155,7 @@ export default function Sidebar({
 
                         <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isVisuallyExpanded ? 'max-h-8 opacity-100 mb-3' : 'max-h-0 opacity-0 mb-0'
                             }`}>
-                            <p className="px-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                            <p className="px-3 text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-400 whitespace-nowrap">
                                 Menu
                             </p>
                         </div>
@@ -186,8 +186,8 @@ export default function Sidebar({
                                         className={`
                                         group relative flex items-center rounded-lg text-sm transition-all duration-300 ease-in-out py-2.5 w-full
                                         ${item.active
-                                                ? 'bg-gray-100 text-black font-bold dark:bg-[#3a3a3a] dark:text-gray-100'
-                                                : 'text-gray-700 font-normal hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-[#3a3a3a]'
+                                                ? 'bg-white/10 text-white font-bold dark:bg-[#3a3a3a] dark:text-gray-100'
+                                                : 'text-gray-200 font-normal hover:bg-white/10 dark:text-gray-100 dark:hover:bg-[#3a3a3a]'
                                             }
                                     `}
                                         title={!isVisuallyExpanded ? item.name : undefined}
@@ -201,11 +201,11 @@ export default function Sidebar({
                                             />
                                         </div>
                                         <span className={`whitespace-nowrap transition-all duration-300 ease-in-out ${isVisuallyExpanded
-                                                ? 'opacity-100 translate-x-0 relative'
-                                                : 'opacity-0 absolute w-0 overflow-hidden pointer-events-none'
+                                            ? 'opacity-100 translate-x-0 relative'
+                                            : 'opacity-0 absolute w-0 overflow-hidden pointer-events-none'
                                             }`}>{item.name}</span>
                                         {hasChildren && isVisuallyExpanded && (
-                                            <span className="ml-auto pr-2 text-gray-500 dark:text-gray-400">
+                                            <span className="ml-auto pr-2 text-gray-400 dark:text-gray-400">
                                                 {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                                             </span>
                                         )}
@@ -221,35 +221,41 @@ export default function Sidebar({
                                                     {item.children.map((child: NonNullable<MenuItem['children']>[0], index: number) => {
                                                         const isLast = index === item.children!.length - 1;
                                                         const ChildIcon = child.icon;
-                                                        const ChildComponent = child.href ? Link : 'button';
-                                                        const childProps = child.href
-                                                            ? { href: route(child.href) }
-                                                            : {
-                                                                type: 'button' as const,
-                                                                onClick: child.onClick
-                                                            };
+
+                                                        // Handle click with auto-collapse
+                                                        const handleSubMenuClick = () => {
+                                                            if (child.href) {
+                                                                // Navigate and collapse sidebar
+                                                                router.visit(route(child.href));
+                                                                onToggle?.(); // Auto-collapse sidebar
+                                                            } else if (child.onClick) {
+                                                                child.onClick();
+                                                                onToggle?.(); // Auto-collapse sidebar
+                                                            }
+                                                        };
 
                                                         return (
                                                             <div key={child.name} className="relative pl-6">
                                                                 {/* Vertical Line */}
                                                                 <div
-                                                                    className={`absolute left-0 top-0 w-px bg-gray-200 dark:bg-[#3a3a3a] ${isLast ? 'h-1/2' : 'h-full'
+                                                                    className={`absolute left-0 top-0 w-px bg-gray-500 dark:bg-[#3a3a3a] ${isLast ? 'h-1/2' : 'h-full'
                                                                         }`}
                                                                 />
 
                                                                 {/* Horizontal Line */}
-                                                                <div className="absolute left-0 top-1/2 h-px w-4 bg-gray-200 dark:bg-[#3a3a3a]" />
+                                                                <div className="absolute left-0 top-1/2 h-px w-4 bg-gray-500 dark:bg-[#3a3a3a]" />
 
-                                                                <ChildComponent
-                                                                    {...childProps}
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={handleSubMenuClick}
                                                                     className={`flex w-full items-center gap-3 rounded-lg py-2 px-2 text-sm transition-colors ${child.active
-                                                                            ? 'bg-gray-100 text-black font-bold dark:bg-[#3a3a3a] dark:text-gray-100'
-                                                                            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-[#3a3a3a]'
+                                                                        ? 'bg-white/10 text-white font-bold dark:bg-[#3a3a3a] dark:text-gray-100'
+                                                                        : 'text-gray-300 hover:bg-white/10 dark:text-gray-100 dark:hover:bg-[#3a3a3a]'
                                                                         }`}
                                                                 >
-                                                                    {ChildIcon && <ChildIcon size={16} className="text-gray-500 dark:text-gray-400" />}
+                                                                    {ChildIcon && <ChildIcon size={16} className="text-gray-400 dark:text-gray-400" />}
                                                                     <span>{child.name}</span>
-                                                                </ChildComponent>
+                                                                </button>
                                                             </div>
                                                         );
                                                     })}
@@ -263,7 +269,7 @@ export default function Sidebar({
                     </nav>
 
                     {/* Divider */}
-                    <hr className="border-gray-200 transition-colors duration-300 dark:border-[#3a3a3a]" />
+                    <hr className="border-[#1a1a4e] transition-colors duration-300 dark:border-[#3a3a3a]" />
 
                     {/* Sticky Footer - Account Section - Desktop Only */}
                     <div className="relative hidden px-3 pb-3 pt-1 transition-all duration-300 ease-in-out lg:block">
@@ -341,11 +347,11 @@ export default function Sidebar({
                         {/* Account Button */}
                         <button
                             onClick={() => setShowAccountDropdown(!showAccountDropdown)}
-                            className="relative flex w-full items-center overflow-hidden rounded-lg py-2 text-sm font-medium text-gray-700 transition-all duration-300 ease-in-out hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#3a3a3a]/60"
+                            className="relative flex w-full items-center overflow-hidden rounded-lg py-2 text-sm font-medium text-gray-200 transition-all duration-300 ease-in-out hover:bg-white/10 dark:text-gray-200 dark:hover:bg-[#3a3a3a]/60"
                             title={!isVisuallyExpanded ? user.name : undefined}
                         >
                             <div className="flex w-14 flex-shrink-0 items-center justify-center">
-                                <div className="h-8 w-8 overflow-hidden rounded-full border-2 border-gray-300 transition-all duration-300 ease-in-out dark:border-[#3a3a3a]">
+                                <div className="h-8 w-8 overflow-hidden rounded-full border-2 border-gray-500 transition-all duration-300 ease-in-out dark:border-[#3a3a3a]">
                                     {user.profile_picture ? (
                                         <img
                                             src={`/storage/${user.profile_picture}`}
@@ -362,13 +368,13 @@ export default function Sidebar({
                                 </div>
                             </div>
                             <div className={`flex flex-1 min-w-0 items-center justify-between overflow-hidden transition-all duration-300 ease-in-out ${isVisuallyExpanded
-                                    ? 'opacity-100 translate-x-0 relative'
-                                    : 'opacity-0 absolute w-0 pointer-events-none'
+                                ? 'opacity-100 translate-x-0 relative'
+                                : 'opacity-0 absolute w-0 pointer-events-none'
                                 }`}>
-                                <span className="truncate text-sm font-medium text-gray-700 dark:text-gray-100">
+                                <span className="truncate text-sm font-medium text-gray-100 dark:text-gray-100">
                                     {user.first_name} {user.last_name}
                                 </span>
-                                <ChevronsUpDown size={16} className="flex-shrink-0 text-gray-500 dark:text-gray-400" />
+                                <ChevronsUpDown size={16} className="flex-shrink-0 text-gray-400 dark:text-gray-400" />
                             </div>
                         </button>
                     </div>
@@ -387,25 +393,28 @@ export default function Sidebar({
                         {hoveredMenu.name}
                     </div>
                     {hoveredMenu.children?.map((child) => {
-                        const ChildComponent = child.href ? Link : 'button';
-                        const childProps = child.href
-                            ? { href: route(child.href) }
-                            : {
-                                type: 'button' as const,
-                                onClick: child.onClick
-                            };
+                        // Handle click for floating menu items
+                        const handleFloatingMenuClick = () => {
+                            setHoveredMenu(null); // Close floating menu
+                            if (child.href) {
+                                router.visit(route(child.href));
+                            } else if (child.onClick) {
+                                child.onClick();
+                            }
+                        };
 
                         return (
-                            <ChildComponent
+                            <button
                                 key={child.name}
-                                {...childProps}
+                                type="button"
+                                onClick={handleFloatingMenuClick}
                                 className={`block w-full px-4 py-2 text-left text-sm transition-colors ${child.active
-                                        ? 'bg-gray-100 text-black font-bold dark:bg-[#3a3a3a] dark:text-gray-100'
-                                        : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#3a3a3a]'
+                                    ? 'bg-gray-100 text-black font-bold dark:bg-[#3a3a3a] dark:text-gray-100'
+                                    : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#3a3a3a]'
                                     }`}
                             >
                                 {child.name}
-                            </ChildComponent>
+                            </button>
                         );
                     })}
                 </div>

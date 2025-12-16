@@ -79,4 +79,9 @@ class CatalogItem extends Model
         return $this->hasMany(BookRequest::class);
     }
 
+    public function likes(): HasMany
+    {
+        return $this->hasMany(CatalogItemLike::class);
+    }
+
 }
