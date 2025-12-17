@@ -226,11 +226,11 @@ export default function Sidebar({
                                     : { href: route(item.href!) };
 
                             return (
-                                <div key={item.name}>
+                                <div key={item.name} className="mb-1">
                                     <MenuComponent
                                         {...menuProps}
                                         className={`
-                                        group relative flex items-center rounded-lg text-sm transition-all duration-300 ease-in-out py-3 px-2 w-full
+                                        group relative flex items-center rounded-lg text-sm transition-all duration-300 ease-in-out py-2.5 w-full
                                         ${
                                             item.active
                                                 ? "bg-white/10 text-white font-bold dark:bg-[#3a3a3a] dark:text-gray-100"
@@ -326,14 +326,14 @@ export default function Sidebar({
                                                                     key={
                                                                         child.name
                                                                     }
-                                                                    className="relative pl-6"
+                                                                    className="relative pl-6 mb-1 last:mb-0"
                                                                 >
-                                                                    {/* Vertical Line */}
+                                                                    {/* Vertical Line - extends through margin gap */}
                                                                     <div
                                                                         className={`absolute left-0 top-0 w-px bg-gray-500 dark:bg-[#3a3a3a] ${
                                                                             isLast
                                                                                 ? "h-1/2"
-                                                                                : "h-full"
+                                                                                : "h-[calc(100%+0.25rem)]"
                                                                         }`}
                                                                     />
 
@@ -345,7 +345,7 @@ export default function Sidebar({
                                                                         onClick={
                                                                             handleSubMenuClick
                                                                         }
-                                                                        className={`flex w-full items-center gap-3 rounded-lg py-2.5 px-3 text-sm transition-colors ${
+                                                                        className={`flex w-full items-center gap-3 rounded-lg py-2 px-2 text-sm transition-colors ${
                                                                             child.active
                                                                                 ? "bg-white/10 text-white font-bold dark:bg-[#3a3a3a] dark:text-gray-100"
                                                                                 : "text-gray-300 hover:bg-white/10 dark:text-gray-100 dark:hover:bg-[#3a3a3a]"
