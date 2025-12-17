@@ -217,13 +217,104 @@ alwaysApply: true
 
 ---
 
-## 🚀 DEVELOPMENT WORKFLOW
+## 🚀 HOW TO RUN THE APPLICATION
 
-1. **Setup:** `composer install`, `npm install`, `php artisan migrate --seed`
-2. **Development:** Run `npm run dev` and `php artisan serve` concurrently
-3. **Build:** `npm run build` for production assets
-4. **Code Quality:** Keep TypeScript strict mode enabled, use ESLint/Prettier
-5. **Testing:** Write tests for critical business logic (borrowing rules, due dates, etc.)
+### Prerequisites
+- **PHP** ≥ 8.2
+- **Composer** (PHP package manager)
+- **Node.js** ≥ 18 & **npm**
+- **MySQL** or **PostgreSQL** database
+- **Git**
+
+---
+
+### Step 1: Clone & Install Dependencies
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd Library-App
+
+# Install PHP dependencies
+composer install
+
+# Install Node.js dependencies
+npm install
+```
+
+---
+
+### Step 2: Environment Setup
+
+```bash
+# Copy environment file
+cp .env.example .env
+
+# Generate application key
+php artisan key:generate
+```
+
+**Configure `.env` file:**
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=library_db
+DB_USERNAME=root
+DB_PASSWORD=your_password
+```
+
+---
+
+### Step 3: Database Setup
+
+```bash
+# Run migrations and seed data
+php artisan migrate --seed
+
+# Link storage (for file uploads)
+php artisan storage:link
+```
+
+---
+
+### Step 4: Run the Application
+
+**Open TWO terminals and run:**
+
+| Terminal 1 (Backend)       | Terminal 2 (Frontend)     |
+|----------------------------|---------------------------|
+| `php artisan serve`        | `npm run dev`             |
+
+**Access the app:** [http://localhost:8000](http://localhost:8000)
+
+---
+
+### Quick Commands Reference
+
+| Command                            | Purpose                              |
+|------------------------------------|--------------------------------------|
+| `php artisan serve`                | Start Laravel backend server         |
+| `npm run dev`                      | Start Vite dev server (hot reload)   |
+| `npm run build`                    | Build frontend for production        |
+| `php artisan migrate`              | Run new migrations                   |
+| `php artisan migrate:fresh --seed` | Reset DB & reseed (dev only)         |
+| `php artisan tinker`               | Interactive Laravel shell            |
+| `php artisan route:list`           | View all registered routes           |
+
+---
+
+### Production Build
+
+```bash
+# Build optimized frontend assets
+npm run build
+
+# Clear and cache configs
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
 
 ---
 
