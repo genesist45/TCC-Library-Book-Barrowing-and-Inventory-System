@@ -1,21 +1,25 @@
-import { defineConfig } from 'vite';
-import laravel from 'laravel-vite-plugin';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from "vite";
+import laravel from "laravel-vite-plugin";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.tsx'],
+            input: ["resources/css/app.css", "resources/js/app.tsx"],
             refresh: true,
         }),
         react(),
     ],
+    server: {
+        host: "127.0.0.1",
+        port: 5173,
+    },
     resolve: {
         alias: {
-            '@': '/resources/js',
+            "@": "/resources/js",
         },
     },
     optimizeDeps: {
-        include: ['html5-qrcode'],
+        include: ["html5-qrcode"],
     },
 });
