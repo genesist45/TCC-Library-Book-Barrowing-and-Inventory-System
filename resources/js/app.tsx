@@ -1,20 +1,20 @@
-import './bootstrap';
+import "./bootstrap";
 
-import { createInertiaApp } from '@inertiajs/react';
-import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-import { createRoot } from 'react-dom/client';
-import { Suspense } from 'react';
-import { PageSkeleton } from '@/components/common/Loading';
-import { ThemeProvider } from '@/contexts/ThemeContext';
+import { createInertiaApp } from "@inertiajs/react";
+import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
+import { createRoot } from "react-dom/client";
+import { Suspense } from "react";
+import { PageSkeleton } from "@/components/common/Loading";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || "TCC Library";
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) =>
         resolvePageComponent(
             `./pages/${name}.tsx`,
-            import.meta.glob('./pages/**/*.tsx'),
+            import.meta.glob("./pages/**/*.tsx"),
         ),
     setup({ el, App, props }) {
         const root = createRoot(el);
@@ -24,11 +24,11 @@ createInertiaApp({
                 <Suspense fallback={<PageSkeleton />}>
                     <App {...props} />
                 </Suspense>
-            </ThemeProvider>
+            </ThemeProvider>,
         );
     },
     progress: {
-        color: '#0066f6ff',
+        color: "#0066f6ff",
         delay: 250,
         showSpinner: false,
     },
