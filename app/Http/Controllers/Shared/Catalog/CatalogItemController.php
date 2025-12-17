@@ -57,10 +57,14 @@ class CatalogItemController extends Controller
      * Validate catalog item data before showing review page.
      * Uses the same validation rules as store but returns JSON.
      */
-    public function validateForReview(StoreCatalogItemRequest $request): JsonResponse
-    {
+    public function validateForReview(
+        StoreCatalogItemRequest $request,
+    ): JsonResponse {
         // If we reach here, validation passed (Laravel auto-validates via FormRequest)
-        return response()->json(['success' => true, 'message' => 'Validation passed']);
+        return response()->json([
+            "success" => true,
+            "message" => "Validation passed",
+        ]);
     }
 
     public function store(StoreCatalogItemRequest $request): JsonResponse
@@ -77,8 +81,8 @@ class CatalogItemController extends Controller
         unset($data["author_ids"]);
 
         // Remove copies from validated data (they're handled separately)
-        $copiesData = $request->input('copies', []);
-        unset($data['copies']);
+        $copiesData = $request->input("copies", []);
+        unset($data["copies"]);
 
         $catalogItem = CatalogItem::create($data);
 
@@ -90,23 +94,29 @@ class CatalogItemController extends Controller
         if (!empty($copiesData)) {
             foreach ($copiesData as $index => $copyData) {
                 CatalogItemCopy::create([
-                    'catalog_item_id' => $catalogItem->id,
-                    'accession_no' => !empty($copyData['accession_no'])
-                        ? $copyData['accession_no']
+                    "catalog_item_id" => $catalogItem->id,
+                    "accession_no" => !empty($copyData["accession_no"])
+                        ? $copyData["accession_no"]
                         : CatalogItemCopy::generateAccessionNo(),
-                    'copy_no' => $index + 1,
-                    'branch' => $copyData['branch'] ?? null,
-                    'location' => $copyData['location'] ?? null,
-                    'status' => 'Available',
+                    "copy_no" => $index + 1,
+                    "branch" => $copyData["branch"] ?? null,
+                    "location" => $copyData["location"] ?? null,
+                    "status" => "Available",
                 ]);
             }
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Catalog item created successfully.',
-            'catalogItem' => $catalogItem->load(['authors', 'copies.reservedByMember']),
-        ], 201);
+        return response()->json(
+            [
+                "success" => true,
+                "message" => "Catalog item created successfully.",
+                "catalogItem" => $catalogItem->load([
+                    "authors",
+                    "copies.reservedByMember",
+                ]),
+            ],
+            201,
+        );
     }
 
     public function show(CatalogItem $catalogItem): Response
@@ -114,7 +124,7 @@ class CatalogItemController extends Controller
         // Get borrow history for this catalog item
         $borrowHistory = BookRequest::where("catalog_item_id", $catalogItem->id)
             ->whereIn("status", ["Approved", "Returned"])
-            ->with(["member", "bookReturn", "catalogItemCopy"])
+            ->with(["member", "bookReturn", "catalogItemCopy", "catalogItem"])
             ->orderBy("created_at", "desc")
             ->get()
             ->map(function ($request) {
@@ -139,6 +149,7 @@ class CatalogItemController extends Controller
                     "due_date" => $request->return_date?->toDateString(),
                     "date_returned" => $bookReturn?->return_date,
                     "status" => $displayStatus,
+                    "book_title" => $request->catalogItem?->title ?? null,
                     "accession_no" =>
                         $request->catalogItemCopy?->accession_no ?? null,
                     "copy_no" => $request->catalogItemCopy?->copy_no ?? null,
@@ -166,7 +177,7 @@ class CatalogItemController extends Controller
         // Get borrow history for this catalog item
         $borrowHistory = BookRequest::where("catalog_item_id", $catalogItem->id)
             ->whereIn("status", ["Approved", "Returned"])
-            ->with(["member", "bookReturn", "catalogItemCopy"])
+            ->with(["member", "bookReturn", "catalogItemCopy", "catalogItem"])
             ->orderBy("created_at", "desc")
             ->get()
             ->map(function ($request) {
@@ -191,6 +202,7 @@ class CatalogItemController extends Controller
                     "due_date" => $request->return_date?->toDateString(),
                     "date_returned" => $bookReturn?->return_date,
                     "status" => $displayStatus,
+                    "book_title" => $request->catalogItem?->title ?? null,
                     "accession_no" =>
                         $request->catalogItemCopy?->accession_no ?? null,
                     "copy_no" => $request->catalogItemCopy?->copy_no ?? null,
@@ -203,7 +215,10 @@ class CatalogItemController extends Controller
             });
 
         return Inertia::render("admin/catalog-items/Edit", [
-            "catalogItem" => $catalogItem->load(["authors", "copies.reservedByMember"]),
+            "catalogItem" => $catalogItem->load([
+                "authors",
+                "copies.reservedByMember",
+            ]),
             "categories" => Category::where("is_published", true)
                 ->orderBy("name")
                 ->get(["id", "name"]),
