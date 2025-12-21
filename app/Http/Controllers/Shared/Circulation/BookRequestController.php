@@ -432,4 +432,86 @@ class BookRequestController extends Controller
 
         return back()->with("success", "Borrow record created and approved successfully.");
     }
+
+    /**
+     * Display the borrow catalog page with two-card layout
+     */
+    public function borrowCatalog(Request $request)
+    {
+        // Get all catalog items with their copies for selection
+        $catalogItems = \App\Models\CatalogItem::with([
+            'category:id,name',
+            'publisher:id,name',
+            'authors:id,name',
+            'copies' => function ($query) {
+                $query->select('id', 'catalog_item_id', 'copy_no', 'accession_no', 'status', 'branch', 'location');
+            }
+        ])
+            ->withCount('copies')
+            ->withCount([
+                'copies as available_copies_count' => function ($query) {
+                    $query->where('status', 'Available');
+                }
+            ])
+            ->orderBy('title')
+            ->get();
+
+        // Get filter options
+        $authors = \App\Models\Author::select('id', 'first_name', 'last_name')
+            ->orderBy('last_name')
+            ->get()
+            ->map(function ($author) {
+                return [
+                    'id' => $author->id,
+                    'first_name' => $author->first_name,
+                    'last_name' => $author->last_name,
+                    'name' => $author->first_name . ' ' . $author->last_name,
+                ];
+            });
+
+        $publishers = \App\Models\Publisher::select('id', 'name')
+            ->orderBy('name')
+            ->get();
+
+        $categories = \App\Models\Category::select('id', 'name')
+            ->orderBy('name')
+            ->get();
+
+        return inertia("features/Circulations/Pages/BorrowCatalog", [
+            "catalogItems" => $catalogItems,
+            "authors" => $authors,
+            "publishers" => $publishers,
+            "categories" => $categories,
+        ]);
+    }
+
+    /**
+     * Display the available copies page for a catalog item
+     */
+    public function availableCopies(\App\Models\CatalogItem $catalogItem)
+    {
+        // Load the catalog item with all its copies and related data
+        $catalogItem->load([
+            'category:id,name',
+            'publisher:id,name',
+            'authors:id,name',
+            'copies' => function ($query) {
+                $query->select('id', 'catalog_item_id', 'copy_no', 'accession_no', 'status', 'branch', 'location')
+                    ->orderBy('copy_no');
+            }
+        ]);
+
+        // Add counts
+        $catalogItem->loadCount('copies');
+        $catalogItem->loadCount([
+            'copies as available_copies_count' => function ($query) {
+                $query->where('status', 'Available');
+            }
+        ]);
+
+        return inertia("features/Circulations/Pages/AvailableCopiesPage", [
+            "catalogItem" => $catalogItem,
+        ]);
+    }
 }
+

@@ -5,7 +5,7 @@ import { CatalogItemTable } from "../Components/tables";
 import { CatalogItemPageHeader } from "../Components/page";
 import { CatalogItemDeleteModal, CopyBookModal, CopySuccessModal } from "../Components/modals";
 import { toast } from "react-toastify";
-import { PageProps, CatalogItem } from "@/types";
+import { PageProps, CatalogItem, Author, Publisher, Category } from "@/types";
 
 // Extended type to include available_copies_count from the backend
 interface CatalogItemWithAvailability extends CatalogItem {
@@ -14,13 +14,16 @@ interface CatalogItemWithAvailability extends CatalogItem {
 
 interface Props extends PageProps {
     catalogItems: CatalogItemWithAvailability[];
+    authors: { id: number; first_name: string; last_name: string }[];
+    publishers: { id: number; name: string }[];
+    categories: { id: number; name: string }[];
     flash?: {
         success?: string;
         error?: string;
     };
 }
 
-export default function Index({ catalogItems, flash }: Props) {
+export default function Index({ catalogItems, authors, publishers, categories, flash }: Props) {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showCopyModal, setShowCopyModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -28,6 +31,11 @@ export default function Index({ catalogItems, flash }: Props) {
     const [searchTerm, setSearchTerm] = useState("");
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [processing, setProcessing] = useState(false);
+
+    // Filter states
+    const [selectedAuthorId, setSelectedAuthorId] = useState<number | null>(null);
+    const [selectedPublisherId, setSelectedPublisherId] = useState<number | null>(null);
+    const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
 
     useEffect(() => {
         if (flash?.success) {
@@ -112,16 +120,32 @@ export default function Index({ catalogItems, flash }: Props) {
         setSelectedItem(null);
     };
 
+    // Filter items based on search term and selected filters
     const filteredItems = catalogItems.filter((item) => {
         const searchLower = searchTerm.toLowerCase();
-        return (
+
+        // Text search filter
+        const matchesSearch =
             (item.title?.toLowerCase() || "").includes(searchLower) ||
             (item.type?.toLowerCase() || "").includes(searchLower) ||
             (item.category?.name?.toLowerCase() || "").includes(searchLower) ||
             (item.publisher?.name?.toLowerCase() || "").includes(searchLower) ||
             (item.isbn?.toLowerCase() || "").includes(searchLower) ||
-            (item.isbn13?.toLowerCase() || "").includes(searchLower)
-        );
+            (item.isbn13?.toLowerCase() || "").includes(searchLower);
+
+        // Author filter
+        const matchesAuthor = !selectedAuthorId ||
+            item.authors?.some(author => author.id === selectedAuthorId);
+
+        // Publisher filter
+        const matchesPublisher = !selectedPublisherId ||
+            item.publisher?.id === selectedPublisherId;
+
+        // Category filter
+        const matchesCategory = !selectedCategoryId ||
+            item.category?.id === selectedCategoryId;
+
+        return matchesSearch && matchesAuthor && matchesPublisher && matchesCategory;
     });
 
     return (
@@ -194,6 +218,15 @@ export default function Index({ catalogItems, flash }: Props) {
                         onAddItem={handleAddItem}
                         onRefresh={handleRefresh}
                         isRefreshing={isRefreshing}
+                        authors={authors}
+                        publishers={publishers}
+                        categories={categories}
+                        selectedAuthorId={selectedAuthorId}
+                        selectedPublisherId={selectedPublisherId}
+                        selectedCategoryId={selectedCategoryId}
+                        onAuthorChange={setSelectedAuthorId}
+                        onPublisherChange={setSelectedPublisherId}
+                        onCategoryChange={setSelectedCategoryId}
                     />
 
                     <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-colors duration-300 dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">

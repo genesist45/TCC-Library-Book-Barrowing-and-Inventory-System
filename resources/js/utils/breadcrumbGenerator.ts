@@ -61,6 +61,11 @@ export function generateBreadcrumbs(currentRoute: string): BreadcrumbItem[] {
             breadcrumbs.push({ label: 'Edit Request', active: true });
         } else if (currentRoute === 'admin.book-requests.show') {
             breadcrumbs.push({ label: 'View Request', active: true });
+        } else if (currentRoute === 'admin.book-requests.borrow-catalog') {
+            breadcrumbs.push({ label: 'Select a Book to Borrow', active: true });
+        } else if (currentRoute === 'admin.book-requests.available-copies') {
+            breadcrumbs.push({ label: 'Select a Book to Borrow', href: route('admin.book-requests.borrow-catalog') });
+            breadcrumbs.push({ label: 'Item Details', active: true });
         } else {
             breadcrumbs[breadcrumbs.length - 1].active = true;
         }

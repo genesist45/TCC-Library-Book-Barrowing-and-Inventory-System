@@ -308,6 +308,14 @@ Route::middleware(["auth", "verified", "role:admin|staff"])->group(function () {
                 BookRequestController::class,
                 "storeApproved",
             ])->name("book-requests.store-approved");
+            Route::get("book-requests/borrow-catalog", [
+                BookRequestController::class,
+                "borrowCatalog",
+            ])->name("book-requests.borrow-catalog");
+            Route::get("book-requests/available-copies/{catalogItem}", [
+                BookRequestController::class,
+                "availableCopies",
+            ])->name("book-requests.available-copies");
             Route::resource(
                 "book-requests",
                 BookRequestController::class,

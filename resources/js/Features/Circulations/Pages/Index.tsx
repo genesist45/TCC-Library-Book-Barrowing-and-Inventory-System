@@ -7,11 +7,9 @@ import { TableRowSkeleton } from '@/components/common/Loading';
 import { toast } from 'react-toastify';
 import ActionButton, { ActionButtonGroup } from '@/components/buttons/ActionButton';
 import ConfirmModal from '@/components/modals/ConfirmModal';
-import AddBorrowMemberModal, { CatalogItemFull } from '../Components/AddBorrowMemberModal';
 
 interface Props extends PageProps {
     bookRequests: BookRequest[];
-    catalogItems: CatalogItemFull[];
     flash?: {
         success?: string;
         error?: string;
@@ -20,13 +18,12 @@ interface Props extends PageProps {
 
 type ModalAction = 'approve' | 'disapprove' | 'delete' | null;
 
-export default function Index({ bookRequests, catalogItems, flash }: Props) {
+export default function Index({ bookRequests, flash }: Props) {
     const [selectedRequest, setSelectedRequest] = useState<BookRequest | null>(null);
     const [modalAction, setModalAction] = useState<ModalAction>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [processing, setProcessing] = useState(false);
-    const [showAddBorrowModal, setShowAddBorrowModal] = useState(false);
 
     useEffect(() => {
         if (flash?.success) {
@@ -261,9 +258,9 @@ export default function Index({ bookRequests, catalogItems, flash }: Props) {
                                 <Printer className="h-5 w-5" />
                             </button>
 
-                            {/* Add Borrow Member Button */}
+                            {/* Add Borrow Member Button - Navigates directly to page */}
                             <button
-                                onClick={() => setShowAddBorrowModal(true)}
+                                onClick={() => router.visit(route('admin.book-requests.borrow-catalog'))}
                                 className="flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
                                 title="Add Borrow Member"
                             >
@@ -428,12 +425,6 @@ export default function Index({ bookRequests, catalogItems, flash }: Props) {
                 variant={modalConfig.variant}
             />
 
-            {/* Add Borrow Member Modal */}
-            <AddBorrowMemberModal
-                isOpen={showAddBorrowModal}
-                onClose={() => setShowAddBorrowModal(false)}
-                catalogItems={catalogItems}
-            />
         </AuthenticatedLayout>
     );
 }

@@ -50,35 +50,10 @@ export const getStaffMenuItems = (currentRoute: string): MenuItem[] => {
             ],
         },
         {
-            name: 'Catalogs',
+            name: 'Catalog Items',
+            href: 'admin.catalog-items.index',
             icon: LibraryBig,
-            active: currentRoute.startsWith('admin.catalog-items.') || currentRoute.startsWith('admin.authors.') || currentRoute.startsWith('admin.publishers.') || currentRoute.startsWith('admin.categories.'),
-            children: [
-                {
-                    name: 'Catalog Items',
-                    icon: List,
-                    href: 'admin.catalog-items.index',
-                    active: currentRoute === 'admin.catalog-items.index' || currentRoute.startsWith('admin.catalog-items.'),
-                },
-                {
-                    name: 'Authors',
-                    icon: UserSquare2,
-                    href: 'admin.authors.index',
-                    active: currentRoute === 'admin.authors.index' || currentRoute.startsWith('admin.authors.'),
-                },
-                {
-                    name: 'Publishers',
-                    icon: Building2,
-                    href: 'admin.publishers.index',
-                    active: currentRoute === 'admin.publishers.index' || currentRoute.startsWith('admin.publishers.'),
-                },
-                {
-                    name: 'Categories',
-                    icon: Tags,
-                    href: 'admin.categories.index',
-                    active: currentRoute === 'admin.categories.index' || currentRoute.startsWith('admin.categories.'),
-                },
-            ],
+            active: currentRoute.startsWith('admin.catalog-items.'),
         }
     ];
 };
