@@ -2,6 +2,7 @@ import { usePage } from '@inertiajs/react';
 import { PropsWithChildren, useState, useEffect, Suspense, lazy } from 'react';
 import { generateBreadcrumbs } from '@/utils/breadcrumbGenerator';
 import { HeaderSkeleton, SidebarSkeleton, BreadcrumbsSkeleton } from '@/components/common/Loading';
+import { PageProps } from '@/types';
 
 // Lazy load heavy UI components
 const Header = lazy(() => import('@/components/common/Header'));
@@ -10,12 +11,13 @@ const Breadcrumbs = lazy(() => import('@/components/common/Breadcrumbs'));
 const Toast = lazy(() => import('@/components/common/Toast'));
 
 export default function Authenticated({ children }: PropsWithChildren) {
-    const user = usePage().props.auth.user;
+    const { auth } = usePage<PageProps>().props;
+    const user = auth.user;
     const currentRoute = route().current() || '';
 
     const [showingMobileSidebar, setShowingMobileSidebar] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
-    
+
     // Initialize sidebar state from localStorage
     const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
         if (typeof window !== 'undefined') {
@@ -64,12 +66,12 @@ export default function Authenticated({ children }: PropsWithChildren) {
             <Suspense fallback={null}>
                 <Toast />
             </Suspense>
-            
+
             {/* Sidebar for desktop */}
             <div className="hidden lg:block">
                 <Suspense fallback={<SidebarSkeleton collapsed={sidebarCollapsed} />}>
-                    <Sidebar 
-                        currentRoute={currentRoute} 
+                    <Sidebar
+                        currentRoute={currentRoute}
                         collapsed={sidebarCollapsed}
                         showExpanded={showExpanded}
                         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -81,23 +83,21 @@ export default function Authenticated({ children }: PropsWithChildren) {
             {/* Mobile sidebar overlay */}
             {showingMobileSidebar && (
                 <div
-                    className={`fixed inset-0 z-50 bg-gray-900 transition-opacity duration-300 dark:bg-black lg:hidden ${
-                        isAnimating ? 'bg-opacity-50 dark:bg-opacity-60' : 'bg-opacity-0 dark:bg-opacity-0'
-                    }`}
+                    className={`fixed inset-0 z-50 bg-gray-900 transition-opacity duration-300 dark:bg-black lg:hidden ${isAnimating ? 'bg-opacity-50 dark:bg-opacity-60' : 'bg-opacity-0 dark:bg-opacity-0'
+                        }`}
                     onClick={handleCloseMobileSidebar}
                 >
                     <div
-                        className={`fixed left-0 top-0 h-screen w-64 transform transition-transform duration-300 ease-in-out ${
-                            isAnimating ? 'translate-x-0' : '-translate-x-full'
-                        }`}
+                        className={`fixed left-0 top-0 h-screen w-64 transform transition-transform duration-300 ease-in-out ${isAnimating ? 'translate-x-0' : '-translate-x-full'
+                            }`}
                         onClick={(e) => e.stopPropagation()}
                     >
                         <Suspense fallback={<SidebarSkeleton collapsed={false} />}>
-                            <Sidebar 
-                                currentRoute={currentRoute} 
-                                collapsed={false} 
+                            <Sidebar
+                                currentRoute={currentRoute}
+                                collapsed={false}
                                 showExpanded={true}
-                                user={user} 
+                                user={user}
                             />
                         </Suspense>
                     </div>

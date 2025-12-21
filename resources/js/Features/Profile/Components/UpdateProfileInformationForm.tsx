@@ -10,6 +10,7 @@ import { FormEventHandler, useRef, useState, useEffect } from 'react';
 import { Upload, Trash2 } from 'lucide-react';
 import defaultUserImage from '@/assets/images/avatars/default-user.png';
 import { toast } from 'react-toastify';
+import { PageProps } from '@/types';
 
 export function UpdateProfileInformationForm({
     mustVerifyEmail,
@@ -20,7 +21,8 @@ export function UpdateProfileInformationForm({
     status?: string;
     className?: string;
 }) {
-    const user = usePage().props.auth.user;
+    const { auth } = usePage<PageProps>().props;
+    const user = auth.user;
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
     const [removingAvatar, setRemovingAvatar] = useState(false);
