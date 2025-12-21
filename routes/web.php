@@ -39,19 +39,19 @@ Route::get("/", function () {
         ->take(10)
         ->get();
 
-    return Inertia::render("Welcome", [
+    return Inertia::render("features/Public/Pages/Welcome", [
         "popularBooks" => $popularBooks,
     ]);
 });
 
 // About Us page
 Route::get("/about", function () {
-    return Inertia::render("About");
+    return Inertia::render("features/Public/Pages/About");
 })->name("about");
 
 // Contact Us page
 Route::get("/contact", function () {
-    return Inertia::render("Contact");
+    return Inertia::render("features/Public/Pages/Contact");
 })->name("contact");
 
 // Public book search routes

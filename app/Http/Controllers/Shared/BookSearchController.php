@@ -57,7 +57,7 @@ class BookSearchController extends Controller
         $hasCopies = $catalogItem->copies_count > 0;
         $allCopiesBorrowed = $hasCopies && !$hasAvailableCopies;
 
-        return inertia("BookDetails", [
+        return inertia("features/Public/Pages/BookDetails", [
             "catalogItem" => $catalogItem,
             "hasAvailableCopies" => $hasAvailableCopies,
             "hasCopies" => $hasCopies,
@@ -92,7 +92,7 @@ class BookSearchController extends Controller
             "copies",
         ])->findOrFail($id);
 
-        return inertia("BorrowRequest", [
+        return inertia("features/Public/Pages/BorrowRequest", [
             "catalogItem" => $catalogItem,
         ]);
     }

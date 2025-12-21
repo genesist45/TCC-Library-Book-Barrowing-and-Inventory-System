@@ -27,7 +27,7 @@ class BookReturnController extends Controller
             ->orderBy("created_at", "desc")
             ->get();
 
-        return Inertia::render("admin/BookReturns", [
+        return Inertia::render("features/BookReturns/Pages/Index", [
             "bookReturns" => $bookReturns,
         ]);
     }

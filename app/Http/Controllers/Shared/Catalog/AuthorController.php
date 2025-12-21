@@ -15,7 +15,7 @@ class AuthorController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('admin/Authors', [
+        return Inertia::render('features/Authors/Pages/Index', [
             'authors' => Author::withCount('catalogItems')
                 ->orderBy('created_at', 'desc')
                 ->get()

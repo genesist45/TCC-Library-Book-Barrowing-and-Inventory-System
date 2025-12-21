@@ -39,7 +39,7 @@ class BookRequestController extends Controller
             ->orderBy('title')
             ->get();
 
-        return inertia("admin/circulations/book-requests/View", [
+        return inertia("features/Circulations/Pages/Index", [
             "bookRequests" => $bookRequests,
             "catalogItems" => $catalogItems,
         ]);
@@ -57,7 +57,7 @@ class BookRequestController extends Controller
             "catalogItemCopy",
         ])->findOrFail($id);
 
-        return inertia("admin/circulations/book-requests/Show", [
+        return inertia("features/Circulations/Pages/Show", [
             "bookRequest" => $bookRequest,
         ]);
     }
@@ -74,7 +74,7 @@ class BookRequestController extends Controller
             "catalogItemCopy",
         ])->findOrFail($id);
 
-        return inertia("admin/circulations/book-requests/Edit", [
+        return inertia("features/Circulations/Pages/Edit", [
             "bookRequest" => $bookRequest,
         ]);
     }

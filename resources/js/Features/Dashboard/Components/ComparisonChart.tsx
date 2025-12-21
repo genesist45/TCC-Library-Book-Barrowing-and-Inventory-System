@@ -10,7 +10,7 @@ import {
 } from "recharts";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import type { ChartDataPoint } from "../types/dashboard.d";
+import type { ChartDataPoint } from "../types/dashboard";
 
 type TimePeriod = "day" | "week" | "month" | "year";
 

@@ -1,6 +1,6 @@
 import { Link } from "@inertiajs/react";
 import { BookPlus, ExternalLink, BookOpen } from "lucide-react";
-import type { NewArrivalItem } from "../types/dashboard.d";
+import type { NewArrivalItem } from "../types/dashboard";
 
 interface NewArrivalsCardProps {
     items: NewArrivalItem[];

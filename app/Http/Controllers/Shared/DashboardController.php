@@ -54,7 +54,7 @@ class DashboardController extends Controller
             // Get comparison chart data (weekly data - default)
             $comparisonChartData = $this->getComparisonChartData('week');
 
-            return Inertia::render("Features/Dashboard/Pages/Index", [
+            return Inertia::render("features/Dashboard/Pages/Index", [
                 "stats" => $stats,
                 "newArrivals" => $newArrivals,
                 "activeCheckouts" => $activeCheckouts,

@@ -11,7 +11,7 @@ const appName = import.meta.env.VITE_APP_NAME || "TCC Library";
 
 // Glob patterns for page resolution
 const pagesGlob = import.meta.glob("./pages/**/*.tsx");
-const featuresGlob = import.meta.glob("./Features/**/Pages/*.tsx");
+const featuresGlob = import.meta.glob("./features/**/Pages/*.tsx");
 
 // Merge all page globs
 const allPages = { ...pagesGlob, ...featuresGlob };
@@ -20,7 +20,7 @@ createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) => {
         // Try Features path first (new Feature-Based Architecture)
-        if (name.startsWith("Features/")) {
+        if (name.startsWith("features/")) {
             return resolvePageComponent(`./${name}.tsx`, allPages);
         }
         // Fall back to legacy pages path

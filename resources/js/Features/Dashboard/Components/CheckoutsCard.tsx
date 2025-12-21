@@ -1,6 +1,6 @@
 import { Link } from "@inertiajs/react";
 import { BookCheck, ExternalLink, BookOpen, Clock, User } from "lucide-react";
-import type { CheckoutItem } from "../types/dashboard.d";
+import type { CheckoutItem } from "../types/dashboard";
 
 interface CheckoutsCardProps {
     items: CheckoutItem[];

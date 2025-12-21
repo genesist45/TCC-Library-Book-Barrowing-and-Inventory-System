@@ -8,7 +8,7 @@ import {
     ComparisonChart,
 } from "../Components";
 import { PageProps } from "@/types";
-import type { DashboardProps, ChartDataPoint } from "../types/dashboard.d";
+import type { DashboardProps, ChartDataPoint } from "../types/dashboard";
 
 export default function Index({
     stats,
