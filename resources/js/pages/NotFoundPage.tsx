@@ -1,7 +1,6 @@
 import { Head, Link } from "@inertiajs/react";
-import { Search, Home, ArrowLeft, BookOpen, HelpCircle } from "lucide-react";
+import { Home, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState } from "react";
 
 interface NotFoundProps {
     status?: number;
@@ -16,23 +15,6 @@ export default function NotFoundPage({
     status = 404,
     message = "The page you're looking for doesn't exist or has been moved.",
 }: NotFoundProps) {
-    const [searchQuery, setSearchQuery] = useState("");
-
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (searchQuery.trim()) {
-            // Navigate to book search with query
-            window.location.href = `/?search=${encodeURIComponent(searchQuery)}`;
-        }
-    };
-
-    // Quick links for navigation
-    const quickLinks = [
-        { href: "/", label: "Home", icon: Home },
-        { href: "/books/search", label: "Browse Books", icon: BookOpen },
-        { href: "/contact", label: "Get Help", icon: HelpCircle },
-    ];
-
     return (
         <>
             <Head title="Page Not Found" />
@@ -83,24 +65,6 @@ export default function NotFoundPage({
                                     <span className="text-[120px] sm:text-[150px] font-black leading-none bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent select-none">
                                         {status}
                                     </span>
-
-                                    {/* Magnifying glass overlay */}
-                                    <motion.div
-                                        animate={{
-                                            x: [0, 10, 0, -10, 0],
-                                            y: [0, -5, 0, 5, 0],
-                                        }}
-                                        transition={{
-                                            duration: 5,
-                                            repeat: Infinity,
-                                            ease: "easeInOut",
-                                        }}
-                                        className="absolute -right-4 top-1/2 -translate-y-1/2"
-                                    >
-                                        <div className="w-16 h-16 bg-white/80 backdrop-blur rounded-full border-4 border-blue-400 flex items-center justify-center shadow-lg">
-                                            <Search className="w-8 h-8 text-blue-500" />
-                                        </div>
-                                    </motion.div>
                                 </motion.div>
                             </motion.div>
 
@@ -124,40 +88,12 @@ export default function NotFoundPage({
                                 {message}
                             </motion.p>
 
-                            {/* Search bar */}
-                            <motion.form
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.5 }}
-                                onSubmit={handleSearch}
-                                className="mb-8"
-                            >
-                                <div className="relative max-w-sm mx-auto">
-                                    <input
-                                        type="text"
-                                        placeholder="Search for books..."
-                                        value={searchQuery}
-                                        onChange={(e) =>
-                                            setSearchQuery(e.target.value)
-                                        }
-                                        className="w-full px-5 py-3 pl-12 rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 outline-none transition-all duration-200 text-gray-700"
-                                    />
-                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                    <button
-                                        type="submit"
-                                        className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors"
-                                    >
-                                        Search
-                                    </button>
-                                </div>
-                            </motion.form>
-
                             {/* Action buttons */}
                             <motion.div
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.6 }}
-                                className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8"
+                                transition={{ delay: 0.5 }}
+                                className="flex flex-col sm:flex-row items-center justify-center gap-3"
                             >
                                 <button
                                     onClick={() => window.history.back()}
@@ -175,30 +111,6 @@ export default function NotFoundPage({
                                     Back to Home
                                 </Link>
                             </motion.div>
-
-                            {/* Quick links */}
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.7 }}
-                                className="pt-6 border-t border-gray-200"
-                            >
-                                <p className="text-sm text-gray-500 mb-4">
-                                    Or try these quick links:
-                                </p>
-                                <div className="flex flex-wrap items-center justify-center gap-3">
-                                    {quickLinks.map((link) => (
-                                        <Link
-                                            key={link.href}
-                                            href={link.href}
-                                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors"
-                                        >
-                                            <link.icon className="w-4 h-4" />
-                                            {link.label}
-                                        </Link>
-                                    ))}
-                                </div>
-                            </motion.div>
                         </div>
                     </div>
 
@@ -206,7 +118,7 @@ export default function NotFoundPage({
                     <motion.p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        transition={{ delay: 0.8 }}
+                        transition={{ delay: 0.6 }}
                         className="text-center text-gray-500 text-sm mt-6"
                     >
                         Looks like this page went on vacation! 🏝️
