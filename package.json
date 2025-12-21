@@ -5,9 +5,9 @@
     "scripts": {
         "build": "tsc && vite build",
         "dev": "vite",
-        "electron": "npm run build && npx electron .",
-        "electron:dev": "concurrently \"npm run dev\" \"wait-on http://127.0.0.1:5173 && npx electron .\"",
-        "package": "npm run build && electron-builder"
+        "electron": "pnpm build && pnpm exec electron .",
+        "electron:dev": "concurrently \"pnpm dev\" \"wait-on http://127.0.0.1:5173 && pnpm exec electron .\"",
+        "package": "pnpm build && electron-builder"
     },
     "main": "electron.cjs",
     "devDependencies": {
