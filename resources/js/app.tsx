@@ -9,13 +9,23 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 
 const appName = import.meta.env.VITE_APP_NAME || "TCC Library";
 
+// Glob patterns for page resolution
+const pagesGlob = import.meta.glob("./pages/**/*.tsx");
+const featuresGlob = import.meta.glob("./Features/**/Pages/*.tsx");
+
+// Merge all page globs
+const allPages = { ...pagesGlob, ...featuresGlob };
+
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
-    resolve: (name) =>
-        resolvePageComponent(
-            `./pages/${name}.tsx`,
-            import.meta.glob("./pages/**/*.tsx"),
-        ),
+    resolve: (name) => {
+        // Try Features path first (new Feature-Based Architecture)
+        if (name.startsWith("Features/")) {
+            return resolvePageComponent(`./${name}.tsx`, allPages);
+        }
+        // Fall back to legacy pages path
+        return resolvePageComponent(`./pages/${name}.tsx`, allPages);
+    },
     setup({ el, App, props }) {
         const root = createRoot(el);
 
