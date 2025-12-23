@@ -457,17 +457,9 @@ class BookRequestController extends Controller
             ->get();
 
         // Get filter options
-        $authors = \App\Models\Author::select('id', 'first_name', 'last_name')
-            ->orderBy('last_name')
-            ->get()
-            ->map(function ($author) {
-                return [
-                    'id' => $author->id,
-                    'first_name' => $author->first_name,
-                    'last_name' => $author->last_name,
-                    'name' => $author->first_name . ' ' . $author->last_name,
-                ];
-            });
+        $authors = \App\Models\Author::select('id', 'name')
+            ->orderBy('name')
+            ->get();
 
         $publishers = \App\Models\Publisher::select('id', 'name')
             ->orderBy('name')

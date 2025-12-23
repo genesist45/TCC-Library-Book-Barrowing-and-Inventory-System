@@ -36,9 +36,7 @@ export interface CatalogItemFull {
 
 export interface Author {
     id: number;
-    first_name: string;
-    last_name: string;
-    name?: string;
+    name: string;
 }
 
 export interface Publisher {

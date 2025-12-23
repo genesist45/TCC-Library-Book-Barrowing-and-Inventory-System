@@ -96,11 +96,8 @@ export default function BorrowCatalog({
     const startIndex = (currentPage - 1) * itemsPerPage;
     const paginatedItems = filteredItems.slice(startIndex, startIndex + itemsPerPage);
 
-    // Transform authors for filter dropdown
-    const authorOptions: FilterOption[] = authors.map((a) => ({
-        id: a.id,
-        name: a.name || `${a.first_name} ${a.last_name}`,
-    }));
+    // Authors already have name field matching FilterOption interface
+    const authorOptions: FilterOption[] = authors;
 
     return (
         <AuthenticatedLayout>
