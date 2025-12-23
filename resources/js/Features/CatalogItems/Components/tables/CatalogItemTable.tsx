@@ -5,6 +5,32 @@ import { CatalogItem } from "@/types";
 const shimmerClass =
     "animate-shimmer bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 bg-[length:200%_100%] dark:from-[#3a3a3a] dark:via-[#4a4a4a] dark:to-[#3a3a3a]";
 
+const MAX_TEXT_LENGTH = 23;
+
+/**
+ * Truncates text to specified length and shows full text on hover
+ */
+function TruncatedText({ text, maxLength = MAX_TEXT_LENGTH, className = "" }: {
+    text: string | null | undefined;
+    maxLength?: number;
+    className?: string;
+}) {
+    const displayText = text || "-";
+    const isTruncated = displayText.length > maxLength;
+    const truncatedText = isTruncated
+        ? displayText.substring(0, maxLength) + "..."
+        : displayText;
+
+    return (
+        <span
+            className={`${className} ${isTruncated ? "cursor-help" : ""}`}
+            title={isTruncated ? displayText : undefined}
+        >
+            {truncatedText}
+        </span>
+    );
+}
+
 function CatalogItemTableRowSkeleton() {
     return (
         <tr className="border-b border-gray-200 transition-colors duration-300 dark:border-[#3a3a3a]">
@@ -150,7 +176,7 @@ export default function CatalogItemTable({
                                     <td className="whitespace-nowrap px-3 py-2 sm:px-4">
                                         <div className="text-sm">
                                             <div className="font-medium text-gray-900 transition-colors duration-300 dark:text-gray-100">
-                                                {item.title}
+                                                <TruncatedText text={item.title} />
                                             </div>
                                             <div className="text-xs text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:hidden">
                                                 {item.type}
@@ -161,10 +187,10 @@ export default function CatalogItemTable({
                                         {item.type}
                                     </td>
                                     <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 md:table-cell sm:px-4">
-                                        {item.category?.name || "-"}
+                                        <TruncatedText text={item.category?.name} />
                                     </td>
                                     <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 lg:table-cell sm:px-4">
-                                        {item.publisher?.name || "-"}
+                                        <TruncatedText text={item.publisher?.name} />
                                     </td>
                                     <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 lg:table-cell sm:px-4">
                                         {item.year || "-"}
@@ -263,3 +289,4 @@ export default function CatalogItemTable({
         </div>
     );
 }
+

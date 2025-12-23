@@ -37,8 +37,8 @@ class CatalogItemController extends Controller
                 ->get(),
             // Filter options for the header
             "authors" => Author::where("is_published", true)
-                ->orderBy("first_name")
-                ->get(["id", "first_name", "last_name"]),
+                ->orderBy("name")
+                ->get(["id", "name"]),
             "publishers" => Publisher::where("is_published", true)
                 ->orderBy("name")
                 ->get(["id", "name"]),

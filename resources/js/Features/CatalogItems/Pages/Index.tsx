@@ -6,6 +6,7 @@ import { CatalogItemPageHeader } from "../Components/page";
 import { CatalogItemDeleteModal, CopyBookModal, CopySuccessModal } from "../Components/modals";
 import { toast } from "react-toastify";
 import { PageProps, CatalogItem, Author, Publisher, Category } from "@/types";
+import Pagination from "@/components/common/Pagination";
 
 // Extended type to include available_copies_count from the backend
 interface CatalogItemWithAvailability extends CatalogItem {
@@ -14,7 +15,7 @@ interface CatalogItemWithAvailability extends CatalogItem {
 
 interface Props extends PageProps {
     catalogItems: CatalogItemWithAvailability[];
-    authors: { id: number; first_name: string; last_name: string }[];
+    authors: { id: number; name: string }[];
     publishers: { id: number; name: string }[];
     categories: { id: number; name: string }[];
     flash?: {
@@ -32,6 +33,10 @@ export default function Index({ catalogItems, authors, publishers, categories, f
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [processing, setProcessing] = useState(false);
 
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+
     // Filter states
     const [selectedAuthorId, setSelectedAuthorId] = useState<number | null>(null);
     const [selectedPublisherId, setSelectedPublisherId] = useState<number | null>(null);
@@ -45,6 +50,11 @@ export default function Index({ catalogItems, authors, publishers, categories, f
             toast.error(flash.error);
         }
     }, [flash]);
+
+    // Reset to first page when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, selectedAuthorId, selectedPublisherId, selectedCategoryId]);
 
     const handleAddItem = () => {
         router.visit(route("admin.catalog-items.create"));
@@ -148,6 +158,11 @@ export default function Index({ catalogItems, authors, publishers, categories, f
         return matchesSearch && matchesAuthor && matchesPublisher && matchesCategory;
     });
 
+    // Pagination
+    const totalItems = filteredItems.length;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedItems = filteredItems.slice(startIndex, startIndex + itemsPerPage);
+
     return (
         <AuthenticatedLayout>
             <Head title="Catalog Items">
@@ -231,13 +246,28 @@ export default function Index({ catalogItems, authors, publishers, categories, f
 
                     <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-colors duration-300 dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">
                         <CatalogItemTable
-                            items={filteredItems}
+                            items={paginatedItems}
                             onView={handleViewItem}
                             onCopy={handleCopyItem}
                             onEdit={handleEditItem}
                             onDelete={handleDeleteItem}
                             isLoading={isRefreshing}
                         />
+
+                        {/* Pagination */}
+                        {totalItems > 0 && (
+                            <div className="border-t border-gray-200 dark:border-[#3a3a3a]">
+                                <Pagination
+                                    currentPage={currentPage}
+                                    totalItems={totalItems}
+                                    itemsPerPage={itemsPerPage}
+                                    onPageChange={setCurrentPage}
+                                    onItemsPerPageChange={setItemsPerPage}
+                                    showRowsPerPage={true}
+                                    itemsPerPageOptions={[10, 25, 50, 100]}
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

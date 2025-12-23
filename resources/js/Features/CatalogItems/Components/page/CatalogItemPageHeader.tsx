@@ -14,7 +14,7 @@ interface CatalogItemPageHeaderProps {
     onRefresh: () => void;
     isRefreshing?: boolean;
     // Filter props
-    authors?: { id: number; first_name: string; last_name: string }[];
+    authors?: { id: number; name: string }[];
     publishers?: FilterOption[];
     categories?: FilterOption[];
     selectedAuthorId?: number | null;
@@ -157,11 +157,8 @@ export default function CatalogItemPageHeader({
         window.print();
     };
 
-    // Transform authors to have a name field
-    const authorOptions: FilterOption[] = authors.map(a => ({
-        id: a.id,
-        name: `${a.first_name} ${a.last_name}`
-    }));
+    // Authors already have a name field matching FilterOption interface
+    const authorOptions: FilterOption[] = authors;
 
 
 
