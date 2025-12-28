@@ -14,26 +14,30 @@ class RoleBasedUserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create Admin User
-        User::create([
-            'first_name' => 'Admin',
-            'last_name' => 'User',
-            'username' => 'admin',
-            'email' => 'admin@tcc.com',
-            'role' => 'admin',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-        ]);
+        // Create Admin User (skip if already exists)
+        User::firstOrCreate(
+            ['username' => 'admin'],
+            [
+                'first_name' => 'Admin',
+                'last_name' => 'User',
+                'email' => 'admin@tcc.com',
+                'role' => 'admin',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
+        );
 
-        // Create Staff User
-        User::create([
-            'first_name' => 'Staff',
-            'last_name' => 'User',
-            'username' => 'staff',
-            'email' => 'staff@tcc.com',
-            'role' => 'staff',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-        ]);
+        // Create Staff User (skip if already exists)
+        User::firstOrCreate(
+            ['username' => 'staff'],
+            [
+                'first_name' => 'Staff',
+                'last_name' => 'User',
+                'email' => 'staff@tcc.com',
+                'role' => 'staff',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
+        );
     }
 }
