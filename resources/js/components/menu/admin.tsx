@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, ScanBarcode, Mail, LibraryBig, List, UserSquare2, Building2, Tags, RefreshCcw, UserCheck, BookCheck, Book } from 'lucide-react';
+import { LayoutDashboard, Users, ScanBarcode, Mail, LibraryBig, List, UserSquare2, Building2, Tags, RefreshCcw, UserCheck, BookCheck, Book, BarChart3 } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 
 export interface MenuItem {
@@ -60,6 +60,20 @@ export const getAdminMenuItems = (currentRoute: string): MenuItem[] => {
             href: 'admin.catalog-items.index',
             icon: LibraryBig,
             active: currentRoute.startsWith('admin.catalog-items.'),
+        },
+        {
+            name: 'Reports',
+            icon: BarChart3,
+            active: currentRoute.startsWith('admin.reports.'),
+            children: [
+                {
+                    name: 'Catalog Reports',
+                    icon: LibraryBig,
+                    href: 'admin.reports.catalog',
+                    active: currentRoute === 'admin.reports.catalog',
+                },
+            ],
         }
     ];
 };
+
