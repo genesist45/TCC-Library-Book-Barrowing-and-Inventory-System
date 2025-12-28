@@ -107,6 +107,14 @@ export function generateBreadcrumbs(currentRoute: string): BreadcrumbItem[] {
         return [{ label: 'Email Reminder', active: true }];
     }
 
+    // Reports routes
+    if (currentRoute.startsWith('admin.reports')) {
+        if (currentRoute === 'admin.reports.catalog') {
+            breadcrumbs.push({ label: 'Catalog Reports', active: true });
+        }
+        return breadcrumbs;
+    }
+
     // Default fallback
     return [];
 }
