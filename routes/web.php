@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\SetupController;
-use App\Http\Controllers\Shared\AIChatController;
 use App\Http\Controllers\Shared\BookSearchController;
 use App\Http\Controllers\Shared\DashboardController;
 use App\Http\Controllers\Shared\ProfileController;
@@ -120,24 +119,7 @@ Route::middleware(["auth", "verified"])->group(function () {
         "profile.destroy",
     );
 
-    // AI Chat
-    Route::post("/ai/chat", [AIChatController::class, "chat"])->name("ai.chat");
-    Route::get("/ai/conversations", [
-        AIChatController::class,
-        "conversations",
-    ])->name("ai.conversations");
-    Route::get("/ai/conversations/{id}", [
-        AIChatController::class,
-        "getConversation",
-    ])->name("ai.conversations.get");
-    Route::post("/ai/conversations", [
-        AIChatController::class,
-        "saveConversation",
-    ])->name("ai.conversations.save");
-    Route::delete("/ai/conversations/{id}", [
-        AIChatController::class,
-        "deleteConversation",
-    ])->name("ai.conversations.delete");
+
 
     // Notifications
     Route::post("/notifications/{id}/read", function ($id) {

@@ -5,7 +5,6 @@ import {
     PanelLeftClose,
     PanelLeft,
     Bell,
-    Bot,
     ChevronDown,
     Settings,
     LogOut,
@@ -15,7 +14,6 @@ import {
     AlertTriangle,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import AIChatSidebar from "@/components/sidebars/AIChatSidebar";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import { router, usePage } from "@inertiajs/react";
 import { Link } from "@inertiajs/react";
@@ -45,7 +43,7 @@ export default function Header({
     onToggleSidebar,
     user,
 }: HeaderProps) {
-    const [showAIChatSidebar, setShowAIChatSidebar] = useState(false);
+
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [processing, setProcessing] = useState(false);
@@ -159,16 +157,7 @@ export default function Header({
 
                     {/* Right side - Actions */}
                     <div className="flex items-center gap-1">
-                        {/* AI Assistant */}
-                        <button
-                            type="button"
-                            onClick={() => setShowAIChatSidebar(true)}
-                            className="rounded-md p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:bg-[#3a3a3a] dark:hover:text-gray-200"
-                            title="AI Assistant"
-                            aria-label="AI Assistant"
-                        >
-                            <Bot size={20} />
-                        </button>
+
 
                         {/* Notification Bell */}
                         <Dropdown>
@@ -509,12 +498,7 @@ export default function Header({
                 </div>
             </nav>
 
-            {/* AI Chat Sidebar */}
-            <AIChatSidebar
-                isOpen={showAIChatSidebar}
-                onClose={() => setShowAIChatSidebar(false)}
-                user={user}
-            />
+
 
             {/* Logout Confirmation Modal */}
             <ConfirmModal
