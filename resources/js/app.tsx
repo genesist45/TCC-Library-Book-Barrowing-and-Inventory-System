@@ -9,9 +9,9 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 
 const appName = import.meta.env.VITE_APP_NAME || "TCC Library";
 
-// Glob patterns for page resolution
+// Glob patterns for page resolution - capture ALL tsx files
 const pagesGlob = import.meta.glob("./pages/**/*.tsx");
-const featuresGlob = import.meta.glob("./features/**/Pages/*.tsx");
+const featuresGlob = import.meta.glob("./features/**/*.tsx");
 
 // Merge all page globs
 const allPages = { ...pagesGlob, ...featuresGlob };
@@ -19,9 +19,12 @@ const allPages = { ...pagesGlob, ...featuresGlob };
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) => {
-        // Try Features path first (new Feature-Based Architecture)
-        if (name.startsWith("features/")) {
-            return resolvePageComponent(`./${name}.tsx`, allPages);
+        // Handle features path (Feature-Based Architecture)
+        // Support both 'features/' and 'Features/' from routes
+        if (name.includes("features/") || name.includes("Features/")) {
+            // Normalize to lowercase 'features/' to match folder structure
+            const normalizedName = name.replace(/Features\//gi, "features/");
+            return resolvePageComponent(`./${normalizedName}.tsx`, allPages);
         }
         // Fall back to legacy pages path
         return resolvePageComponent(`./pages/${name}.tsx`, allPages);
