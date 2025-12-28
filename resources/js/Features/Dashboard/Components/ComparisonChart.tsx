@@ -23,8 +23,40 @@ export const ComparisonChart = ({ data: initialData }: ComparisonChartProps) => 
     const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("week");
     const [chartData, setChartData] = useState<ChartDataPoint[]>(initialData);
     const [isLoading, setIsLoading] = useState(false);
+    const [isReady, setIsReady] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const chartRef = useRef<HTMLDivElement>(null);
+
+    // Wait for container to have proper dimensions before rendering chart
+    useEffect(() => {
+        const container = chartRef.current;
+        if (!container) return;
+
+        const checkDimensions = () => {
+            const { width, height } = container.getBoundingClientRect();
+            if (width > 0 && height > 0) {
+                setIsReady(true);
+            }
+        };
+
+        // Check after a delay to allow layout to settle
+        const timer = setTimeout(checkDimensions, 200);
+
+        // Also use ResizeObserver as backup
+        const observer = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                if (entry.contentRect.width > 0) {
+                    setIsReady(true);
+                }
+            }
+        });
+        observer.observe(container);
+
+        return () => {
+            clearTimeout(timer);
+            observer.disconnect();
+        };
+    }, []);
 
     // Colors matching the stat cards
     const COLORS = {
@@ -316,117 +348,119 @@ export const ComparisonChart = ({ data: initialData }: ComparisonChartProps) => 
             </div>
 
             {/* Chart */}
-            <div ref={chartRef} className={`h-[350px] w-full ${isLoading ? 'opacity-50' : ''}`}>
+            <div ref={chartRef} className={`w-full min-h-[350px] h-[350px] ${isLoading ? 'opacity-50' : ''}`}>
                 {isLoading && (
                     <div className="absolute inset-0 flex items-center justify-center">
                         <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
                     </div>
                 )}
-                <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart
-                        data={chartData}
-                        margin={{
-                            top: 20,
-                            right: 30,
-                            left: 10,
-                            bottom: 10,
-                        }}
-                    >
-                        <defs>
-                            <linearGradient id="colorTitles" x1="0" y1="0" x2="0" y2="1">
-                                <stop
-                                    offset="5%"
-                                    stopColor={COLORS.titles}
-                                    stopOpacity={0.4}
-                                />
-                                <stop
-                                    offset="95%"
-                                    stopColor={COLORS.titles}
-                                    stopOpacity={0.05}
-                                />
-                            </linearGradient>
-                            <linearGradient id="colorMembers" x1="0" y1="0" x2="0" y2="1">
-                                <stop
-                                    offset="5%"
-                                    stopColor={COLORS.members}
-                                    stopOpacity={0.4}
-                                />
-                                <stop
-                                    offset="95%"
-                                    stopColor={COLORS.members}
-                                    stopOpacity={0.05}
-                                />
-                            </linearGradient>
-                            <linearGradient id="colorCheckouts" x1="0" y1="0" x2="0" y2="1">
-                                <stop
-                                    offset="5%"
-                                    stopColor={COLORS.checkouts}
-                                    stopOpacity={0.4}
-                                />
-                                <stop
-                                    offset="95%"
-                                    stopColor={COLORS.checkouts}
-                                    stopOpacity={0.05}
-                                />
-                            </linearGradient>
-                        </defs>
-                        <CartesianGrid
-                            strokeDasharray="3 3"
-                            stroke="#e5e7eb"
-                            className="dark:stroke-gray-700"
-                            vertical={false}
-                        />
-                        <XAxis
-                            dataKey="label"
-                            axisLine={false}
-                            tickLine={false}
-                            tick={{ fill: "#6b7280", fontSize: 12, fontWeight: 500 }}
-                            dy={10}
-                            interval="preserveStartEnd"
-                        />
-                        <YAxis
-                            axisLine={false}
-                            tickLine={false}
-                            tick={{ fill: "#6b7280", fontSize: 12, fontWeight: 500 }}
-                            dx={-10}
-                            tickFormatter={(value) => value.toLocaleString()}
-                        />
-                        <Tooltip content={<CustomTooltip />} />
-                        <Area
-                            type="monotone"
-                            dataKey="titles"
-                            name="Titles"
-                            stroke={COLORS.titles}
-                            strokeWidth={3}
-                            fillOpacity={1}
-                            fill="url(#colorTitles)"
-                            dot={{ fill: COLORS.titles, strokeWidth: 0, r: 4 }}
-                            activeDot={{ r: 6, strokeWidth: 2, stroke: "#fff" }}
-                        />
-                        <Area
-                            type="monotone"
-                            dataKey="members"
-                            name="Members"
-                            stroke={COLORS.members}
-                            strokeWidth={3}
-                            fillOpacity={1}
-                            fill="url(#colorMembers)"
-                            dot={{ fill: COLORS.members, strokeWidth: 0, r: 4 }}
-                            activeDot={{ r: 6, strokeWidth: 2, stroke: "#fff" }}
-                        />
-                        <Area
-                            type="monotone"
-                            dataKey="checkouts"
-                            name="Checkouts"
-                            stroke={COLORS.checkouts}
-                            strokeWidth={3}
-                            fillOpacity={1}
-                            fill="url(#colorCheckouts)"
-                            dot={{ fill: COLORS.checkouts, strokeWidth: 0, r: 4 }}
-                            activeDot={{ r: 6, strokeWidth: 2, stroke: "#fff" }}
-                        />
-                    </AreaChart>
-                </ResponsiveContainer>
+                {isReady && (
+                    <ResponsiveContainer width="100%" height={350}>
+                        <AreaChart
+                            data={chartData}
+                            margin={{
+                                top: 20,
+                                right: 30,
+                                left: 10,
+                                bottom: 10,
+                            }}
+                        >
+                            <defs>
+                                <linearGradient id="colorTitles" x1="0" y1="0" x2="0" y2="1">
+                                    <stop
+                                        offset="5%"
+                                        stopColor={COLORS.titles}
+                                        stopOpacity={0.4}
+                                    />
+                                    <stop
+                                        offset="95%"
+                                        stopColor={COLORS.titles}
+                                        stopOpacity={0.05}
+                                    />
+                                </linearGradient>
+                                <linearGradient id="colorMembers" x1="0" y1="0" x2="0" y2="1">
+                                    <stop
+                                        offset="5%"
+                                        stopColor={COLORS.members}
+                                        stopOpacity={0.4}
+                                    />
+                                    <stop
+                                        offset="95%"
+                                        stopColor={COLORS.members}
+                                        stopOpacity={0.05}
+                                    />
+                                </linearGradient>
+                                <linearGradient id="colorCheckouts" x1="0" y1="0" x2="0" y2="1">
+                                    <stop
+                                        offset="5%"
+                                        stopColor={COLORS.checkouts}
+                                        stopOpacity={0.4}
+                                    />
+                                    <stop
+                                        offset="95%"
+                                        stopColor={COLORS.checkouts}
+                                        stopOpacity={0.05}
+                                    />
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid
+                                strokeDasharray="3 3"
+                                stroke="#e5e7eb"
+                                className="dark:stroke-gray-700"
+                                vertical={false}
+                            />
+                            <XAxis
+                                dataKey="label"
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{ fill: "#6b7280", fontSize: 12, fontWeight: 500 }}
+                                dy={10}
+                                interval="preserveStartEnd"
+                            />
+                            <YAxis
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{ fill: "#6b7280", fontSize: 12, fontWeight: 500 }}
+                                dx={-10}
+                                tickFormatter={(value) => value.toLocaleString()}
+                            />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Area
+                                type="monotone"
+                                dataKey="titles"
+                                name="Titles"
+                                stroke={COLORS.titles}
+                                strokeWidth={3}
+                                fillOpacity={1}
+                                fill="url(#colorTitles)"
+                                dot={{ fill: COLORS.titles, strokeWidth: 0, r: 4 }}
+                                activeDot={{ r: 6, strokeWidth: 2, stroke: "#fff" }}
+                            />
+                            <Area
+                                type="monotone"
+                                dataKey="members"
+                                name="Members"
+                                stroke={COLORS.members}
+                                strokeWidth={3}
+                                fillOpacity={1}
+                                fill="url(#colorMembers)"
+                                dot={{ fill: COLORS.members, strokeWidth: 0, r: 4 }}
+                                activeDot={{ r: 6, strokeWidth: 2, stroke: "#fff" }}
+                            />
+                            <Area
+                                type="monotone"
+                                dataKey="checkouts"
+                                name="Checkouts"
+                                stroke={COLORS.checkouts}
+                                strokeWidth={3}
+                                fillOpacity={1}
+                                fill="url(#colorCheckouts)"
+                                dot={{ fill: COLORS.checkouts, strokeWidth: 0, r: 4 }}
+                                activeDot={{ r: 6, strokeWidth: 2, stroke: "#fff" }}
+                            />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                )}
             </div>
         </div>
     );
