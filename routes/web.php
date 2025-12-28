@@ -14,6 +14,7 @@ use App\Http\Controllers\Shared\Circulation\BookRequestController;
 use App\Http\Controllers\Shared\Circulation\BookReturnController;
 use App\Http\Controllers\Shared\Members\MemberController;
 use App\Http\Controllers\Shared\Tools\EmailReminderController;
+use App\Http\Controllers\Shared\ReportsController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -305,6 +306,9 @@ Route::middleware(["auth", "verified", "role:admin|staff"])->group(function () {
 
             // Book Returns (Circulations)
             Route::resource("book-returns", BookReturnController::class);
+
+            // Reports
+            Route::get("reports/catalog", [ReportsController::class, "catalog"])->name("reports.catalog");
         });
 });
 
