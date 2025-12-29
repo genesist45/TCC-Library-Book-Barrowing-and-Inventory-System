@@ -40,6 +40,20 @@ class MemberController extends Controller
         return response()->json($members);
     }
 
+    /**
+     * Find a member by member number (API endpoint)
+     */
+    public function findByMemberNo(string $memberNo)
+    {
+        $member = Member::where('member_no', $memberNo)->first();
+        
+        if (!$member) {
+            return response()->json(['error' => 'Member not found'], 404);
+        }
+        
+        return response()->json($member);
+    }
+
     public function create(): Response
     {
         return Inertia::render('features/Members/Pages/Create');
