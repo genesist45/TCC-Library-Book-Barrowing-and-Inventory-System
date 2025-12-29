@@ -309,6 +309,8 @@ Route::middleware(["auth", "verified", "role:admin|staff"])->group(function () {
 
             // Reports
             Route::get("reports/catalog", [ReportsController::class, "catalog"])->name("reports.catalog");
+            Route::get("reports/circulation", [ReportsController::class, "circulation"])->name("reports.circulation");
+            Route::get("reports/overdue", [ReportsController::class, "overdue"])->name("reports.overdue");
         });
 });
 
