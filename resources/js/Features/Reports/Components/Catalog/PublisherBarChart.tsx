@@ -6,10 +6,10 @@ import {
     CartesianGrid,
     Tooltip,
     Cell,
-    ResponsiveContainer,
 } from 'recharts';
-import type { ChartDataItem } from '../types/catalogReports.d';
-import { CHART_COLORS } from '../types/catalogReports.d';
+import type { ChartDataItem } from '../../types/catalogReports.d';
+import { CHART_COLORS } from '../../types/catalogReports.d';
+import { ChartContainer } from '../Shared/ChartContainer';
 
 interface PublisherBarChartProps {
     data: ChartDataItem[];
@@ -51,49 +51,47 @@ export function PublisherBarChart({ data }: PublisherBarChartProps) {
             </div>
 
             {data && data.length > 0 ? (
-                <div className="h-80">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                            data={data}
-                            layout="vertical"
-                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                <ChartContainer height={320}>
+                    <BarChart
+                        data={data}
+                        layout="vertical"
+                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                        <CartesianGrid
+                            strokeDasharray="3 3"
+                            horizontal={true}
+                            vertical={false}
+                            stroke="#E5E7EB"
+                        />
+                        <XAxis
+                            type="number"
+                            tick={{ fill: '#6B7280', fontSize: 12 }}
+                            axisLine={{ stroke: '#E5E7EB' }}
+                        />
+                        <YAxis
+                            dataKey="name"
+                            type="category"
+                            width={120}
+                            tick={{ fill: '#6B7280', fontSize: 11 }}
+                            axisLine={{ stroke: '#E5E7EB' }}
+                            tickLine={false}
+                        />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Bar
+                            dataKey="count"
+                            fill="#3B82F6"
+                            radius={[0, 4, 4, 0]}
+                            barSize={20}
                         >
-                            <CartesianGrid
-                                strokeDasharray="3 3"
-                                horizontal={true}
-                                vertical={false}
-                                stroke="#E5E7EB"
-                            />
-                            <XAxis
-                                type="number"
-                                tick={{ fill: '#6B7280', fontSize: 12 }}
-                                axisLine={{ stroke: '#E5E7EB' }}
-                            />
-                            <YAxis
-                                dataKey="name"
-                                type="category"
-                                width={120}
-                                tick={{ fill: '#6B7280', fontSize: 11 }}
-                                axisLine={{ stroke: '#E5E7EB' }}
-                                tickLine={false}
-                            />
-                            <Tooltip content={<CustomTooltip />} />
-                            <Bar
-                                dataKey="count"
-                                fill="#3B82F6"
-                                radius={[0, 4, 4, 0]}
-                                barSize={20}
-                            >
-                                {data.map((_, index) => (
-                                    <Cell
-                                        key={`cell-${index}`}
-                                        fill={CHART_COLORS[index % CHART_COLORS.length]}
-                                    />
-                                ))}
-                            </Bar>
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
+                            {data.map((_, index) => (
+                                <Cell
+                                    key={`cell-${index}`}
+                                    fill={CHART_COLORS[index % CHART_COLORS.length]}
+                                />
+                            ))}
+                        </Bar>
+                    </BarChart>
+                </ChartContainer>
             ) : (
                 <div className="flex h-64 items-center justify-center">
                     <p className="text-gray-500 dark:text-gray-400">

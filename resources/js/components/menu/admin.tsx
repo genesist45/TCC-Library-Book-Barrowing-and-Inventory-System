@@ -72,6 +72,18 @@ export const getAdminMenuItems = (currentRoute: string): MenuItem[] => {
                     href: 'admin.reports.catalog',
                     active: currentRoute === 'admin.reports.catalog',
                 },
+                {
+                    name: 'Circulation Reports',
+                    icon: BarChart3,
+                    href: 'admin.reports.circulation',
+                    active: currentRoute === 'admin.reports.circulation',
+                },
+                {
+                    name: 'Overdue Reports',
+                    icon: RefreshCcw,
+                    href: 'admin.reports.overdue',
+                    active: currentRoute === 'admin.reports.overdue',
+                },
             ],
         }
     ];

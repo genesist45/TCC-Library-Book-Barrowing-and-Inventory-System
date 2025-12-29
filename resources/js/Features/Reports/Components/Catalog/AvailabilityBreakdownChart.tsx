@@ -6,9 +6,9 @@ import {
     CartesianGrid,
     Tooltip,
     Cell,
-    ResponsiveContainer,
 } from 'recharts';
-import type { AvailabilityItem } from '../types/catalogReports.d';
+import type { AvailabilityItem } from '../../types/catalogReports.d';
+import { ChartContainer } from '../Shared/ChartContainer';
 
 interface AvailabilityBreakdownChartProps {
     data: AvailabilityItem[];
@@ -51,49 +51,47 @@ export function AvailabilityBreakdownChart({ data }: AvailabilityBreakdownChartP
 
             {data && data.length > 0 ? (
                 <>
-                    <div className="h-72">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                                data={data}
-                                layout="vertical"
-                                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    <ChartContainer height={288}>
+                        <BarChart
+                            data={data}
+                            layout="vertical"
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                        >
+                            <CartesianGrid
+                                strokeDasharray="3 3"
+                                horizontal={true}
+                                vertical={false}
+                                stroke="#E5E7EB"
+                            />
+                            <XAxis
+                                type="number"
+                                tick={{ fill: '#6B7280', fontSize: 12 }}
+                                axisLine={{ stroke: '#E5E7EB' }}
+                                domain={[0, 'dataMax']}
+                            />
+                            <YAxis
+                                dataKey="name"
+                                type="category"
+                                width={180}
+                                tick={{ fill: '#6B7280', fontSize: 11 }}
+                                axisLine={{ stroke: '#E5E7EB' }}
+                                tickLine={false}
+                            />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Bar
+                                dataKey="count"
+                                radius={[0, 4, 4, 0]}
+                                barSize={24}
                             >
-                                <CartesianGrid
-                                    strokeDasharray="3 3"
-                                    horizontal={true}
-                                    vertical={false}
-                                    stroke="#E5E7EB"
-                                />
-                                <XAxis
-                                    type="number"
-                                    tick={{ fill: '#6B7280', fontSize: 12 }}
-                                    axisLine={{ stroke: '#E5E7EB' }}
-                                    domain={[0, 'dataMax']}
-                                />
-                                <YAxis
-                                    dataKey="name"
-                                    type="category"
-                                    width={180}
-                                    tick={{ fill: '#6B7280', fontSize: 11 }}
-                                    axisLine={{ stroke: '#E5E7EB' }}
-                                    tickLine={false}
-                                />
-                                <Tooltip content={<CustomTooltip />} />
-                                <Bar
-                                    dataKey="count"
-                                    radius={[0, 4, 4, 0]}
-                                    barSize={24}
-                                >
-                                    {data.map((entry, index) => (
-                                        <Cell
-                                            key={`cell-${index}`}
-                                            fill={entry.color}
-                                        />
-                                    ))}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
+                                {data.map((entry, index) => (
+                                    <Cell
+                                        key={`cell-${index}`}
+                                        fill={entry.color}
+                                    />
+                                ))}
+                            </Bar>
+                        </BarChart>
+                    </ChartContainer>
 
                     {/* Availability breakdown list */}
                     <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-700">

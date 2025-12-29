@@ -1,5 +1,5 @@
 import { Calendar, X } from 'lucide-react';
-import type { DateRangeType } from '../types/catalogReports.d';
+import type { DateRangeType } from '../../types/catalogReports.d';
 
 interface DateFilterModalProps {
     isOpen: boolean;

@@ -1,5 +1,5 @@
 import { CheckCircle } from 'lucide-react';
-import type { LowStockBook } from '../types/catalogReports.d';
+import type { LowStockBook } from '../../types/catalogReports.d';
 
 interface LowStockAlertTableProps {
     data: LowStockBook[];
@@ -47,8 +47,8 @@ export function LowStockAlertTable({ data }: LowStockAlertTableProps) {
                                 <tr
                                     key={book.id}
                                     className={`border-b border-gray-100 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800/50 ${index % 2 === 0
-                                            ? 'bg-white dark:bg-[#2a2a2a]'
-                                            : 'bg-gray-50/50 dark:bg-[#252525]'
+                                        ? 'bg-white dark:bg-[#2a2a2a]'
+                                        : 'bg-gray-50/50 dark:bg-[#252525]'
                                         }`}
                                 >
                                     <td className="py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">

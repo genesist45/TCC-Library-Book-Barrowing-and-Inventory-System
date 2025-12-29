@@ -111,6 +111,10 @@ export function generateBreadcrumbs(currentRoute: string): BreadcrumbItem[] {
     if (currentRoute.startsWith('admin.reports')) {
         if (currentRoute === 'admin.reports.catalog') {
             breadcrumbs.push({ label: 'Catalog Reports', active: true });
+        } else if (currentRoute === 'admin.reports.circulation') {
+            breadcrumbs.push({ label: 'Circulation Reports', active: true });
+        } else if (currentRoute === 'admin.reports.overdue') {
+            breadcrumbs.push({ label: 'Overdue Reports', active: true });
         }
         return breadcrumbs;
     }

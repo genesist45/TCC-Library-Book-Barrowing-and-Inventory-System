@@ -1,8 +1,21 @@
-// Report Components - Barrel Export
-export { CatalogReportPageHeader } from './CatalogReportPageHeader';
-export { DateFilterModal } from './DateFilterModal';
-export { SummaryCards } from './SummaryCards';
-export { CategoryPieChart } from './CategoryPieChart';
-export { PublisherBarChart } from './PublisherBarChart';
-export { LowStockAlertTable } from './LowStockAlertTable';
-export { AvailabilityBreakdownChart } from './AvailabilityBreakdownChart';
+/**
+ * Reports Components - Main Barrel Export
+ * 
+ * Organized structure:
+ * - Shared/     → Components used across multiple report pages
+ * - Catalog/    → Catalog Reports specific components
+ * - Circulation/→ Circulation Reports specific components
+ * - Overdue/    → Overdue Reports specific components
+ */
+
+// Shared Components
+export * from './Shared';
+
+// Catalog Reports Components
+export * from './Catalog';
+
+// Circulation Reports Components
+export * from './Circulation';
+
+// Overdue Reports Components
+export * from './Overdue';

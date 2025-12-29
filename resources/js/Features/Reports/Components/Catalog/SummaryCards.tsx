@@ -1,5 +1,5 @@
 import { Library, CheckCircle, BookOpen, ClipboardList } from 'lucide-react';
-import type { CatalogSummary, BooksByType } from '../types/catalogReports.d';
+import type { CatalogSummary, BooksByType } from '../../types/catalogReports.d';
 
 interface SummaryCardsProps {
     summary: CatalogSummary;
