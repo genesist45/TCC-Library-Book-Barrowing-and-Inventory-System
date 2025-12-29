@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\SetupController;
-use App\Http\Controllers\Shared\AIChatController;
 use App\Http\Controllers\Shared\BookSearchController;
 use App\Http\Controllers\Shared\DashboardController;
 use App\Http\Controllers\Shared\ProfileController;
@@ -15,6 +14,7 @@ use App\Http\Controllers\Shared\Circulation\BookRequestController;
 use App\Http\Controllers\Shared\Circulation\BookReturnController;
 use App\Http\Controllers\Shared\Members\MemberController;
 use App\Http\Controllers\Shared\Tools\EmailReminderController;
+use App\Http\Controllers\Shared\ReportsController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -39,19 +39,19 @@ Route::get("/", function () {
         ->take(10)
         ->get();
 
-    return Inertia::render("Welcome", [
+    return Inertia::render("features/Public/Pages/Welcome", [
         "popularBooks" => $popularBooks,
     ]);
 });
 
 // About Us page
 Route::get("/about", function () {
-    return Inertia::render("About");
+    return Inertia::render("features/Public/Pages/About");
 })->name("about");
 
 // Contact Us page
 Route::get("/contact", function () {
-    return Inertia::render("Contact");
+    return Inertia::render("features/Public/Pages/Contact");
 })->name("contact");
 
 // Public book search routes
@@ -120,24 +120,7 @@ Route::middleware(["auth", "verified"])->group(function () {
         "profile.destroy",
     );
 
-    // AI Chat
-    Route::post("/ai/chat", [AIChatController::class, "chat"])->name("ai.chat");
-    Route::get("/ai/conversations", [
-        AIChatController::class,
-        "conversations",
-    ])->name("ai.conversations");
-    Route::get("/ai/conversations/{id}", [
-        AIChatController::class,
-        "getConversation",
-    ])->name("ai.conversations.get");
-    Route::post("/ai/conversations", [
-        AIChatController::class,
-        "saveConversation",
-    ])->name("ai.conversations.save");
-    Route::delete("/ai/conversations/{id}", [
-        AIChatController::class,
-        "deleteConversation",
-    ])->name("ai.conversations.delete");
+
 
     // Notifications
     Route::post("/notifications/{id}/read", function ($id) {
@@ -308,6 +291,14 @@ Route::middleware(["auth", "verified", "role:admin|staff"])->group(function () {
                 BookRequestController::class,
                 "storeApproved",
             ])->name("book-requests.store-approved");
+            Route::get("book-requests/borrow-catalog", [
+                BookRequestController::class,
+                "borrowCatalog",
+            ])->name("book-requests.borrow-catalog");
+            Route::get("book-requests/available-copies/{catalogItem}", [
+                BookRequestController::class,
+                "availableCopies",
+            ])->name("book-requests.available-copies");
             Route::resource(
                 "book-requests",
                 BookRequestController::class,
@@ -315,6 +306,11 @@ Route::middleware(["auth", "verified", "role:admin|staff"])->group(function () {
 
             // Book Returns (Circulations)
             Route::resource("book-returns", BookReturnController::class);
+
+            // Reports
+            Route::get("reports/catalog", [ReportsController::class, "catalog"])->name("reports.catalog");
+            Route::get("reports/circulation", [ReportsController::class, "circulation"])->name("reports.circulation");
+            Route::get("reports/overdue", [ReportsController::class, "overdue"])->name("reports.overdue");
         });
 });
 

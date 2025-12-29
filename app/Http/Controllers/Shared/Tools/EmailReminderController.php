@@ -16,7 +16,7 @@ class EmailReminderController extends Controller
      */
     public function index(): Response
     {
-        return Inertia::render('admin/EmailReminder');
+        return Inertia::render('features/EmailReminder/Pages/Index');
     }
 
     /**

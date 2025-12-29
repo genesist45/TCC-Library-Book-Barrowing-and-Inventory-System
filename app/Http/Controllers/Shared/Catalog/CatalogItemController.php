@@ -21,7 +21,7 @@ class CatalogItemController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render("admin/CatalogItems", [
+        return Inertia::render("features/CatalogItems/Pages/Index", [
             "catalogItems" => CatalogItem::with([
                 "category",
                 "publisher",
@@ -35,12 +35,22 @@ class CatalogItemController extends Controller
                 ])
                 ->orderBy("created_at", "desc")
                 ->get(),
+            // Filter options for the header
+            "authors" => Author::where("is_published", true)
+                ->orderBy("name")
+                ->get(["id", "name"]),
+            "publishers" => Publisher::where("is_published", true)
+                ->orderBy("name")
+                ->get(["id", "name"]),
+            "categories" => Category::where("is_published", true)
+                ->orderBy("name")
+                ->get(["id", "name"]),
         ]);
     }
 
     public function create(): Response
     {
-        return Inertia::render("admin/catalog-items/Add", [
+        return Inertia::render("features/CatalogItems/Pages/Create", [
             "categories" => Category::where("is_published", true)
                 ->orderBy("name")
                 ->get(["id", "name"]),
@@ -161,7 +171,7 @@ class CatalogItemController extends Controller
                 ];
             });
 
-        return Inertia::render("admin/catalog-items/View", [
+        return Inertia::render("features/CatalogItems/Pages/Show", [
             "catalogItem" => $catalogItem->load([
                 "category",
                 "publisher",
@@ -214,7 +224,7 @@ class CatalogItemController extends Controller
                 ];
             });
 
-        return Inertia::render("admin/catalog-items/Edit", [
+        return Inertia::render("features/CatalogItems/Pages/Edit", [
             "catalogItem" => $catalogItem->load([
                 "authors",
                 "copies.reservedByMember",

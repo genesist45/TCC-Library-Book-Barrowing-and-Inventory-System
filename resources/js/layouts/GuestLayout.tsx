@@ -2,15 +2,16 @@ import ApplicationLogo from '@/components/common/ApplicationLogo';
 import PublicHeader from '@/components/common/PublicHeader';
 import { Link, usePage } from '@inertiajs/react';
 import { PropsWithChildren, useEffect } from 'react';
+import { PageProps } from '@/types';
 
 export default function Guest({ children }: PropsWithChildren) {
-    const { auth } = usePage().props;
+    const { auth } = usePage<PageProps>().props;
 
     // Force light mode for authentication pages
     useEffect(() => {
         // Remove dark class from html element
         document.documentElement.classList.remove('dark');
-        
+
         // Cleanup: restore the user's theme preference when leaving
         return () => {
             const theme = localStorage.getItem('theme') || 'light';

@@ -18,7 +18,7 @@ class CategoryController extends Controller
      */
     public function index(): Response
     {
-        return Inertia::render('admin/Categories', [
+        return Inertia::render('features/Categories/Pages/Index', [
             'categories' => Category::withCount('catalogItems')
                 ->orderBy('created_at', 'desc')
                 ->get()

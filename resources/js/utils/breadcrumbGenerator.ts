@@ -61,6 +61,11 @@ export function generateBreadcrumbs(currentRoute: string): BreadcrumbItem[] {
             breadcrumbs.push({ label: 'Edit Request', active: true });
         } else if (currentRoute === 'admin.book-requests.show') {
             breadcrumbs.push({ label: 'View Request', active: true });
+        } else if (currentRoute === 'admin.book-requests.borrow-catalog') {
+            breadcrumbs.push({ label: 'Select a Book to Borrow', active: true });
+        } else if (currentRoute === 'admin.book-requests.available-copies') {
+            breadcrumbs.push({ label: 'Select a Book to Borrow', href: route('admin.book-requests.borrow-catalog') });
+            breadcrumbs.push({ label: 'Item Details', active: true });
         } else {
             breadcrumbs[breadcrumbs.length - 1].active = true;
         }
@@ -100,6 +105,18 @@ export function generateBreadcrumbs(currentRoute: string): BreadcrumbItem[] {
     // Email Reminder routes
     if (currentRoute.startsWith('email-reminder')) {
         return [{ label: 'Email Reminder', active: true }];
+    }
+
+    // Reports routes
+    if (currentRoute.startsWith('admin.reports')) {
+        if (currentRoute === 'admin.reports.catalog') {
+            breadcrumbs.push({ label: 'Catalog Reports', active: true });
+        } else if (currentRoute === 'admin.reports.circulation') {
+            breadcrumbs.push({ label: 'Circulation Reports', active: true });
+        } else if (currentRoute === 'admin.reports.overdue') {
+            breadcrumbs.push({ label: 'Overdue Reports', active: true });
+        }
+        return breadcrumbs;
     }
 
     // Default fallback

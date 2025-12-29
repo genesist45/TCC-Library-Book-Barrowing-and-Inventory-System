@@ -15,7 +15,7 @@ class PublisherController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('admin/Publishers', [
+        return Inertia::render('features/Publishers/Pages/Index', [
             'publishers' => Publisher::withCount('catalogItems')
                 ->orderBy('created_at', 'desc')
                 ->get()

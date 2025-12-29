@@ -16,7 +16,7 @@ class MemberController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('admin/Members', [
+        return Inertia::render('features/Members/Pages/Index', [
             'members' => Member::orderBy('created_at', 'desc')->get()
         ]);
     }
@@ -42,7 +42,7 @@ class MemberController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('admin/members/Add');
+        return Inertia::render('features/Members/Pages/Create');
     }
 
     public function store(StoreMemberRequest $request): RedirectResponse
@@ -58,7 +58,7 @@ class MemberController extends Controller
     {
         $borrowHistory = $this->getMemberBorrowHistory($member);
 
-        return Inertia::render('admin/members/View', [
+        return Inertia::render('features/Members/Pages/Show', [
             'member' => $member,
             'borrowHistory' => $borrowHistory,
         ]);
@@ -68,7 +68,7 @@ class MemberController extends Controller
     {
         $borrowHistory = $this->getMemberBorrowHistory($member);
 
-        return Inertia::render('admin/members/Edit', [
+        return Inertia::render('features/Members/Pages/Edit', [
             'member' => $member,
             'borrowHistory' => $borrowHistory,
         ]);

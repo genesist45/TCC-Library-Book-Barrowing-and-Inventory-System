@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, ScanBarcode, Mail, LibraryBig, List, UserSquare2, Building2, Tags, RefreshCcw, UserCheck, BookCheck, Book } from 'lucide-react';
+import { LayoutDashboard, Users, ScanBarcode, Mail, LibraryBig, List, UserSquare2, Building2, Tags, RefreshCcw, UserCheck, BookCheck, Book, BarChart3 } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 
 export interface MenuItem {
@@ -56,33 +56,33 @@ export const getAdminMenuItems = (currentRoute: string): MenuItem[] => {
             ],
         },
         {
-            name: 'Catalogs',
+            name: 'Catalog Items',
+            href: 'admin.catalog-items.index',
             icon: LibraryBig,
-            active: currentRoute.startsWith('admin.catalog-items.') || currentRoute.startsWith('admin.authors.') || currentRoute.startsWith('admin.publishers.') || currentRoute.startsWith('admin.categories.'),
+            active: currentRoute.startsWith('admin.catalog-items.'),
+        },
+        {
+            name: 'Reports',
+            icon: BarChart3,
+            active: currentRoute.startsWith('admin.reports.'),
             children: [
                 {
-                    name: 'Catalog Items',
-                    icon: List,
-                    href: 'admin.catalog-items.index',
-                    active: currentRoute === 'admin.catalog-items.index' || currentRoute.startsWith('admin.catalog-items.'),
+                    name: 'Catalog Reports',
+                    icon: LibraryBig,
+                    href: 'admin.reports.catalog',
+                    active: currentRoute === 'admin.reports.catalog',
                 },
                 {
-                    name: 'Authors',
-                    icon: UserSquare2,
-                    href: 'admin.authors.index',
-                    active: currentRoute === 'admin.authors.index' || currentRoute.startsWith('admin.authors.'),
+                    name: 'Circulation Reports',
+                    icon: BarChart3,
+                    href: 'admin.reports.circulation',
+                    active: currentRoute === 'admin.reports.circulation',
                 },
                 {
-                    name: 'Publishers',
-                    icon: Building2,
-                    href: 'admin.publishers.index',
-                    active: currentRoute === 'admin.publishers.index' || currentRoute.startsWith('admin.publishers.'),
-                },
-                {
-                    name: 'Categories',
-                    icon: Tags,
-                    href: 'admin.categories.index',
-                    active: currentRoute === 'admin.categories.index' || currentRoute.startsWith('admin.categories.'),
+                    name: 'Overdue Reports',
+                    icon: RefreshCcw,
+                    href: 'admin.reports.overdue',
+                    active: currentRoute === 'admin.reports.overdue',
                 },
             ],
         }
