@@ -3,13 +3,13 @@ import { Head, useForm, router } from "@inertiajs/react";
 import { FormEventHandler, useState } from "react";
 import PrimaryButton from "@/components/buttons/PrimaryButton";
 import SecondaryButton from "@/components/buttons/SecondaryButton";
-import { PageProps, Category, Publisher, Author } from "@/types";
+import { PageProps, Category, Publisher, Author, Location, Branch } from "@/types";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { Info, Copy, BookOpen } from "lucide-react";
 import { CatalogItemReview } from "../Components/page";
 import { PreviewCopy } from "../Components/tables";
-import { PreviewCopyBookModal, PreviewAddMultipleCopiesModal } from "../Components/modals";
+import { PreviewCopyBookModal, PreviewAddMultipleCopiesModal, LocationQuickAddModal, BranchQuickAddModal } from "../Components/modals";
 import {
     ItemInfoTabContent,
     DetailTabContent,
@@ -26,12 +26,16 @@ interface Props extends PageProps {
     categories: Category[];
     publishers: Publisher[];
     authors: Author[];
+    branches: Branch[];
+    locations: Location[];
 }
 
 export default function Create({
     categories,
     publishers,
     authors,
+    branches,
+    locations,
 }: Props) {
     const { data, setData, post, processing, errors, clearErrors, setError } = useForm({
         title: "",
@@ -60,7 +64,7 @@ export default function Create({
         abstract: "",
         biblio_info: "",
         url_visibility: "",
-        library_branch: "",
+        library_branch: "Main Library",
         issn: "",
         frequency: "",
         journal_type: "",
@@ -80,10 +84,14 @@ export default function Create({
     const [localCategories, setLocalCategories] = useState<Category[]>(categories);
     const [localPublishers, setLocalPublishers] = useState<Publisher[]>(publishers);
     const [localAuthors, setLocalAuthors] = useState<Author[]>(authors);
+    const [localBranches, setLocalBranches] = useState<Branch[]>(branches);
+    const [localLocations, setLocalLocations] = useState<Location[]>(locations);
 
     const [showCategoryModal, setShowCategoryModal] = useState(false);
     const [showPublisherModal, setShowPublisherModal] = useState(false);
     const [showAuthorModal, setShowAuthorModal] = useState(false);
+    const [showBranchModal, setShowBranchModal] = useState(false);
+    const [showLocationModal, setShowLocationModal] = useState(false);
 
     const [activeTab, setActiveTab] = useState<TabType>("item-info");
     const [showReview, setShowReview] = useState(false);
@@ -118,8 +126,8 @@ export default function Create({
                 id: 1,
                 copy_no: 1,
                 accession_no: String(startAccNo).padStart(7, '0'),
-                branch: '',
-                location: '',
+                branch: data.library_branch || 'Main Library',
+                location: data.location || '',
                 status: 'Available',
             }]);
             setNextCopyId(2);
@@ -129,8 +137,8 @@ export default function Create({
                 id: 1,
                 copy_no: 1,
                 accession_no: '0000001',
-                branch: '',
-                location: '',
+                branch: data.library_branch || 'Main Library',
+                location: data.location || '',
                 status: 'Available',
             }]);
             setNextCopyId(2);
@@ -442,6 +450,50 @@ export default function Create({
         }
     };
 
+    const handleLocationAdded = async (name: string) => {
+        try {
+            const response = await axios.post(route('admin.locations.store'), {
+                name,
+                is_published: true,
+            });
+
+            if (response.data) {
+                const newLocation = response.data.location;
+                setLocalLocations([...localLocations, newLocation]);
+                setData('location', newLocation.name);
+                setShowLocationModal(false);
+                toast.success('Location added successfully!');
+            }
+        } catch (error: any) {
+            if (error.response?.data?.errors) {
+                toast.error(error.response.data.errors.name?.[0] || 'Failed to add location');
+            }
+        }
+    };
+
+    const handleBranchAdded = async (name: string, address?: string, description?: string) => {
+        try {
+            const response = await axios.post(route('admin.branches.store'), {
+                name,
+                address,
+                description,
+                is_published: true,
+            });
+
+            if (response.data) {
+                const newBranch = response.data.branch;
+                setLocalBranches([...localBranches, newBranch]);
+                setData('library_branch', newBranch.name);
+                setShowBranchModal(false);
+                toast.success('Branch added successfully!');
+            }
+        } catch (error: any) {
+            if (error.response?.data?.errors) {
+                toast.error(error.response.data.errors.name?.[0] || 'Failed to add branch');
+            }
+        }
+    };
+
     const handleDataChange = (field: string, value: any) => {
         setData(field as keyof typeof data, value);
     };
@@ -508,11 +560,13 @@ export default function Create({
                                             categories={localCategories}
                                             authors={localAuthors}
                                             publishers={localPublishers}
+                                            locations={localLocations}
                                             onDataChange={handleDataChange}
                                             onClearErrors={handleClearErrors}
                                             onShowCategoryModal={() => setShowCategoryModal(true)}
                                             onShowAuthorModal={() => setShowAuthorModal(true)}
                                             onShowPublisherModal={() => setShowPublisherModal(true)}
+                                            onShowLocationModal={() => setShowLocationModal(true)}
                                         />
                                     )}
 
@@ -520,8 +574,10 @@ export default function Create({
                                         <DetailTabContent
                                             data={data}
                                             errors={errors}
+                                            branches={localBranches}
                                             onDataChange={handleDataChange}
                                             onClearErrors={handleClearErrors}
+                                            onShowBranchModal={() => setShowBranchModal(true)}
                                         />
                                     )}
 
@@ -593,11 +649,29 @@ export default function Create({
                 }}
             />
 
+            {/* Location Quick Add Modal */}
+            <LocationQuickAddModal
+                show={showLocationModal}
+                onClose={() => setShowLocationModal(false)}
+                onLocationAdded={handleLocationAdded}
+            />
+
+            {/* Branch Quick Add Modal */}
+            <BranchQuickAddModal
+                show={showBranchModal}
+                onClose={() => setShowBranchModal(false)}
+                onBranchAdded={handleBranchAdded}
+            />
+
             {/* Preview Copy Modals */}
             <PreviewCopyBookModal
                 show={showPreviewCopyModal}
                 title={data.title || "New Catalog Item"}
                 editingCopy={editingPreviewCopy}
+                branches={localBranches}
+                locations={localLocations}
+                defaultBranch={data.library_branch || "Main Library"}
+                defaultLocation={data.location || ""}
                 onClose={() => {
                     setShowPreviewCopyModal(false);
                     setEditingPreviewCopy(null);
@@ -606,11 +680,14 @@ export default function Create({
                 onSaveMultiple={handlePreviewMultipleCopiesSave}
                 existingCopies={previewCopies}
                 nextCopyId={nextCopyId}
+                onLocationsUpdate={setLocalLocations}
             />
 
             <PreviewAddMultipleCopiesModal
                 show={showPreviewMultipleCopiesModal}
                 title={data.title || "New Catalog Item"}
+                defaultBranch={data.library_branch || "Main Library"}
+                defaultLocation={data.location || ""}
                 onClose={() => setShowPreviewMultipleCopiesModal(false)}
                 onSave={handlePreviewMultipleCopiesSave}
                 existingCopies={previewCopies}

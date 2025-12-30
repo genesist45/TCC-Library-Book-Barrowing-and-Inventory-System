@@ -166,10 +166,10 @@ export default function RelatedCopiesPreview({
                                     {copy.accession_no}
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400">
-                                    {copy.branch || "-"}
+                                    {copy.branch || <span className="italic text-gray-400 dark:text-gray-500">Not Set</span>}
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400">
-                                    {copy.location || "-"}
+                                    {copy.location || <span className="italic text-gray-400 dark:text-gray-500">Not Set</span>}
                                 </td>
                                 <td className="px-4 py-3">
                                     <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">

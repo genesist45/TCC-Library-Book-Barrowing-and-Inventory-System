@@ -12,7 +12,16 @@ class CatalogItemCopyController extends Controller
 {
     public function store(Request $request, CatalogItem $catalogItem)
     {
-        $validator = Validator::make($request->all(), [
+        // Convert empty strings to null
+        $data = $request->all();
+        if (empty($data['location'])) {
+            $data['location'] = null;
+        }
+        if (empty($data['branch'])) {
+            $data['branch'] = null;
+        }
+
+        $rules = [
             'accession_no' => [
                 'required',
                 'string',
@@ -20,24 +29,34 @@ class CatalogItemCopyController extends Controller
                 'unique:catalog_item_copies,accession_no',
                 'unique:catalog_items,accession_no',
             ],
-            'branch' => 'nullable|in:Main,Trial',
-            'location' => 'nullable|in:Filipianna,Circulation,Theses,Fiction,Reserve',
+            'branch' => 'nullable|string|max:255',
+            'location' => 'nullable|string',
             'status' => 'required|in:Available,Borrowed,Reserved,Lost,Under Repair',
-        ]);
+        ];
+
+        // Only validate location exists if it's provided
+        if (!empty($data['location'])) {
+            $rules['location'] = 'nullable|string|exists:locations,name';
+        }
+
+        $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()->toArray(),
+            ], 422);
         }
 
         $copyNo = CatalogItemCopy::getNextCopyNo($catalogItem->id);
 
         $copy = CatalogItemCopy::create([
             'catalog_item_id' => $catalogItem->id,
-            'accession_no' => $request->accession_no,
+            'accession_no' => $data['accession_no'],
             'copy_no' => $copyNo,
-            'branch' => $request->branch,
-            'location' => $request->location,
-            'status' => $request->status,
+            'branch' => $data['branch'],
+            'location' => $data['location'],
+            'status' => $data['status'],
         ]);
 
         return response()->json([
@@ -49,12 +68,28 @@ class CatalogItemCopyController extends Controller
 
     public function storeBulk(Request $request, CatalogItem $catalogItem)
     {
-        $validator = Validator::make($request->all(), [
+        // Convert empty strings to null
+        $data = $request->all();
+        if (empty($data['location'])) {
+            $data['location'] = null;
+        }
+        if (empty($data['branch'])) {
+            $data['branch'] = null;
+        }
+
+        $rules = [
             'number_of_copies' => 'required|integer|min:2|max:50',
-            'branch' => 'nullable|in:Main,Trial',
-            'location' => 'nullable|in:Filipianna,Circulation,Theses,Fiction,Reserve',
+            'branch' => 'nullable|string|max:255',
+            'location' => 'nullable|string',
             'status' => 'required|in:Available,Borrowed,Reserved,Lost,Under Repair',
-        ]);
+        ];
+
+        // Only validate location exists if it's provided
+        if (!empty($data['location'])) {
+            $rules['location'] = 'nullable|string|exists:locations,name';
+        }
+
+        $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
             return response()->json([
@@ -63,23 +98,34 @@ class CatalogItemCopyController extends Controller
             ], 422);
         }
 
-        $numberOfCopies = $request->number_of_copies;
+        $numberOfCopies = $data['number_of_copies'];
         $createdCopies = [];
 
-        for ($i = 0; $i < $numberOfCopies; $i++) {
-            $accessionNo = CatalogItemCopy::generateAccessionNo();
-            $copyNo = CatalogItemCopy::getNextCopyNo($catalogItem->id);
+        // Use database transaction to prevent race conditions
+        \DB::beginTransaction();
+        try {
+            for ($i = 0; $i < $numberOfCopies; $i++) {
+                $accessionNo = CatalogItemCopy::generateAccessionNo();
+                $copyNo = CatalogItemCopy::getNextCopyNo($catalogItem->id);
 
-            $copy = CatalogItemCopy::create([
-                'catalog_item_id' => $catalogItem->id,
-                'accession_no' => $accessionNo,
-                'copy_no' => $copyNo,
-                'branch' => $request->branch,
-                'location' => $request->location,
-                'status' => $request->status,
-            ]);
+                $copy = CatalogItemCopy::create([
+                    'catalog_item_id' => $catalogItem->id,
+                    'accession_no' => $accessionNo,
+                    'copy_no' => $copyNo,
+                    'branch' => $data['branch'],
+                    'location' => $data['location'],
+                    'status' => $data['status'],
+                ]);
 
-            $createdCopies[] = $copy;
+                $createdCopies[] = $copy;
+            }
+            \DB::commit();
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'errors' => ['general' => 'Failed to create copies: ' . $e->getMessage()],
+            ], 500);
         }
 
         return response()->json([
@@ -116,6 +162,15 @@ class CatalogItemCopyController extends Controller
 
     public function update(Request $request, CatalogItemCopy $copy)
     {
+        // Convert empty strings to null
+        $data = $request->all();
+        if (empty($data['location'])) {
+            $data['location'] = null;
+        }
+        if (empty($data['branch'])) {
+            $data['branch'] = null;
+        }
+
         $rules = [
             'accession_no' => [
                 'required',
@@ -124,18 +179,23 @@ class CatalogItemCopyController extends Controller
                 'unique:catalog_item_copies,accession_no,' . $copy->id,
                 'unique:catalog_items,accession_no',
             ],
-            'branch' => 'nullable|in:Main,Trial',
-            'location' => 'nullable|in:Filipianna,Circulation,Theses,Fiction,Reserve',
+            'branch' => 'nullable|string|max:255',
+            'location' => 'nullable|string',
             'status' => 'required|in:Available,Borrowed,Reserved,Lost,Under Repair,Paid,Pending',
             'reserved_by_member_id' => 'nullable|exists:members,id',
         ];
 
+        // Only validate location exists if it's provided
+        if (!empty($data['location'])) {
+            $rules['location'] = 'nullable|string|exists:locations,name';
+        }
+
         // If status is Reserved, member is required
-        if ($request->status === 'Reserved') {
+        if ($data['status'] === 'Reserved') {
             $rules['reserved_by_member_id'] = 'required|exists:members,id';
         }
 
-        $validator = Validator::make($request->all(), $rules);
+        $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
             return response()->json([
@@ -144,13 +204,18 @@ class CatalogItemCopyController extends Controller
             ], 422);
         }
 
-        $updateData = $request->only(['accession_no', 'branch', 'location', 'status']);
+        $updateData = [
+            'accession_no' => $data['accession_no'],
+            'branch' => $data['branch'],
+            'location' => $data['location'],
+            'status' => $data['status'],
+        ];
 
         // Handle reservation fields
-        if ($request->status === 'Reserved' && $request->reserved_by_member_id) {
-            $updateData['reserved_by_member_id'] = $request->reserved_by_member_id;
+        if ($data['status'] === 'Reserved' && !empty($data['reserved_by_member_id'])) {
+            $updateData['reserved_by_member_id'] = $data['reserved_by_member_id'];
             // Only set reserved_at if it's a new reservation
-            if ($copy->status !== 'Reserved' || $copy->reserved_by_member_id !== $request->reserved_by_member_id) {
+            if ($copy->status !== 'Reserved' || $copy->reserved_by_member_id !== $data['reserved_by_member_id']) {
                 $updateData['reserved_at'] = now();
             }
         } else {

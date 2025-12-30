@@ -11,6 +11,7 @@ import { PreviewCopy } from "../tables/RelatedCopiesPreview";
 
 interface CopyData {
     accessionNo: string;
+    branch: string;
     location: string;
     status: string;
     errors: Record<string, string>;
@@ -19,6 +20,8 @@ interface CopyData {
 interface PreviewAddMultipleCopiesModalProps {
     show: boolean;
     title: string;
+    defaultBranch?: string;
+    defaultLocation?: string;
     onClose: () => void;
     onSave: (copies: PreviewCopy[]) => void;
     existingCopies: PreviewCopy[];
@@ -28,6 +31,8 @@ interface PreviewAddMultipleCopiesModalProps {
 export default function PreviewAddMultipleCopiesModal({
     show,
     title,
+    defaultBranch = "Main Library",
+    defaultLocation = "",
     onClose,
     onSave,
     existingCopies,
@@ -75,7 +80,8 @@ export default function PreviewAddMultipleCopiesModal({
 
     const createNewCopy = (accessionNo: number): CopyData => ({
         accessionNo: accessionNo.toString().padStart(7, "0"),
-        location: "",
+        branch: defaultBranch,
+        location: defaultLocation,
         status: "Available",
         errors: {},
     });
@@ -176,6 +182,7 @@ export default function PreviewAddMultipleCopiesModal({
             id: nextCopyId + index,
             copy_no: existingCopies.length + index + 1,
             accession_no: copy.accessionNo,
+            branch: copy.branch || undefined,
             location: copy.location || undefined,
             status: copy.status,
         }));

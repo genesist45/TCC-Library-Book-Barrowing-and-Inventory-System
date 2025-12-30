@@ -34,6 +34,7 @@ class CatalogItemCopy extends Model
 
     public static function generateAccessionNo(): string
     {
+        // Get the maximum accession number from both tables
         $maxFromCopies = self::max('accession_no');
         $maxFromItems = CatalogItem::max('accession_no');
 
@@ -42,10 +43,34 @@ class CatalogItemCopy extends Model
             (int) $maxFromItems ?: 0
         );
 
+        // Start from max + 1 and keep trying until we find a unique one
         $nextAccessionNo = $maxAccessionNo + 1;
+        $maxAttempts = 1000; // Prevent infinite loop
+        $attempts = 0;
 
+        while ($attempts < $maxAttempts) {
+            $candidate = str_pad(
+                (string) $nextAccessionNo,
+                7,
+                '0',
+                STR_PAD_LEFT
+            );
+
+            // Check if this accession number exists in either table
+            $existsInCopies = self::where('accession_no', $candidate)->exists();
+            $existsInItems = CatalogItem::where('accession_no', $candidate)->exists();
+
+            if (!$existsInCopies && !$existsInItems) {
+                return $candidate;
+            }
+
+            $nextAccessionNo++;
+            $attempts++;
+        }
+
+        // Fallback: use timestamp-based unique number if all else fails
         return str_pad(
-            (string) $nextAccessionNo,
+            (string) (time() % 10000000),
             7,
             '0',
             STR_PAD_LEFT

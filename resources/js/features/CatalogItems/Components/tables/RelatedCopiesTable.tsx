@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { EditCopyModal, CopyBorrowHistoryModal } from "../modals";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import Pagination from "@/components/common/Pagination";
+import { Branch, Location } from "@/types";
 
 const DEFAULT_ITEMS_PER_PAGE = 10;
 
@@ -28,6 +29,8 @@ interface CopyItem {
 interface RelatedCopiesTableProps {
     copies: CopyItem[];
     catalogItemTitle?: string;
+    branches?: Branch[];
+    locations?: Location[];
     onRefresh: () => void;
     onAddCopy?: () => void;
     onAddMultipleCopies?: () => void;
@@ -36,6 +39,8 @@ interface RelatedCopiesTableProps {
 export default function RelatedCopiesTable({
     copies,
     catalogItemTitle,
+    branches = [],
+    locations = [],
     onRefresh,
     onAddCopy,
     onAddMultipleCopies,
@@ -233,10 +238,10 @@ export default function RelatedCopiesTable({
                                     {copy.accession_no}
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:px-4">
-                                    {copy.branch || "-"}
+                                    {copy.branch || <span className="italic text-gray-400 dark:text-gray-500">Not Set</span>}
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:px-4">
-                                    {copy.location || "-"}
+                                    {copy.location || <span className="italic text-gray-400 dark:text-gray-500">Not Set</span>}
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-2 sm:px-4">
                                     <span
@@ -300,6 +305,8 @@ export default function RelatedCopiesTable({
             <EditCopyModal
                 show={showEditModal}
                 copy={editingCopy}
+                branches={branches}
+                locations={locations}
                 onClose={handleCloseEditModal}
                 onSuccess={handleEditSuccess}
             />
