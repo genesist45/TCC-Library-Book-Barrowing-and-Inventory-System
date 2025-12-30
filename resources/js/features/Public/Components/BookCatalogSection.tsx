@@ -4,24 +4,10 @@ import FilterOptions from "./FilterOptions";
 import PopularBooksSection from "./PopularBooksSection";
 import { Library } from "lucide-react";
 
-interface SearchResult {
-    id: number;
-    title: string;
-    cover_image?: string;
-    type: string;
-    year?: string;
-    is_active: boolean;
-}
-
 interface BookCatalogSectionProps {
     user: User | null;
     searchQuery: string;
     onSearchChange: (value: string) => void;
-    searchResults: SearchResult[];
-    showDropdown: boolean;
-    isSearching: boolean;
-    onSearchFocus: () => void;
-    onSearchResultClick: (bookId: number) => void;
     typeFilter: string;
     yearFilter: string;
     availabilityFilter: string;
@@ -36,11 +22,6 @@ export default function BookCatalogSection({
     user,
     searchQuery,
     onSearchChange,
-    searchResults,
-    showDropdown,
-    isSearching,
-    onSearchFocus,
-    onSearchResultClick,
     typeFilter,
     yearFilter,
     availabilityFilter,
@@ -75,11 +56,6 @@ export default function BookCatalogSection({
                                 <SearchBar
                                     searchQuery={searchQuery}
                                     onSearchChange={onSearchChange}
-                                    searchResults={searchResults}
-                                    showDropdown={showDropdown}
-                                    isSearching={isSearching}
-                                    onFocus={onSearchFocus}
-                                    onResultClick={onSearchResultClick}
                                 />
                             </div>
                             <FilterOptions

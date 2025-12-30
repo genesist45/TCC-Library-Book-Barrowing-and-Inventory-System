@@ -17,12 +17,15 @@ class BookSearchController extends Controller
 
         $results = \App\Models\CatalogItem::query()
             ->with(["category", "publisher", "authors"])
-            ->where("title", "LIKE", "%{$query}%")
+            ->where(function ($q) use ($query) {
+                $q->where("title", "LIKE", "%{$query}%")
+                  ->orWhere("location", "LIKE", "%{$query}%");
+            })
             ->when($activeOnly, function ($q) {
                 $q->where("is_active", true);
             })
             ->limit(5)
-            ->get(["id", "title", "cover_image", "type", "year", "is_active"]);
+            ->get(["id", "title", "cover_image", "type", "year", "location", "is_active"]);
 
         return response()->json($results);
     }

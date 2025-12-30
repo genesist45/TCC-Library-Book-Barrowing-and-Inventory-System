@@ -1,4 +1,4 @@
-import { BookOpen, Calendar, User as UserIcon, Copy, ArrowRight, Heart } from "lucide-react";
+import { BookOpen, Calendar, User as UserIcon, Copy, ArrowRight, Heart, MapPin } from "lucide-react";
 import { CatalogItem, User } from "@/types";
 import { router } from "@inertiajs/react";
 import { useState, useEffect } from "react";
@@ -123,8 +123,8 @@ export default function PopularBooksSection({
                                             onClick={(e) => handleLikeClick(e, book.id)}
                                             disabled={likeState.loading}
                                             className={`flex flex-shrink-0 items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-all ${likeState.liked
-                                                    ? 'bg-rose-100 text-rose-600'
-                                                    : 'bg-gray-100 text-gray-500 hover:bg-rose-50 hover:text-rose-500'
+                                                ? 'bg-rose-100 text-rose-600'
+                                                : 'bg-gray-100 text-gray-500 hover:bg-rose-50 hover:text-rose-500'
                                                 } ${likeState.loading ? 'opacity-50' : ''}`}
                                         >
                                             <Heart
@@ -156,6 +156,14 @@ export default function PopularBooksSection({
                                             <span className="inline-flex items-center gap-1 text-xs text-gray-400">
                                                 <Calendar className="h-3 w-3" />
                                                 {book.year}
+                                            </span>
+                                        )}
+
+                                        {/* Location */}
+                                        {book.location && (
+                                            <span className="inline-flex items-center gap-1 text-xs text-rose-400">
+                                                <MapPin className="h-3 w-3" />
+                                                <span className="line-clamp-1">{book.location}</span>
                                             </span>
                                         )}
                                     </div>

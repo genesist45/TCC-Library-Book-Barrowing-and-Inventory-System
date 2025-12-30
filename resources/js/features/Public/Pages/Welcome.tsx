@@ -2,36 +2,31 @@ import { PageProps, CatalogItem } from "@/types";
 import { Head, router } from "@inertiajs/react";
 import PublicHeader from "@/components/common/PublicHeader";
 import ScrollToTop from "@/components/common/ScrollToTop";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Toast from "@/components/common/Toast";
-import axios from "axios";
 import { HeroSection, BookCatalogSection } from "../Components";
-
-interface SearchResult {
-    id: number;
-    title: string;
-    cover_image?: string;
-    type: string;
-    year?: string;
-    is_active: boolean;
-}
 
 export default function Welcome({
     auth,
     popularBooks = [],
 }: PageProps<{ popularBooks: CatalogItem[] }>) {
     const [searchQuery, setSearchQuery] = useState("");
-    const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-    const [showDropdown, setShowDropdown] = useState(false);
-    const [isSearching, setIsSearching] = useState(false);
 
     // Filter states
     const [typeFilter, setTypeFilter] = useState("");
     const [yearFilter, setYearFilter] = useState("");
     const [availabilityFilter, setAvailabilityFilter] = useState("");
 
-    // Filter popular books based on selected filters
+    // Filter popular books based on selected filters and search query
     const filteredPopularBooks = popularBooks.filter((book) => {
+        // Filter by search query (title or location)
+        if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            const matchesTitle = book.title.toLowerCase().includes(query);
+            const matchesLocation = book.location?.toLowerCase().includes(query);
+            if (!matchesTitle && !matchesLocation) return false;
+        }
+
         if (typeFilter && book.type !== typeFilter) return false;
         if (yearFilter) {
             if (yearFilter === "older") {
@@ -62,37 +57,6 @@ export default function Welcome({
         router.visit(route("books.show", book.id));
     };
 
-    useEffect(() => {
-        if (searchQuery.length >= 1) {
-            setIsSearching(true);
-            const timer = setTimeout(() => {
-                axios
-                    .get(route("books.search"), {
-                        params: { query: searchQuery },
-                    })
-                    .then((response) => {
-                        setSearchResults(response.data);
-                        setShowDropdown(true);
-                        setIsSearching(false);
-                    })
-                    .catch(() => {
-                        setIsSearching(false);
-                    });
-            }, 300);
-            return () => clearTimeout(timer);
-        } else {
-            setSearchResults([]);
-            setShowDropdown(false);
-        }
-    }, [searchQuery]);
-
-    // Navigate to book details page when clicking a search result
-    const handleSearchResultClick = (bookId: number) => {
-        setShowDropdown(false);
-        setSearchQuery("");
-        router.visit(route("books.show", bookId));
-    };
-
     return (
         <>
             <Head title="Welcome" />
@@ -105,13 +69,6 @@ export default function Welcome({
                     user={auth.user}
                     searchQuery={searchQuery}
                     onSearchChange={setSearchQuery}
-                    searchResults={searchResults}
-                    showDropdown={showDropdown}
-                    isSearching={isSearching}
-                    onSearchFocus={() =>
-                        searchResults.length > 0 && setShowDropdown(true)
-                    }
-                    onSearchResultClick={handleSearchResultClick}
                     typeFilter={typeFilter}
                     yearFilter={yearFilter}
                     availabilityFilter={availabilityFilter}
