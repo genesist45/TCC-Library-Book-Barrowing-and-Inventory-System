@@ -253,9 +253,14 @@ export const ComparisonChart = ({ data: initialData }: ComparisonChartProps) => 
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                         Library Statistics Overview
                     </h3>
-                    <span className="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                        {PERIOD_LABELS[selectedPeriod]}
-                    </span>
+                    <div className="flex items-center gap-2">
+                        <span className="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                            {PERIOD_LABELS[selectedPeriod]}
+                        </span>
+                        {isLoading && (
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent transition-all" />
+                        )}
+                    </div>
                 </div>
 
                 {/* 3-dot Menu */}
@@ -348,12 +353,7 @@ export const ComparisonChart = ({ data: initialData }: ComparisonChartProps) => 
             </div>
 
             {/* Chart */}
-            <div ref={chartRef} className={`w-full min-h-[350px] h-[350px] ${isLoading ? 'opacity-50' : ''}`}>
-                {isLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
-                    </div>
-                )}
+            <div ref={chartRef} className={`w-full min-h-[350px] pivot-chart h-[350px] relative transition-opacity duration-300 ${isLoading ? 'opacity-40' : 'opacity-100'}`}>
                 {isReady && (
                     <ResponsiveContainer width="100%" height={350}>
                         <AreaChart

@@ -4,12 +4,14 @@ import { BreadcrumbItem } from '@/components/common/Breadcrumbs';
  * Generate breadcrumb items based on current route
  * This is a utility to automatically create breadcrumbs from route names
  */
-export function generateBreadcrumbs(currentRoute: string): BreadcrumbItem[] {
+export function generateBreadcrumbs(currentRoute: string, userRole?: string): BreadcrumbItem[] {
     const breadcrumbs: BreadcrumbItem[] = [];
 
     // Dashboard
     if (currentRoute === 'dashboard') {
-        return [{ label: 'Dashboard', active: true }];
+        const dashboardLabel = userRole === 'admin' ? 'Admin Dashboard' :
+            userRole === 'staff' ? 'Staff Dashboard' : 'Dashboard';
+        return [{ label: dashboardLabel, active: true }];
     }
 
     // Users routes (admin only)

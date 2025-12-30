@@ -124,20 +124,18 @@ export default function Sidebar({
     return (
         <>
             <aside
-                className={`fixed left-0 top-0 h-screen overflow-x-hidden sidebar-no-scrollbar bg-[#030229] border-r border-[#1a1a4e] shadow-sm transition-all duration-300 ease-in-out dark:bg-[#2a2a2a] dark:border-[#3a3a3a] dark:shadow-black/50 ${
-                    isVisuallyExpanded ? "w-64" : "w-20"
-                } ${collapsed && isVisuallyExpanded ? "z-50" : "z-40"}`}
+                className={`fixed left-0 top-0 h-screen overflow-x-hidden sidebar-no-scrollbar bg-[#030229] border-r border-[#1a1a4e] shadow-sm transition-all duration-300 ease-in-out dark:bg-[#2a2a2a] dark:border-[#3a3a3a] dark:shadow-black/50 ${isVisuallyExpanded ? "w-64" : "w-20"
+                    } ${collapsed && isVisuallyExpanded ? "z-50" : "z-40"}`}
             >
                 <div className="flex h-full flex-col">
                     {/* Logo Section */}
                     <div className="relative flex h-14 flex-shrink-0 items-center justify-center px-3">
                         {/* Expanded State: Full Logo + Close Button */}
                         <div
-                            className={`absolute inset-0 flex items-center justify-between px-4 transition-all duration-300 ease-in-out ${
-                                isVisuallyExpanded
-                                    ? "opacity-100 visible"
-                                    : "opacity-0 invisible pointer-events-none"
-                            }`}
+                            className={`absolute inset-0 flex items-center justify-between px-4 transition-all duration-300 ease-in-out ${isVisuallyExpanded
+                                ? "opacity-100 visible"
+                                : "opacity-0 invisible pointer-events-none"
+                                }`}
                         >
                             <img
                                 src={logo}
@@ -154,11 +152,10 @@ export default function Sidebar({
 
                         {/* Collapsed State: Toggle Button (Logo -> Hamburger) */}
                         <div
-                            className={`transition-all duration-300 ease-in-out ${
-                                !isVisuallyExpanded
-                                    ? "opacity-100 visible scale-100"
-                                    : "opacity-0 invisible scale-90 pointer-events-none absolute"
-                            }`}
+                            className={`transition-all duration-300 ease-in-out ${!isVisuallyExpanded
+                                ? "opacity-100 visible scale-100"
+                                : "opacity-0 invisible scale-90 pointer-events-none absolute"
+                                }`}
                         >
                             <button
                                 onClick={onToggle}
@@ -186,11 +183,10 @@ export default function Sidebar({
                         {/* Collapsed Hamburger - Removed as it's moved to header */}
 
                         <div
-                            className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                                isVisuallyExpanded
-                                    ? "max-h-8 opacity-100 mb-3"
-                                    : "max-h-0 opacity-0 mb-0"
-                            }`}
+                            className={`overflow-hidden transition-all duration-300 ease-in-out ${isVisuallyExpanded
+                                ? "max-h-8 opacity-100 mb-3"
+                                : "max-h-0 opacity-0 mb-0"
+                                }`}
                         >
                             <p className="px-3 text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-400 whitespace-nowrap">
                                 Menu
@@ -208,21 +204,21 @@ export default function Sidebar({
                             const menuProps =
                                 hasChildren || item.onClick
                                     ? {
-                                          onClick: (e: React.MouseEvent) => {
-                                              e.preventDefault();
-                                              e.stopPropagation();
-                                              if (hasChildren) {
-                                                  setExpandedMenus((prev) => ({
-                                                      ...prev,
-                                                      [item.name]:
-                                                          !prev[item.name],
-                                                  }));
-                                              } else {
-                                                  item.onClick?.();
-                                              }
-                                          },
-                                          type: "button" as const,
-                                      }
+                                        onClick: (e: React.MouseEvent) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            if (hasChildren) {
+                                                setExpandedMenus((prev) => ({
+                                                    ...prev,
+                                                    [item.name]:
+                                                        !prev[item.name],
+                                                }));
+                                            } else {
+                                                item.onClick?.();
+                                            }
+                                        },
+                                        type: "button" as const,
+                                    }
                                     : { href: route(item.href!) };
 
                             return (
@@ -231,11 +227,10 @@ export default function Sidebar({
                                         {...menuProps}
                                         className={`
                                         group relative flex items-center rounded-lg text-sm transition-all duration-300 ease-in-out py-2.5 w-full
-                                        ${
-                                            item.active
+                                        ${item.active
                                                 ? "bg-white/10 text-white font-bold dark:bg-[#3a3a3a] dark:text-gray-100"
                                                 : "text-gray-200 font-normal hover:bg-white/10 dark:text-gray-100 dark:hover:bg-[#3a3a3a]"
-                                        }
+                                            }
                                     `}
                                         title={
                                             !isVisuallyExpanded
@@ -254,11 +249,10 @@ export default function Sidebar({
                                             />
                                         </div>
                                         <span
-                                            className={`whitespace-nowrap transition-all duration-300 ease-in-out ${
-                                                isVisuallyExpanded
-                                                    ? "opacity-100 translate-x-0 relative"
-                                                    : "opacity-0 absolute w-0 overflow-hidden pointer-events-none"
-                                            }`}
+                                            className={`whitespace-nowrap transition-all duration-300 ease-in-out ${isVisuallyExpanded
+                                                ? "opacity-100 translate-x-0 relative"
+                                                : "opacity-0 absolute w-0 overflow-hidden pointer-events-none"
+                                                }`}
                                         >
                                             {item.name}
                                         </span>
@@ -274,13 +268,12 @@ export default function Sidebar({
                                     </MenuComponent>
 
                                     <div
-                                        className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${
-                                            hasChildren &&
+                                        className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${hasChildren &&
                                             isExpanded &&
                                             isVisuallyExpanded
-                                                ? "grid-rows-[1fr]"
-                                                : "grid-rows-[0fr]"
-                                        }`}
+                                            ? "grid-rows-[1fr]"
+                                            : "grid-rows-[0fr]"
+                                            }`}
                                     >
                                         <div className="overflow-hidden">
                                             {hasChildren && item.children && (
@@ -296,7 +289,7 @@ export default function Sidebar({
                                                                 index ===
                                                                 item.children!
                                                                     .length -
-                                                                    1;
+                                                                1;
                                                             const ChildIcon =
                                                                 child.icon;
 
@@ -330,11 +323,10 @@ export default function Sidebar({
                                                                 >
                                                                     {/* Vertical Line - extends through margin gap */}
                                                                     <div
-                                                                        className={`absolute left-0 top-0 w-px bg-gray-500 dark:bg-[#3a3a3a] ${
-                                                                            isLast
-                                                                                ? "h-1/2"
-                                                                                : "h-[calc(100%+0.25rem)]"
-                                                                        }`}
+                                                                        className={`absolute left-0 top-0 w-px bg-gray-500 dark:bg-[#3a3a3a] ${isLast
+                                                                            ? "h-1/2"
+                                                                            : "h-[calc(100%+0.25rem)]"
+                                                                            }`}
                                                                     />
 
                                                                     {/* Horizontal Line */}
@@ -345,11 +337,10 @@ export default function Sidebar({
                                                                         onClick={
                                                                             handleSubMenuClick
                                                                         }
-                                                                        className={`flex w-full items-center gap-3 rounded-lg py-2 px-2 text-sm transition-colors ${
-                                                                            child.active
-                                                                                ? "bg-white/10 text-white font-bold dark:bg-[#3a3a3a] dark:text-gray-100"
-                                                                                : "text-gray-300 hover:bg-white/10 dark:text-gray-100 dark:hover:bg-[#3a3a3a]"
-                                                                        }`}
+                                                                        className={`flex w-full items-center gap-3 rounded-lg py-2 px-2 text-sm transition-colors ${child.active
+                                                                            ? "bg-white/10 text-white font-bold dark:bg-[#3a3a3a] dark:text-gray-100"
+                                                                            : "text-gray-300 hover:bg-white/10 dark:text-gray-100 dark:hover:bg-[#3a3a3a]"
+                                                                            }`}
                                                                     >
                                                                         {ChildIcon && (
                                                                             <ChildIcon
@@ -406,30 +397,42 @@ export default function Sidebar({
                                 >
                                     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">
                                         {/* User Info Block */}
-                                        <div className="flex items-center gap-3 px-3 py-2">
-                                            <div className="h-8 w-8 flex-shrink-0 overflow-hidden rounded-full border-2 border-gray-300 dark:border-[#3a3a3a]">
-                                                {user.profile_picture ? (
-                                                    <img
-                                                        src={`/storage/${user.profile_picture}`}
-                                                        alt={user.name}
-                                                        className="h-full w-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <img
-                                                        src={defaultUserImage}
-                                                        alt={user.name}
-                                                        className="h-full w-full object-cover"
-                                                    />
-                                                )}
+                                        <div className="flex items-center gap-3 px-3 py-3">
+                                            <div className="relative h-8 w-8 flex-shrink-0">
+                                                <div className="h-full w-full overflow-hidden rounded-full border border-gray-200 dark:border-[#3a3a3a]">
+                                                    {user.profile_picture ? (
+                                                        <img
+                                                            src={`/storage/${user.profile_picture}`}
+                                                            alt={user.name}
+                                                            className="h-full w-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <img
+                                                            src={defaultUserImage}
+                                                            alt={user.name}
+                                                            className="h-full w-full object-cover"
+                                                        />
+                                                    )}
+                                                </div>
                                             </div>
                                             <div className="flex-1 overflow-hidden">
-                                                <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
-                                                    {user.first_name}{" "}
-                                                    {user.last_name}
-                                                </p>
-                                                <p className="truncate text-xs text-gray-500 dark:text-gray-400">
-                                                    {user.email}
-                                                </p>
+                                                <div className="flex flex-col">
+                                                    <p className="truncate text-sm font-bold text-gray-900 dark:text-gray-100 leading-none mb-1.5">
+                                                        {user.first_name} {user.last_name}
+                                                    </p>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`inline-flex items-center rounded-full px-2 py-0 text-[9px] font-bold uppercase tracking-wider text-white ${user.role === 'admin'
+                                                            ? 'bg-emerald-500'
+                                                            : 'bg-emerald-600'
+                                                            }`}>
+                                                            {user.role}
+                                                        </span>
+                                                        <span className="text-[10px] text-gray-400 dark:text-gray-500">•</span>
+                                                        <p className="truncate text-[9px] text-gray-500 dark:text-gray-400">
+                                                            {user.email}
+                                                        </p>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -479,8 +482,8 @@ export default function Sidebar({
                             className="relative flex w-full items-center overflow-hidden rounded-lg py-2 text-sm font-medium text-gray-200 transition-all duration-300 ease-in-out hover:bg-white/10 dark:text-gray-200 dark:hover:bg-[#3a3a3a]/60"
                             title={!isVisuallyExpanded ? user.name : undefined}
                         >
-                            <div className="flex w-14 flex-shrink-0 items-center justify-center">
-                                <div className="h-8 w-8 overflow-hidden rounded-full border-2 border-gray-500 transition-all duration-300 ease-in-out dark:border-[#3a3a3a]">
+                            <div className="flex w-14 flex-shrink-0 items-center justify-center relative">
+                                <div className="h-7 w-7 overflow-hidden rounded-full border-2 border-gray-500 transition-all duration-300 ease-in-out dark:border-[#3a3a3a]">
                                     {user.profile_picture ? (
                                         <img
                                             src={`/storage/${user.profile_picture}`}
@@ -497,15 +500,16 @@ export default function Sidebar({
                                 </div>
                             </div>
                             <div
-                                className={`flex flex-1 min-w-0 items-center justify-between overflow-hidden transition-all duration-300 ease-in-out ${
-                                    isVisuallyExpanded
-                                        ? "opacity-100 translate-x-0 relative"
-                                        : "opacity-0 absolute w-0 pointer-events-none"
-                                }`}
+                                className={`flex flex-1 min-w-0 items-center justify-between overflow-hidden transition-all duration-300 ease-in-out ${isVisuallyExpanded
+                                    ? "opacity-100 translate-x-0 relative"
+                                    : "opacity-0 absolute w-0 pointer-events-none"
+                                    }`}
                             >
-                                <span className="truncate text-sm font-medium text-gray-100 dark:text-gray-100">
-                                    {user.first_name} {user.last_name}
-                                </span>
+                                <div className="flex flex-col min-w-0 pr-2">
+                                    <span className="truncate text-sm font-semibold text-gray-100 dark:text-gray-100 leading-none">
+                                        {user.first_name} {user.last_name}
+                                    </span>
+                                </div>
                                 <ChevronsUpDown
                                     size={16}
                                     className="flex-shrink-0 text-gray-400 dark:text-gray-400"
@@ -543,11 +547,10 @@ export default function Sidebar({
                                 key={child.name}
                                 type="button"
                                 onClick={handleFloatingMenuClick}
-                                className={`block w-full px-4 py-2 text-left text-sm transition-colors ${
-                                    child.active
-                                        ? "bg-gray-100 text-black font-bold dark:bg-[#3a3a3a] dark:text-gray-100"
-                                        : "text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#3a3a3a]"
-                                }`}
+                                className={`block w-full px-4 py-2 text-left text-sm transition-colors ${child.active
+                                    ? "bg-gray-100 text-black font-bold dark:bg-[#3a3a3a] dark:text-gray-100"
+                                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#3a3a3a]"
+                                    }`}
                             >
                                 {child.name}
                             </button>

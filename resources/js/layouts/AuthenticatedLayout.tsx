@@ -129,7 +129,7 @@ export default function Authenticated({ children }: PropsWithChildren) {
                     <div className="bg-gray-50 py-3 transition-colors duration-300 dark:bg-[#1a1a1a]">
                         <div className={`mx-auto px-4 will-change-[max-width] transition-[max-width] duration-300 ease-in-out sm:px-6 lg:px-8 ${sidebarCollapsed ? 'max-w-[90rem]' : 'max-w-7xl'}`}>
                             <Suspense fallback={<BreadcrumbsSkeleton />}>
-                                <Breadcrumbs items={generateBreadcrumbs(currentRoute)} />
+                                <Breadcrumbs items={generateBreadcrumbs(currentRoute, user.role)} />
                             </Suspense>
                         </div>
                     </div>

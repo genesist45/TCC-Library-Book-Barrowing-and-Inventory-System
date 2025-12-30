@@ -76,42 +76,37 @@ export default function Index({
                 <div className="mx-auto max-w-7xl">
                     {/* Stats Row - 4 cards for Admin, 3 cards for Staff */}
                     <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2 ${isAdmin ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
-                        {/* Titles Card */}
                         <StatCard
                             title="Total Titles"
                             value={stats.titles.total}
-                            periodData={stats.titles.periodData}
                             icon={Book}
                             color="bg-teal-500"
-                            defaultPeriod="current"
+                            viewAllHref={route('admin.catalog-items.index')}
                         />
                         {/* Members Card */}
                         <StatCard
                             title="Total Members"
                             value={stats.members.total}
-                            periodData={stats.members.periodData}
                             icon={UserCheck}
                             color="bg-amber-500"
-                            defaultPeriod="current"
+                            viewAllHref={route('admin.members.index')}
                         />
                         {/* Checkouts Card */}
                         <StatCard
                             title="Total Checkouts"
                             value={stats.checkouts.total}
-                            periodData={stats.checkouts.periodData}
                             icon={BookMarked}
                             color="bg-purple-500"
-                            defaultPeriod="current"
+                            viewAllHref={route('admin.book-requests.index')}
                         />
                         {/* Only show Total Users card for Admin users */}
                         {isAdmin && (
                             <StatCard
                                 title="Total Users"
                                 value={stats.users.total}
-                                periodData={stats.users.periodData}
                                 icon={Users}
                                 color="bg-emerald-500"
-                                defaultPeriod="current"
+                                viewAllHref={route('users.index')}
                             />
                         )}
                     </div>
