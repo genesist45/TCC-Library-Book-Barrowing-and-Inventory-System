@@ -57,6 +57,11 @@ export default function BorrowModal({
         return date.toISOString().split("T")[0];
     };
 
+    const getMaxDate = (): string | undefined => {
+        if (!borrowerCategory) return undefined;
+        return calculateReturnDate(borrowerCategory);
+    };
+
     // Reset form when modal opens/closes
     useEffect(() => {
         if (isOpen) {
@@ -157,11 +162,15 @@ export default function BorrowModal({
                 onSuccess?.();
             },
             onError: (errors) => {
-                if (errors.catalog_item_copy_id) {
-                    toast.error(errors.catalog_item_copy_id);
-                } else {
-                    toast.error("Failed to create borrow record");
-                }
+                console.error('Borrow errors:', errors);
+                // Show the first specific error or a generic message
+                const errorMessage = errors.catalog_item_copy_id
+                    || errors.member_id
+                    || errors.return_date
+                    || errors.error
+                    || Object.values(errors)[0]
+                    || "Failed to create borrow record";
+                toast.error(errorMessage);
             },
         });
     };
@@ -281,6 +290,7 @@ export default function BorrowModal({
                                             value={data.return_date}
                                             onChange={(e) => setData("return_date", e.target.value)}
                                             min={getToday()}
+                                            max={getMaxDate()}
                                             className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white"
                                             required
                                         />

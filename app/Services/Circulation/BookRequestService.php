@@ -212,7 +212,7 @@ class BookRequestService
             'catalog_item_id' => $data['catalog_item_id'],
             'catalog_item_copy_id' => $data['catalog_item_copy_id'],
             'full_name' => $member->name,
-            'email' => $member->email,
+            'email' => $member->email ?? '',
             'quota' => $member->booking_quota,
             'phone' => $member->phone,
             'address' => $data['address'] ?? null,
@@ -232,9 +232,16 @@ class BookRequestService
             'catalogItemCopy',
         ]);
 
-        // Send email and schedule reminder
-        Mail::to($bookRequest->email)->send(new BookRequestApproved($bookRequest));
-        $this->scheduleDueDateReminder($bookRequest);
+        // Send email and schedule reminder (non-blocking - don't fail if email fails)
+        try {
+            if ($bookRequest->email) {
+                Mail::to($bookRequest->email)->send(new BookRequestApproved($bookRequest));
+                $this->scheduleDueDateReminder($bookRequest);
+            }
+        } catch (\Exception $e) {
+            // Log the error but don't fail the borrow operation
+            \Log::warning('Failed to send borrow approval email: ' . $e->getMessage());
+        }
 
         return $bookRequest;
     }
