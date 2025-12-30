@@ -10,10 +10,12 @@ use App\Http\Controllers\Shared\ProfileController;
 use App\Http\Controllers\Shared\PublicPageController;
 use App\Http\Controllers\Shared\ReportsController;
 use App\Http\Controllers\Shared\Catalog\AuthorController;
+use App\Http\Controllers\Shared\Catalog\BranchController;
 use App\Http\Controllers\Shared\Catalog\CategoryController;
 use App\Http\Controllers\Shared\Catalog\CatalogItemController;
 use App\Http\Controllers\Shared\Catalog\CatalogItemCopyController;
 use App\Http\Controllers\Shared\Catalog\PublisherController;
+use App\Http\Controllers\Shared\Catalog\LocationController;
 use App\Http\Controllers\Shared\Circulation\BookRequestController;
 use App\Http\Controllers\Shared\Circulation\BookReturnController;
 use App\Http\Controllers\Shared\Members\MemberController;
@@ -100,6 +102,9 @@ Route::middleware(['auth', 'verified', 'role:admin|staff'])->group(function () {
         Route::resource('categories', CategoryController::class)->except(['create', 'edit']);
         Route::resource('authors', AuthorController::class)->except(['create', 'edit']);
         Route::resource('publishers', PublisherController::class)->except(['create', 'edit']);
+        Route::get('locations/list', [LocationController::class, 'list'])->name('locations.list');
+        Route::resource('locations', LocationController::class)->except(['create', 'edit']);
+        Route::resource('branches', BranchController::class)->except(['create', 'edit']);
         Route::post('catalog-items/validate', [CatalogItemController::class, 'validateForReview'])->name('catalog-items.validate');
         Route::resource('catalog-items', CatalogItemController::class);
 
