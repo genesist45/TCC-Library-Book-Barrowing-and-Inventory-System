@@ -3,7 +3,7 @@ import { Head, useForm, router } from "@inertiajs/react";
 import { FormEventHandler, useState, useEffect } from "react";
 import PrimaryButton from "@/components/buttons/PrimaryButton";
 import SecondaryButton from "@/components/buttons/SecondaryButton";
-import { PageProps, Category, Publisher, Author, CatalogItem } from "@/types";
+import { PageProps, Category, Publisher, Author, CatalogItem, Location, Branch } from "@/types";
 import { toast } from "react-toastify";
 import axios from "axios";
 import {
@@ -18,7 +18,7 @@ import {
 } from "../Components/form-sections";
 import type { TabType } from "../Components/form-sections";
 import { RelatedCopiesTable, BorrowHistoryTable } from "../Components/tables";
-import { CopyBookModal, CopySuccessModal, AddMultipleCopiesModal } from "../Components/modals";
+import { CopyBookModal, CopySuccessModal, AddMultipleCopiesModal, LocationQuickAddModal, BranchQuickAddModal } from "../Components/modals";
 
 interface BorrowRecord {
     id: number;
@@ -41,6 +41,8 @@ interface Props extends PageProps {
     categories: Category[];
     publishers: Publisher[];
     authors: Author[];
+    branches: Branch[];
+    locations: Location[];
     borrowHistory?: BorrowRecord[];
 }
 
@@ -49,6 +51,8 @@ export default function Edit({
     categories,
     publishers,
     authors,
+    branches,
+    locations,
     borrowHistory = [],
 }: Props) {
     const { data, setData, post, processing, errors, clearErrors } = useForm({
@@ -103,10 +107,14 @@ export default function Edit({
     const [localPublishers, setLocalPublishers] =
         useState<Publisher[]>(publishers);
     const [localAuthors, setLocalAuthors] = useState<Author[]>(authors);
+    const [localBranches, setLocalBranches] = useState<Branch[]>(branches);
+    const [localLocations, setLocalLocations] = useState<Location[]>(locations);
 
     const [showCategoryModal, setShowCategoryModal] = useState(false);
     const [showPublisherModal, setShowPublisherModal] = useState(false);
     const [showAuthorModal, setShowAuthorModal] = useState(false);
+    const [showBranchModal, setShowBranchModal] = useState(false);
+    const [showLocationModal, setShowLocationModal] = useState(false);
 
     const [activeTab, setActiveTab] = useState<TabType>("item-info");
 
@@ -278,6 +286,50 @@ export default function Edit({
         }
     };
 
+    const handleLocationAdded = async (name: string) => {
+        try {
+            const response = await axios.post(route('admin.locations.store'), {
+                name,
+                is_published: true,
+            });
+
+            if (response.data) {
+                const newLocation = response.data.location;
+                setLocalLocations([...localLocations, newLocation]);
+                setData('location', newLocation.name);
+                setShowLocationModal(false);
+                toast.success('Location added successfully!');
+            }
+        } catch (error: any) {
+            if (error.response?.data?.errors) {
+                toast.error(error.response.data.errors.name?.[0] || 'Failed to add location');
+            }
+        }
+    };
+
+    const handleBranchAdded = async (name: string, address?: string, description?: string) => {
+        try {
+            const response = await axios.post(route('admin.branches.store'), {
+                name,
+                address,
+                description,
+                is_published: true,
+            });
+
+            if (response.data) {
+                const newBranch = response.data.branch;
+                setLocalBranches([...localBranches, newBranch]);
+                setData('library_branch', newBranch.name);
+                setShowBranchModal(false);
+                toast.success('Branch added successfully!');
+            }
+        } catch (error: any) {
+            if (error.response?.data?.errors) {
+                toast.error(error.response.data.errors.name?.[0] || 'Failed to add branch');
+            }
+        }
+    };
+
     const handleDataChange = (field: string, value: any) => {
         setData(field as keyof typeof data, value);
     };
@@ -329,6 +381,7 @@ export default function Edit({
                                                 categories={localCategories}
                                                 authors={localAuthors}
                                                 publishers={localPublishers}
+                                                locations={localLocations}
                                                 onDataChange={handleDataChange}
                                                 onClearErrors={
                                                     handleClearErrors
@@ -342,6 +395,9 @@ export default function Edit({
                                                 onShowPublisherModal={() =>
                                                     setShowPublisherModal(true)
                                                 }
+                                                onShowLocationModal={() =>
+                                                    setShowLocationModal(true)
+                                                }
                                             />
                                         )}
 
@@ -349,10 +405,10 @@ export default function Edit({
                                             <DetailTabContent
                                                 data={data}
                                                 errors={errors}
+                                                branches={localBranches}
                                                 onDataChange={handleDataChange}
-                                                onClearErrors={
-                                                    handleClearErrors
-                                                }
+                                                onClearErrors={handleClearErrors}
+                                                onShowBranchModal={() => setShowBranchModal(true)}
                                             />
                                         )}
 
@@ -433,6 +489,8 @@ export default function Edit({
                                                 catalogItemTitle={
                                                     catalogItem.title
                                                 }
+                                                branches={localBranches}
+                                                locations={localLocations}
                                                 onRefresh={handleRefresh}
                                                 onAddCopy={handleAddCopy}
                                                 onAddMultipleCopies={
@@ -466,6 +524,20 @@ export default function Edit({
                 onCategoryAdded={handleCategoryAdded}
                 onPublisherAdded={handlePublisherAdded}
                 onAuthorAdded={handleAuthorAdded}
+            />
+
+            {/* Location Quick Add Modal */}
+            <LocationQuickAddModal
+                show={showLocationModal}
+                onClose={() => setShowLocationModal(false)}
+                onLocationAdded={handleLocationAdded}
+            />
+
+            {/* Branch Quick Add Modal */}
+            <BranchQuickAddModal
+                show={showBranchModal}
+                onClose={() => setShowBranchModal(false)}
+                onBranchAdded={handleBranchAdded}
             />
 
             <CopyBookModal

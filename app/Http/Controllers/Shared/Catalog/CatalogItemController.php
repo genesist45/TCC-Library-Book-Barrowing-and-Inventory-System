@@ -11,6 +11,8 @@ use App\Models\Category;
 use App\Models\Publisher;
 use App\Models\Author;
 use App\Models\BookRequest;
+use App\Models\Branch;
+use App\Models\Location;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\RedirectResponse;
@@ -58,6 +60,12 @@ class CatalogItemController extends Controller
                 ->orderBy("name")
                 ->get(["id", "name"]),
             "authors" => Author::where("is_published", true)
+                ->orderBy("name")
+                ->get(["id", "name"]),
+            "branches" => Branch::where("is_published", true)
+                ->orderBy("name")
+                ->get(["id", "name", "address", "description"]),
+            "locations" => Location::where("is_published", true)
                 ->orderBy("name")
                 ->get(["id", "name"]),
         ]);
@@ -236,6 +244,12 @@ class CatalogItemController extends Controller
                 ->orderBy("name")
                 ->get(["id", "name"]),
             "authors" => Author::where("is_published", true)
+                ->orderBy("name")
+                ->get(["id", "name"]),
+            "branches" => Branch::where("is_published", true)
+                ->orderBy("name")
+                ->get(["id", "name", "address", "description"]),
+            "locations" => Location::where("is_published", true)
                 ->orderBy("name")
                 ->get(["id", "name"]),
             "borrowHistory" => $borrowHistory,

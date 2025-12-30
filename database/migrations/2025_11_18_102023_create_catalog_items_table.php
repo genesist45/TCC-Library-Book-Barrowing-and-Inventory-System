@@ -31,7 +31,7 @@ return new class extends Migration
             $table->string('dimensions')->nullable();
             $table->string('url')->nullable();
             $table->text('description')->nullable();
-            $table->enum('location', ['Filipianna', 'Circulation', 'Theses', 'Fiction', 'Reserve'])->nullable();
+            $table->string('location')->nullable();
             $table->string('cover_image')->nullable();
             $table->boolean('is_active')->default(true);
             

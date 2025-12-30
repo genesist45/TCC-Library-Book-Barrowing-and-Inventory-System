@@ -1,6 +1,12 @@
+import { useState, useMemo } from "react";
 import InputLabel from "@/components/forms/InputLabel";
 import TextInput from "@/components/forms/TextInput";
 import InputError from "@/components/forms/InputError";
+import Modal from "@/components/modals/Modal";
+import PrimaryButton from "@/components/buttons/PrimaryButton";
+import SecondaryButton from "@/components/buttons/SecondaryButton";
+import { Location } from "@/types";
+import { Search, ChevronDown, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface AdditionalDetailsSectionProps {
     data: {
@@ -25,16 +31,60 @@ interface AdditionalDetailsSectionProps {
         description?: string;
         location?: string;
     };
+    locations?: Location[];
     onDataChange: (field: string, value: any) => void;
     onClearErrors: (field: string) => void;
+    onShowLocationModal?: () => void;
 }
+
+const ITEMS_PER_PAGE = 6;
 
 export default function AdditionalDetailsSection({
     data,
     errors,
+    locations = [],
     onDataChange,
     onClearErrors,
+    onShowLocationModal,
 }: AdditionalDetailsSectionProps) {
+    const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
+    const [locationSearch, setLocationSearch] = useState("");
+    const [locationPage, setLocationPage] = useState(1);
+
+    // Filter locations based on search
+    const filteredLocations = useMemo(() => {
+        return locations.filter((loc) =>
+            loc.name.toLowerCase().includes(locationSearch.toLowerCase())
+        );
+    }, [locations, locationSearch]);
+
+    // Paginate locations
+    const totalPages = Math.ceil(filteredLocations.length / ITEMS_PER_PAGE);
+    const paginatedLocations = useMemo(() => {
+        const start = (locationPage - 1) * ITEMS_PER_PAGE;
+        return filteredLocations.slice(start, start + ITEMS_PER_PAGE);
+    }, [filteredLocations, locationPage]);
+
+    const handleLocationSelect = (locationName: string) => {
+        onDataChange("location", locationName);
+        onClearErrors("location");
+        setIsLocationDropdownOpen(false);
+        setLocationSearch("");
+        setLocationPage(1);
+    };
+
+    const handleClearLocation = () => {
+        onDataChange("location", "");
+        onClearErrors("location");
+    };
+
+    const handleLocationSearchChange = (value: string) => {
+        setLocationSearch(value);
+        setLocationPage(1);
+    };
+
+    const selectedLocationName = data.location || "";
+
     return (
         <div>
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
@@ -166,27 +216,141 @@ export default function AdditionalDetailsSection({
                     <InputError message={errors.description} className="mt-1" />
                 </div>
 
+                {/* Location Dropdown with Search */}
                 <div className="sm:col-span-2">
                     <InputLabel htmlFor="location" value="Location" />
-                    <select
-                        id="location"
-                        value={data.location}
-                        onChange={(e) => {
-                            onDataChange("location", e.target.value);
-                            onClearErrors("location");
-                        }}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                    >
-                        <option value="">Select Location</option>
-                        <option value="Filipianna">Filipianna</option>
-                        <option value="Circulation">Circulation</option>
-                        <option value="Theses">Theses</option>
-                        <option value="Fiction">Fiction</option>
-                        <option value="Reserve">Reserve</option>
-                    </select>
+                    <div className="relative mt-1">
+                        <div
+                            className="flex items-center justify-between w-full rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm cursor-pointer focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition-colors duration-200 dark:border-gray-700 dark:bg-gray-800"
+                            onClick={() => setIsLocationDropdownOpen(!isLocationDropdownOpen)}
+                        >
+                            <span className={`text-sm ${selectedLocationName ? "text-gray-900 dark:text-gray-100" : "text-gray-500 dark:text-gray-400"}`}>
+                                {selectedLocationName || "Select Location"}
+                            </span>
+                            <div className="flex items-center gap-1">
+                                {selectedLocationName && (
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleClearLocation();
+                                        }}
+                                        className="p-0.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                    >
+                                        <X className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                                    </button>
+                                )}
+                                <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${isLocationDropdownOpen ? "rotate-180" : ""}`} />
+                            </div>
+                        </div>
+
+                        {/* Dropdown Panel */}
+                        {isLocationDropdownOpen && (
+                            <div className="absolute z-50 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                                {/* Search Input */}
+                                <div className="p-2 border-b border-gray-200 dark:border-gray-700">
+                                    <div className="relative">
+                                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            className="w-full rounded-md border border-gray-300 bg-white pl-9 pr-3 py-2 text-sm placeholder-gray-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500"
+                                            placeholder="Search locations..."
+                                            value={locationSearch}
+                                            onChange={(e) => handleLocationSearchChange(e.target.value)}
+                                            onClick={(e) => e.stopPropagation()}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Location List */}
+                                <div className="max-h-[240px] overflow-y-auto">
+                                    {paginatedLocations.length > 0 ? (
+                                        paginatedLocations.map((location) => (
+                                            <button
+                                                key={location.id}
+                                                type="button"
+                                                onClick={() => handleLocationSelect(location.name)}
+                                                className={`w-full text-left px-4 py-2.5 text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors border-b border-gray-100 dark:border-gray-800 last:border-b-0 ${selectedLocationName === location.name
+                                                    ? "bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300"
+                                                    : "text-gray-700 dark:text-gray-300"
+                                                    }`}
+                                            >
+                                                {location.name}
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <div className="px-4 py-6 text-center">
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                                                No locations found
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Pagination */}
+                                {totalPages > 1 && (
+                                    <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 px-3 py-2">
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                            {filteredLocations.length} location{filteredLocations.length !== 1 ? "s" : ""}
+                                        </p>
+                                        <div className="flex items-center gap-1">
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setLocationPage(locationPage - 1);
+                                                }}
+                                                disabled={locationPage === 1}
+                                                className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            >
+                                                <ChevronLeft className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                                            </button>
+                                            <span className="text-xs text-gray-600 dark:text-gray-400">
+                                                {locationPage} / {totalPages}
+                                            </span>
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setLocationPage(locationPage + 1);
+                                                }}
+                                                disabled={locationPage === totalPages}
+                                                className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            >
+                                                <ChevronRight className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
                     <InputError message={errors.location} className="mt-1" />
+
+                    {/* Quick Add Link */}
+                    {onShowLocationModal && (
+                        <button
+                            type="button"
+                            onClick={onShowLocationModal}
+                            className="mt-1.5 text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
+                        >
+                            + Location not listed? Click here to add.
+                        </button>
+                    )}
                 </div>
             </div>
+
+            {/* Click outside to close dropdown */}
+            {isLocationDropdownOpen && (
+                <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => {
+                        setIsLocationDropdownOpen(false);
+                        setLocationSearch("");
+                        setLocationPage(1);
+                    }}
+                />
+            )}
         </div>
     );
 }

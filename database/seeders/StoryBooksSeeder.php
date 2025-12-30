@@ -87,7 +87,7 @@ class StoryBooksSeeder extends Seeder
                 'other_physical_details' => $bookData['other_physical_details'],
                 'dimensions' => $bookData['dimensions'],
                 'description' => $bookData['description'],
-                'location' => 'Fiction',
+                'location' => 'Main Library – Fiction Section',
                 'cover_image' => $bookData['cover_image'] ?? null,
                 'is_active' => true,
                 'volume' => $bookData['volume'] ?? null,
@@ -108,7 +108,7 @@ class StoryBooksSeeder extends Seeder
                     'accession_no' => str_pad($accessionCounter, 7, '0', STR_PAD_LEFT),
                     'copy_no' => $copyNo,
                     'branch' => 'Main Library',
-                    'location' => 'Fiction',
+                    'location' => 'Main Library – Fiction Section',
                     'status' => 'Available',
                 ]);
                 $accessionCounter++;

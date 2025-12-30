@@ -1,4 +1,4 @@
-import { Category, Author, Publisher } from "@/types";
+import { Category, Author, Publisher, Location } from "@/types";
 import BasicInformationSection from "./BasicInformationSection";
 import PublicationDetailsSection from "./PublicationDetailsSection";
 import PhysicalDescriptionSection from "./PhysicalDescriptionSection";
@@ -10,11 +10,13 @@ interface ItemInfoTabContentProps {
     categories: Category[];
     authors: Author[];
     publishers: Publisher[];
+    locations?: Location[];
     onDataChange: (field: string, value: any) => void;
     onClearErrors: (field: string) => void;
     onShowCategoryModal: () => void;
     onShowAuthorModal: () => void;
     onShowPublisherModal: () => void;
+    onShowLocationModal?: () => void;
 }
 
 export default function ItemInfoTabContent({
@@ -23,11 +25,13 @@ export default function ItemInfoTabContent({
     categories,
     authors,
     publishers,
+    locations = [],
     onDataChange,
     onClearErrors,
     onShowCategoryModal,
     onShowAuthorModal,
     onShowPublisherModal,
+    onShowLocationModal,
 }: ItemInfoTabContentProps) {
     return (
         <div className="space-y-8">
@@ -61,8 +65,10 @@ export default function ItemInfoTabContent({
             <AdditionalDetailsSection
                 data={data}
                 errors={errors}
+                locations={locations}
                 onDataChange={onDataChange}
                 onClearErrors={onClearErrors}
+                onShowLocationModal={onShowLocationModal}
             />
         </div>
     );
