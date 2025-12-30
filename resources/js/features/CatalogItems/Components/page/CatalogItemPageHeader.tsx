@@ -175,7 +175,7 @@ export default function CatalogItemPageHeader({
                     </div>
 
                     <div className="flex-shrink-0">
-                        <PrimaryButton onClick={onAddItem} className="flex items-center gap-2 whitespace-nowrap">
+                        <PrimaryButton onClick={onAddItem} className="flex items-center gap-2 whitespace-nowrap !bg-[#030229] !text-white hover:!bg-[#030229]/90 dark:!bg-[#2a2a2a] dark:!text-gray-100 dark:hover:!bg-[#3a3a3a] border border-transparent">
                             <Plus className="h-4 w-4" />
                             <span>Add</span>
                         </PrimaryButton>
@@ -268,7 +268,7 @@ export default function CatalogItemPageHeader({
                             <Printer className="h-5 w-5" />
                         </button>
 
-                        <PrimaryButton onClick={onAddItem} className="flex items-center gap-2 whitespace-nowrap">
+                        <PrimaryButton onClick={onAddItem} className="flex items-center gap-2 whitespace-nowrap !bg-[#030229] !text-white hover:!bg-[#030229]/90 dark:!bg-[#2a2a2a] dark:!text-gray-100 dark:hover:!bg-[#3a3a3a] border border-transparent">
                             <Plus className="h-5 w-5" />
                             Add Catalog Item
                         </PrimaryButton>

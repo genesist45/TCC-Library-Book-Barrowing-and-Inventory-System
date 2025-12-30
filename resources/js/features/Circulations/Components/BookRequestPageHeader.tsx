@@ -63,7 +63,7 @@ export default function BookRequestPageHeader({
 
                         <button
                             onClick={onAddBorrow}
-                            className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
+                            className="flex items-center gap-2 rounded-lg bg-[#030229] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#030229]/90 dark:bg-[#2a2a2a] dark:hover:bg-[#3a3a3a]"
                         >
                             <UserPlus className="h-5 w-5" />
                             <span>Add Borrow Member</span>
@@ -109,7 +109,7 @@ export default function BookRequestPageHeader({
                     <div className="flex-shrink-0">
                         <button
                             onClick={onAddBorrow}
-                            className="rounded-lg bg-indigo-600 p-2 text-white"
+                            className="rounded-lg bg-[#030229] p-2 text-white hover:bg-[#030229]/90 dark:bg-[#2a2a2a] dark:hover:bg-[#3a3a3a]"
                         >
                             <UserPlus className="h-4 w-4" />
                         </button>

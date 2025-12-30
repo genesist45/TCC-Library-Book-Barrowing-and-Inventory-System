@@ -71,7 +71,7 @@ export default function MemberPageHeader({
                         </button>
 
                         <Link href={route('admin.members.create')}>
-                            <PrimaryButton className="flex items-center gap-2 whitespace-nowrap">
+                            <PrimaryButton className="flex items-center gap-2 whitespace-nowrap !bg-[#030229] !text-white hover:!bg-[#030229]/90 dark:!bg-[#2a2a2a] dark:!text-gray-100 dark:hover:!bg-[#3a3a3a] border border-transparent">
                                 <Plus className="h-5 w-5" />
                                 Add Member
                             </PrimaryButton>
@@ -123,7 +123,7 @@ export default function MemberPageHeader({
 
                     <div className="flex-shrink-0">
                         <Link href={route('admin.members.create')}>
-                            <PrimaryButton className="p-2">
+                            <PrimaryButton className="p-2 !bg-[#030229] !text-white hover:!bg-[#030229]/90 dark:!bg-[#2a2a2a] dark:!text-gray-100 dark:hover:!bg-[#3a3a3a] border border-transparent">
                                 <Plus className="h-4 w-4" />
                             </PrimaryButton>
                         </Link>

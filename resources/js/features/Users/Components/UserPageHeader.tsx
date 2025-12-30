@@ -22,16 +22,16 @@ export default function UserPageHeader({ searchValue, onSearchChange, onAddUser,
                             Manage your system users, roles, and permissions
                         </p>
                     </div>
-                    
+
                     {/* Add User Button */}
                     <div className="flex-shrink-0">
-                        <PrimaryButton onClick={onAddUser} className="flex items-center gap-2 whitespace-nowrap">
+                        <PrimaryButton onClick={onAddUser} className="flex items-center gap-2 whitespace-nowrap !bg-[#030229] !text-white hover:!bg-[#030229]/90 dark:!bg-[#2a2a2a] dark:!text-gray-100 dark:hover:!bg-[#3a3a3a] border border-transparent">
                             <UserPlus className="h-4 w-4" />
                             <span>Add</span>
                         </PrimaryButton>
                     </div>
                 </div>
-                
+
                 {/* Search and Actions Section */}
                 <div className="flex items-center gap-2">
                     <div className="relative flex-1">
@@ -46,7 +46,7 @@ export default function UserPageHeader({ searchValue, onSearchChange, onAddUser,
                             placeholder="Search users..."
                         />
                     </div>
-                    
+
                     <button
                         onClick={onRefresh}
                         disabled={isRefreshing}
@@ -67,7 +67,7 @@ export default function UserPageHeader({ searchValue, onSearchChange, onAddUser,
                         Manage your system users, roles, and permissions
                     </p>
                 </div>
-                
+
                 {/* Right: Search + Actions */}
                 <div className="flex items-center gap-3">
                     <div className="relative w-64 lg:w-80">
@@ -82,7 +82,7 @@ export default function UserPageHeader({ searchValue, onSearchChange, onAddUser,
                             placeholder="Search users by name or email..."
                         />
                     </div>
-                    
+
                     <button
                         onClick={onRefresh}
                         disabled={isRefreshing}
@@ -91,8 +91,8 @@ export default function UserPageHeader({ searchValue, onSearchChange, onAddUser,
                     >
                         <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
                     </button>
-                    
-                    <PrimaryButton onClick={onAddUser} className="flex items-center gap-2 whitespace-nowrap">
+
+                    <PrimaryButton onClick={onAddUser} className="flex items-center gap-2 whitespace-nowrap !bg-[#030229] !text-white hover:!bg-[#030229]/90 dark:!bg-[#2a2a2a] dark:!text-gray-100 dark:hover:!bg-[#3a3a3a] border border-transparent">
                         <UserPlus className="h-5 w-5" />
                         Add User
                     </PrimaryButton>
