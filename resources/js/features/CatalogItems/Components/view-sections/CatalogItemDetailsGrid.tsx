@@ -2,7 +2,7 @@ import { CatalogItem } from '@/types';
 import DetailField from './DetailField';
 import AuthorBadges from './AuthorBadges';
 import StatusBadge from './StatusBadge';
-import { BookOpen, Tag, Calendar, Globe, FileText, Hash } from 'lucide-react';
+import { BookOpen, Tag, Calendar, Globe, FileText, Hash, MapPin } from 'lucide-react';
 
 interface CatalogItemDetailsGridProps {
     catalogItem: CatalogItem;
@@ -22,7 +22,7 @@ export default function CatalogItemDetailsGrid({ catalogItem }: CatalogItemDetai
             </div>
 
             {/* Quick Stats / Main Info */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 border-y border-gray-100 py-6 dark:border-[#3a3a3a]">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-6 border-y border-gray-100 py-6 dark:border-[#3a3a3a]">
                 <DetailField label="Material Type">
                     <div className="flex items-center gap-2 mt-1">
                         <BookOpen size={16} className="text-gray-400" />
@@ -39,6 +39,12 @@ export default function CatalogItemDetailsGrid({ catalogItem }: CatalogItemDetai
                     <div className="flex items-center gap-2 mt-1">
                         <Hash size={16} className="text-gray-400" />
                         <span className="font-mono text-sm font-medium text-gray-900 dark:text-gray-100 bg-gray-100 px-2 py-0.5 rounded dark:bg-[#323232]">{catalogItem.call_no || '-'}</span>
+                    </div>
+                </DetailField>
+                <DetailField label="Location">
+                    <div className="flex items-center gap-2 mt-1">
+                        <MapPin size={16} className="text-gray-400" />
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{catalogItem.location || '-'}</span>
                     </div>
                 </DetailField>
                 <DetailField label="Status">

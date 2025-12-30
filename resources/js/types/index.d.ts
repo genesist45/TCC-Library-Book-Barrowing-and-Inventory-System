@@ -32,6 +32,21 @@ export interface Author {
     is_active: boolean;
 }
 
+export interface Location {
+    id: number;
+    name: string;
+    description?: string;
+    is_published: boolean;
+}
+
+export interface Branch {
+    id: number;
+    name: string;
+    address?: string;
+    description?: string;
+    is_published: boolean;
+}
+
 export interface CatalogItemCopy {
     id: number;
     catalog_item_id: number;
