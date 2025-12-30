@@ -63,7 +63,11 @@ export default function BookDetails({
     }, [catalogItem.id]);
 
     const handleGoBack = () => {
-        router.visit("/");
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            router.visit("/#catalogs-section");
+        }
     };
 
     const handleRequestCopy = (copy: CatalogItemCopy) => {
@@ -120,8 +124,8 @@ export default function BookDetails({
                                         onClick={handleLikeClick}
                                         disabled={likeLoading}
                                         className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all ${liked
-                                                ? 'bg-white text-rose-600'
-                                                : 'bg-white/20 text-white hover:bg-white/30'
+                                            ? 'bg-white text-rose-600'
+                                            : 'bg-white/20 text-white hover:bg-white/30'
                                             } ${likeLoading ? 'opacity-70' : ''}`}
                                     >
                                         <Heart

@@ -8,6 +8,7 @@ interface PopularBooksSectionProps {
     books: CatalogItem[];
     user: User | null;
     onBookClick: (book: CatalogItem) => void;
+    showFooter?: boolean;
 }
 
 interface LikeState {
@@ -22,6 +23,7 @@ export default function PopularBooksSection({
     books,
     user,
     onBookClick,
+    showFooter = true,
 }: PopularBooksSectionProps) {
     const [likeStates, setLikeStates] = useState<LikeState>({});
 
@@ -86,7 +88,7 @@ export default function PopularBooksSection({
         <div>
             {/* Books Grid */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {books.slice(0, 9).map((book) => {
+                {books.map((book) => {
                     const likeState = likeStates[book.id] || { liked: false, count: (book as any).likes_count || 0, loading: false };
 
                     return (
@@ -190,19 +192,20 @@ export default function PopularBooksSection({
                 })}
             </div>
 
-            {/* Footer */}
-            <div className="mt-6 flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
-                <p className="text-sm text-gray-600">
-                    Showing <span className="font-medium">{Math.min(books.length, 9)}</span> of{" "}
-                    <span className="font-medium">{books.length}</span> titles
-                </p>
-                {books.length > 9 && (
-                    <button className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700">
-                        View all
-                        <ArrowRight className="h-4 w-4" />
-                    </button>
-                )}
-            </div>
+            {showFooter && (
+                <div className="mt-6 flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
+                    <p className="text-sm text-gray-600">
+                        Showing <span className="font-medium">{Math.min(books.length, 9)}</span> of{" "}
+                        <span className="font-medium">{books.length}</span> titles
+                    </p>
+                    {books.length > 9 && (
+                        <button className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700">
+                            View all
+                            <ArrowRight className="h-4 w-4" />
+                        </button>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

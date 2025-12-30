@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import tccLogo from '@/assets/images/logos/tcc-logo-home.png';
 import { User } from '@/types';
@@ -32,8 +32,10 @@ export default function PublicHeader({ user, onCatalogsClick }: PublicHeaderProp
             const catalogsSection = document.getElementById('catalogs-section');
             if (catalogsSection) {
                 catalogsSection.scrollIntoView({ behavior: 'smooth' });
+                // Update URL without reload to reflect section
+                window.history.pushState(null, '', '#catalogs-section');
             } else {
-                window.location.href = '/#catalogs-section';
+                router.visit('/#catalogs-section');
             }
         }
     };

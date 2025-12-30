@@ -2,6 +2,7 @@ import { CatalogItem, User } from "@/types";
 import SearchBar from "./SearchBar";
 import FilterOptions from "./FilterOptions";
 import PopularBooksSection from "./PopularBooksSection";
+import Pagination from "@/components/common/Pagination";
 import { Library } from "lucide-react";
 
 interface BookCatalogSectionProps {
@@ -15,6 +16,11 @@ interface BookCatalogSectionProps {
     onYearFilterChange: (value: string) => void;
     onAvailabilityFilterChange: (value: string) => void;
     filteredBooks: CatalogItem[];
+    totalBooks: number;
+    currentPage: number;
+    itemsPerPage: number;
+    onPageChange: (page: number) => void;
+    onItemsPerPageChange: (itemsPerPage: number) => void;
     onBookClick: (book: CatalogItem) => void;
 }
 
@@ -29,6 +35,11 @@ export default function BookCatalogSection({
     onYearFilterChange,
     onAvailabilityFilterChange,
     filteredBooks,
+    totalBooks,
+    currentPage,
+    itemsPerPage,
+    onPageChange,
+    onItemsPerPageChange,
     onBookClick,
 }: BookCatalogSectionProps) {
     return (
@@ -74,7 +85,22 @@ export default function BookCatalogSection({
                         books={filteredBooks}
                         user={user}
                         onBookClick={onBookClick}
+                        showFooter={false}
                     />
+
+                    {/* Pagination */}
+                    <div className="mt-8">
+                        <Pagination
+                            currentPage={currentPage}
+                            totalItems={totalBooks}
+                            itemsPerPage={itemsPerPage}
+                            onPageChange={onPageChange}
+                            onItemsPerPageChange={onItemsPerPageChange}
+                            showRowsPerPage={true}
+                            itemsPerPageOptions={[9, 18, 27, 45]}
+                            className="rounded-xl border border-gray-200 shadow-sm"
+                        />
+                    </div>
                 </div>
             </div>
         </section>

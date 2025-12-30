@@ -1,8 +1,8 @@
 import { PageProps, CatalogItem } from "@/types";
-import { Head, router } from "@inertiajs/react";
+import { Head, router, useRemember } from "@inertiajs/react";
 import PublicHeader from "@/components/common/PublicHeader";
 import ScrollToTop from "@/components/common/ScrollToTop";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Toast from "@/components/common/Toast";
 import { HeroSection, BookCatalogSection } from "../Components";
 
@@ -10,12 +10,37 @@ export default function Welcome({
     auth,
     popularBooks = [],
 }: PageProps<{ popularBooks: CatalogItem[] }>) {
-    const [searchQuery, setSearchQuery] = useState("");
+    const [searchQuery, setSearchQuery] = useRemember("", "Welcome/searchQuery");
 
     // Filter states
-    const [typeFilter, setTypeFilter] = useState("");
-    const [yearFilter, setYearFilter] = useState("");
-    const [availabilityFilter, setAvailabilityFilter] = useState("");
+    const [typeFilter, setTypeFilter] = useRemember("", "Welcome/typeFilter");
+    const [yearFilter, setYearFilter] = useRemember("", "Welcome/yearFilter");
+    const [availabilityFilter, setAvailabilityFilter] = useRemember("", "Welcome/availabilityFilter");
+    const [currentPage, setCurrentPage] = useRemember(1, "Welcome/currentPage");
+    const [itemsPerPage, setItemsPerPage] = useRemember(9, "Welcome/itemsPerPage");
+
+    const isFirstRender = useRef(true);
+    // Reset pagination when filters change
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+        setCurrentPage(1);
+    }, [searchQuery, typeFilter, yearFilter, availabilityFilter]);
+
+    // Handle initial scroll to #catalogs-section
+    useEffect(() => {
+        if (window.location.hash === '#catalogs-section') {
+            const section = document.getElementById('catalogs-section');
+            if (section) {
+                // Small timeout to ensure everything is rendered
+                setTimeout(() => {
+                    section.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+            }
+        }
+    }, []);
 
     // Filter popular books based on selected filters and search query
     const filteredPopularBooks = popularBooks.filter((book) => {
@@ -52,6 +77,22 @@ export default function Welcome({
         return true;
     });
 
+    // Pagination logic
+    const totalItems = filteredPopularBooks.length;
+    const paginatedBooks = filteredPopularBooks.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        // Scroll to catalogs section
+        const section = document.getElementById('catalogs-section');
+        if (section) {
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
     // Navigate to book details page
     const handleBookClick = (book: CatalogItem) => {
         router.visit(route("books.show", book.id));
@@ -75,7 +116,12 @@ export default function Welcome({
                     onTypeFilterChange={setTypeFilter}
                     onYearFilterChange={setYearFilter}
                     onAvailabilityFilterChange={setAvailabilityFilter}
-                    filteredBooks={filteredPopularBooks}
+                    filteredBooks={paginatedBooks}
+                    totalBooks={totalItems}
+                    currentPage={currentPage}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={handlePageChange}
+                    onItemsPerPageChange={setItemsPerPage}
                     onBookClick={handleBookClick}
                 />
 
