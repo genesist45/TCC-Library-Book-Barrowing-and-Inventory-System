@@ -2,11 +2,12 @@ import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import { PageProps, BookRequest } from '@/types';
 import { useState, useEffect } from 'react';
-import { Pencil, Trash2, CheckCircle, XCircle, Eye, Search, RefreshCw, Printer, UserPlus } from 'lucide-react';
+import { Pencil, Trash2, CheckCircle, XCircle, Eye, RefreshCw, Printer } from 'lucide-react';
 import { TableRowSkeleton } from '@/components/common/Loading';
 import { toast } from 'react-toastify';
 import ActionButton, { ActionButtonGroup } from '@/components/buttons/ActionButton';
 import ConfirmModal from '@/components/modals/ConfirmModal';
+import BookRequestPageHeader from '../Components/BookRequestPageHeader';
 
 interface Props extends PageProps {
     bookRequests: BookRequest[];
@@ -25,6 +26,9 @@ export default function Index({ bookRequests, flash }: Props) {
     const [isLoading, setIsLoading] = useState(false);
     const [processing, setProcessing] = useState(false);
 
+    // Filter states
+    const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+
     useEffect(() => {
         if (flash?.success) {
             toast.success(flash.success);
@@ -34,18 +38,21 @@ export default function Index({ bookRequests, flash }: Props) {
         }
     }, [flash]);
 
-    // Filter book requests based on search query
+    // Filter book requests based on search query and status
     const filteredRequests = bookRequests.filter((request) => {
         const searchLower = searchQuery.toLowerCase();
-        return (
+        const matchesSearch =
             request.full_name.toLowerCase().includes(searchLower) ||
             request.email.toLowerCase().includes(searchLower) ||
             (request.catalogItem?.title || request.catalog_item?.title || '').toLowerCase().includes(searchLower) ||
             request.status.toLowerCase().includes(searchLower) ||
             request.id.toString().includes(searchLower) ||
             (request.member?.member_no || '').toLowerCase().includes(searchLower) ||
-            (request.member_id?.toString() || '').includes(searchLower)
-        );
+            (request.member_id?.toString() || '').includes(searchLower);
+
+        const matchesStatus = !selectedStatus || request.status === selectedStatus;
+
+        return matchesSearch && matchesStatus;
     });
 
     const handleRefresh = () => {
@@ -208,67 +215,16 @@ export default function Index({ bookRequests, flash }: Props) {
 
             <div className="p-4 sm:p-6">
                 <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                    {/* Header */}
-                    <div className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-colors duration-300 dark:border-[#3a3a3a] dark:bg-[#2a2a2a] sm:flex-row sm:items-center sm:justify-between sm:p-6">
-                        <div>
-                            <h2 className="text-2xl font-semibold text-gray-800 transition-colors duration-300 dark:text-gray-100 print:hidden">
-                                Book Requests
-                            </h2>
-                            <h2 className="hidden text-2xl font-bold text-gray-900 print:block">
-                                Borrow Request Report
-                            </h2>
-                            <p className="mt-1 text-sm text-gray-600 transition-colors duration-300 dark:text-gray-400 print:hidden">
-                                Manage all book borrow requests from members
-                            </p>
-                            <p className="mt-1 hidden text-sm text-gray-600 print:block">
-                                Summary of all book borrowing requests from members
-                            </p>
-                        </div>
-
-                        <div className="flex items-center gap-3 print:hidden">
-                            {/* Search Bar */}
-                            <div className="relative w-full sm:w-64">
-                                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                    <Search className="h-4 w-4 text-gray-400" />
-                                </div>
-                                <input
-                                    type="text"
-                                    placeholder="Search requests..."
-                                    value={searchQuery}
-                                    className="block w-full rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-3 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                />
-                            </div>
-
-                            {/* Refresh Button */}
-                            <button
-                                onClick={handleRefresh}
-                                className="rounded-lg border border-gray-300 bg-white p-2 text-gray-700 transition-colors hover:bg-gray-50 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-gray-200 dark:hover:bg-[#4a4a4a]"
-                                title="Refresh list"
-                            >
-                                <RefreshCw className={`h-5 w-5 ${isLoading ? 'animate-spin' : ''}`} />
-                            </button>
-
-                            {/* Print Button */}
-                            <button
-                                onClick={handlePrint}
-                                className="rounded-lg border border-gray-300 bg-white p-2 text-gray-700 transition-colors hover:bg-gray-50 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-gray-200 dark:hover:bg-[#4a4a4a]"
-                                title="Print list"
-                            >
-                                <Printer className="h-5 w-5" />
-                            </button>
-
-                            {/* Add Borrow Member Button - Navigates directly to page */}
-                            <button
-                                onClick={() => router.visit(route('admin.book-requests.borrow-catalog'))}
-                                className="flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
-                                title="Add Borrow Member"
-                            >
-                                <UserPlus className="h-4 w-4" />
-                                <span className="hidden sm:inline">Add Borrow Member</span>
-                            </button>
-                        </div>
-                    </div>
+                    <BookRequestPageHeader
+                        searchQuery={searchQuery}
+                        onSearchChange={setSearchQuery}
+                        onRefresh={handleRefresh}
+                        onPrint={handlePrint}
+                        onAddBorrow={() => router.visit(route('admin.book-requests.borrow-catalog'))}
+                        isLoading={isLoading}
+                        selectedStatus={selectedStatus}
+                        onStatusChange={setSelectedStatus}
+                    />
 
                     {/* Table */}
                     <div className="rounded-lg border border-gray-200 bg-white shadow-sm transition-colors duration-300 dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">

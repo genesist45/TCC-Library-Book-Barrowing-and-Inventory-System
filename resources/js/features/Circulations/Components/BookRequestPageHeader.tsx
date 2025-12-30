@@ -1,45 +1,34 @@
-import { Search, Plus, RefreshCw, Printer } from 'lucide-react';
+import { Search, RefreshCw, Printer, UserPlus } from 'lucide-react';
 import FilterDropdown from '@/components/common/FilterDropdown';
 
-interface BookReturnPageHeaderProps {
-    searchValue: string;
+interface BookRequestPageHeaderProps {
+    searchQuery: string;
     onSearchChange: (value: string) => void;
-    onAddReturn: () => void;
     onRefresh: () => void;
-    isRefreshing: boolean;
+    onPrint: () => void;
+    onAddBorrow: () => void;
+    isLoading: boolean;
     // Filter props
     selectedStatus?: string | null;
-    selectedPeriod?: string | null;
     onStatusChange?: (status: string | null) => void;
-    onPeriodChange?: (period: string | null) => void;
 }
 
-export default function BookReturnPageHeader({
-    searchValue,
+export default function BookRequestPageHeader({
+    searchQuery,
     onSearchChange,
-    onAddReturn,
     onRefresh,
-    isRefreshing,
+    onPrint,
+    onAddBorrow,
+    isLoading,
     selectedStatus = null,
-    selectedPeriod = null,
-    onStatusChange,
-    onPeriodChange
-}: BookReturnPageHeaderProps) {
-    const handlePrint = () => {
-        window.print();
-    };
-
+    onStatusChange
+}: BookRequestPageHeaderProps) {
     const statusOptions = [
+        { id: 'Pending', name: 'Pending' },
+        { id: 'Approved', name: 'Approved' },
+        { id: 'Disapproved', name: 'Disapproved' },
         { id: 'Returned', name: 'Returned' },
-        { id: 'Damaged', name: 'Damaged' },
-        { id: 'Lost', name: 'Lost' },
-    ];
-
-    const periodOptions = [
-        { id: 'today', name: 'Today' },
-        { id: 'week', name: 'This Week' },
-        { id: 'month', name: 'This Month' },
-        { id: 'year', name: 'This Year' },
+        { id: 'Paid', name: 'Paid' },
     ];
 
     return (
@@ -48,24 +37,24 @@ export default function BookReturnPageHeader({
             <div className="hidden sm:block">
                 <div className="flex items-center justify-between gap-4 mb-3">
                     <div className="flex-shrink-0">
-                        <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">Book Records</h2>
+                        <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">Book Requests</h2>
                         <p className="mt-0.5 text-sm text-gray-600 dark:text-gray-400">
-                            Manage all book records and update their condition
+                            Manage all book borrow requests from members
                         </p>
                     </div>
 
                     <div className="flex items-center gap-3">
                         <button
                             onClick={onRefresh}
-                            disabled={isRefreshing}
+                            disabled={isLoading}
                             className="flex-shrink-0 rounded-lg border border-gray-300 bg-white p-2.5 text-gray-700 transition-all hover:bg-gray-50 disabled:opacity-50 dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-gray-300 dark:hover:bg-[#3a3a3a]"
-                            title="Refresh returns"
+                            title="Refresh list"
                         >
-                            <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                            <RefreshCw className={`h-5 w-5 ${isLoading ? 'animate-spin' : ''}`} />
                         </button>
 
                         <button
-                            onClick={handlePrint}
+                            onClick={onPrint}
                             className="flex-shrink-0 rounded-lg border border-gray-300 bg-white p-2.5 text-gray-700 transition-all hover:bg-gray-50 dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-gray-300 dark:hover:bg-[#3a3a3a]"
                             title="Print list"
                         >
@@ -73,11 +62,11 @@ export default function BookReturnPageHeader({
                         </button>
 
                         <button
-                            onClick={onAddReturn}
-                            className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+                            onClick={onAddBorrow}
+                            className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
                         >
-                            <Plus className="h-5 w-5" />
-                            <span>Add Record</span>
+                            <UserPlus className="h-5 w-5" />
+                            <span>Add Borrow Member</span>
                         </button>
                     </div>
                 </div>
@@ -91,10 +80,10 @@ export default function BookReturnPageHeader({
                         </div>
                         <input
                             type="text"
-                            value={searchValue}
+                            value={searchQuery}
                             onChange={(e) => onSearchChange(e.target.value)}
                             className="block w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-3 text-sm placeholder-gray-400 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-gray-100 dark:placeholder-gray-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400"
-                            placeholder="Search returns..."
+                            placeholder="Search requests..."
                         />
                     </div>
 
@@ -104,13 +93,6 @@ export default function BookReturnPageHeader({
                         selectedId={selectedStatus}
                         onChange={(id) => onStatusChange?.(id as string)}
                     />
-
-                    <FilterDropdown
-                        label="Period"
-                        options={periodOptions}
-                        selectedId={selectedPeriod}
-                        onChange={(id) => onPeriodChange?.(id as string)}
-                    />
                 </div>
             </div>
 
@@ -118,18 +100,18 @@ export default function BookReturnPageHeader({
             <div className="sm:hidden">
                 <div className="mb-4 flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Book Records</h2>
+                        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Book Requests</h2>
                         <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-                            Manage book records
+                            Manage borrow requests
                         </p>
                     </div>
 
                     <div className="flex-shrink-0">
                         <button
-                            onClick={onAddReturn}
+                            onClick={onAddBorrow}
                             className="rounded-lg bg-indigo-600 p-2 text-white"
                         >
-                            <Plus className="h-4 w-4" />
+                            <UserPlus className="h-4 w-4" />
                         </button>
                     </div>
                 </div>
@@ -141,16 +123,16 @@ export default function BookReturnPageHeader({
                         </div>
                         <input
                             type="text"
-                            value={searchValue}
+                            value={searchQuery}
                             onChange={(e) => onSearchChange(e.target.value)}
                             className="block w-full rounded-lg border border-gray-300 bg-white py-2 pl-9 pr-3 text-sm placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-[#3a3a3a] dark:bg-[#2a2a2a]"
                             placeholder="Search..."
                         />
                     </div>
                     <button onClick={onRefresh} className="rounded-lg border border-gray-300 p-2 dark:border-[#3a3a3a]">
-                        <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                        <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
                     </button>
-                    <button onClick={handlePrint} className="rounded-lg border border-gray-300 p-2 dark:border-[#3a3a3a]">
+                    <button onClick={onPrint} className="rounded-lg border border-gray-300 p-2 dark:border-[#3a3a3a]">
                         <Printer className="h-4 w-4" />
                     </button>
                 </div>
@@ -161,12 +143,6 @@ export default function BookReturnPageHeader({
                         options={statusOptions}
                         selectedId={selectedStatus}
                         onChange={(id) => onStatusChange?.(id as string)}
-                    />
-                    <FilterDropdown
-                        label="Period"
-                        options={periodOptions}
-                        selectedId={selectedPeriod}
-                        onChange={(id) => onPeriodChange?.(id as string)}
                     />
                 </div>
             </div>

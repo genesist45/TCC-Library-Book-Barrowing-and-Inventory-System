@@ -19,6 +19,10 @@ export default function Index() {
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [processing, setProcessing] = useState(false);
 
+    // Filter states
+    const [selectedType, setSelectedType] = useState<string | null>(null);
+    const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+
     const openDeleteModal = (member: Member) => {
         setSelectedMember(member);
         setShowDeleteModal(true);
@@ -57,11 +61,16 @@ export default function Index() {
         });
     };
 
-    const filteredMembers = members.filter(member =>
-        (member.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        (member.member_no?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        (member.email?.toLowerCase() || '').includes(searchTerm.toLowerCase())
-    );
+    const filteredMembers = members.filter(member => {
+        const matchesSearch = (member.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+            (member.member_no?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+            (member.email?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+
+        const matchesType = !selectedType || member.type === selectedType;
+        const matchesStatus = !selectedStatus || member.status === selectedStatus;
+
+        return matchesSearch && matchesType && matchesStatus;
+    });
 
     return (
         <AuthenticatedLayout>
@@ -74,6 +83,10 @@ export default function Index() {
                         onSearchChange={setSearchTerm}
                         onRefresh={handleRefresh}
                         isRefreshing={isRefreshing}
+                        selectedType={selectedType}
+                        selectedStatus={selectedStatus}
+                        onTypeChange={setSelectedType}
+                        onStatusChange={setSelectedStatus}
                     />
 
                     <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-colors duration-300 dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">

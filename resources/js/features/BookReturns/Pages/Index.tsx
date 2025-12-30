@@ -29,6 +29,10 @@ export default function Index() {
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
+    // Filter states
+    const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+    const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null);
+
     useEffect(() => {
         if (flash?.success) {
             toast.success(flash.success);
@@ -98,12 +102,35 @@ export default function Index() {
         });
     };
 
-    const filteredReturns = bookReturns.filter(bookReturn =>
-        (bookReturn.member?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        (bookReturn.catalog_item?.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        (bookReturn.status?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        bookReturn.id.toString().includes(searchTerm)
-    );
+    const filteredReturns = bookReturns.filter(bookReturn => {
+        const matchesSearch = (bookReturn.member?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+            (bookReturn.catalog_item?.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+            (bookReturn.status?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+            bookReturn.id.toString().includes(searchTerm);
+
+        const matchesStatus = !selectedStatus || bookReturn.status === selectedStatus;
+
+        // Period filter logic
+        let matchesPeriod = true;
+        if (selectedPeriod) {
+            const returnDate = new Date(bookReturn.return_date);
+            const now = new Date();
+
+            if (selectedPeriod === 'today') {
+                matchesPeriod = returnDate.toDateString() === now.toDateString();
+            } else if (selectedPeriod === 'week') {
+                const startOfWeek = new Date(now);
+                startOfWeek.setDate(now.getDate() - now.getDay());
+                matchesPeriod = returnDate >= startOfWeek;
+            } else if (selectedPeriod === 'month') {
+                matchesPeriod = returnDate.getMonth() === now.getMonth() && returnDate.getFullYear() === now.getFullYear();
+            } else if (selectedPeriod === 'year') {
+                matchesPeriod = returnDate.getFullYear() === now.getFullYear();
+            }
+        }
+
+        return matchesSearch && matchesStatus && matchesPeriod;
+    });
 
     return (
         <AuthenticatedLayout>
@@ -117,6 +144,10 @@ export default function Index() {
                         onAddReturn={openAddModal}
                         onRefresh={handleRefresh}
                         isRefreshing={isRefreshing}
+                        selectedStatus={selectedStatus}
+                        selectedPeriod={selectedPeriod}
+                        onStatusChange={setSelectedStatus}
+                        onPeriodChange={setSelectedPeriod}
                     />
 
                     <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-colors duration-300 dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">
