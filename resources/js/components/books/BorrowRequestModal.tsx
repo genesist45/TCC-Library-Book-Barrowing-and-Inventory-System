@@ -60,6 +60,11 @@ export default function BorrowRequestModal({
         return date.toISOString().split("T")[0];
     };
 
+    const getMaxDate = (): string | undefined => {
+        if (!borrowerCategory) return undefined;
+        return calculateReturnDate(borrowerCategory);
+    };
+
     // Reset form and sync IDs when modal opens
     useEffect(() => {
         if (isOpen) {
@@ -280,6 +285,7 @@ export default function BorrowRequestModal({
                                     value={data.return_date}
                                     onChange={(e: ChangeEvent<HTMLInputElement>) => setData("return_date", e.target.value)}
                                     min={getToday()}
+                                    max={getMaxDate()}
                                     required
                                 />
                             </div>

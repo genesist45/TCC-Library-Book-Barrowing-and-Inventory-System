@@ -203,6 +203,7 @@ export default function BookReturnForm({
                             type="date"
                             value={data.return_date}
                             onChange={(e) => handleFieldChange('return_date', e.target.value)}
+                            min={today}
                             className="block w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-[#4a4a4a] dark:bg-[#3a3a3a] dark:text-white"
                             required
                         />
