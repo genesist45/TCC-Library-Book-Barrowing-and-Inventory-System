@@ -20,5 +20,9 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 /dist-electron
+
+# Project Rules
 BACKEND_INERTIA.JS_RULES.MD
 FRONTEND_INERTIA.JS_RULES.md
+GIT.md
+PROJECT_OVERVIEW.md

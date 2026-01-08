@@ -36,7 +36,7 @@ export default function BookCard({ book, onClick }: BookCardProps) {
                 {isAllBorrowed && (
                     <div className="absolute right-2 top-2">
                         <span className="inline-flex items-center rounded-full bg-red-500 px-2.5 py-1 text-xs font-semibold text-white shadow-lg">
-                            Borrowed
+                            Checked Out
                         </span>
                     </div>
                 )}

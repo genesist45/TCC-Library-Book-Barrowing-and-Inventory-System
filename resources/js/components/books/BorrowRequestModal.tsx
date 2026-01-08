@@ -9,6 +9,7 @@ interface BorrowRequestModalProps {
     onClose: () => void;
     catalogItemId: number;
     catalogItemCopyId: number | null;
+    onSuccess?: () => void;
 }
 
 interface MemberValidation {
@@ -22,6 +23,7 @@ export default function BorrowRequestModal({
     onClose,
     catalogItemId,
     catalogItemCopyId,
+    onSuccess,
 }: BorrowRequestModalProps) {
     const [memberValidation, setMemberValidation] = useState<MemberValidation>({
         isValid: null,
@@ -181,8 +183,8 @@ export default function BorrowRequestModal({
         post(route("books.borrow-request.store"), {
             preserveScroll: true,
             onSuccess: () => {
-                reset();
                 handleClose();
+                onSuccess?.();
             },
         });
     };

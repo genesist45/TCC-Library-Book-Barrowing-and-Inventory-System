@@ -1,4 +1,5 @@
 import { Info, Copy } from "lucide-react";
+import { CatalogItem } from "@/types";
 
 export type BookDetailTab = "item-info" | "available-copies";
 
@@ -39,6 +40,7 @@ function TabButton({ active, onClick, icon, label, badge }: TabButtonProps) {
 interface BookDetailsTabsProps {
     activeTab: BookDetailTab;
     onTabChange: (tab: BookDetailTab) => void;
+    catalogItem: CatalogItem;
     copiesCount?: number;
     availableCopiesCount?: number;
 }
@@ -46,6 +48,7 @@ interface BookDetailsTabsProps {
 export default function BookDetailsTabs({
     activeTab,
     onTabChange,
+    catalogItem,
     copiesCount,
     availableCopiesCount,
 }: BookDetailsTabsProps) {
@@ -62,6 +65,7 @@ export default function BookDetailsTabs({
                     icon={<Info className="h-4 w-4" />}
                     label="ITEM INFO"
                 />
+
                 <TabButton
                     active={activeTab === "available-copies"}
                     onClick={() => onTabChange("available-copies")}

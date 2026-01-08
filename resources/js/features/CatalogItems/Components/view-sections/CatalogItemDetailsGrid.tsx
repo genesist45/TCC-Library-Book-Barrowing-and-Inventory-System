@@ -61,6 +61,7 @@ export default function CatalogItemDetailsGrid({ catalogItem }: CatalogItemDetai
                 </h3>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-6 gap-x-8">
                     <DetailField label="Publisher" value={catalogItem.publisher?.name} />
+                    <DetailField label="Place of Publication" value={catalogItem.place_of_publication} />
                     <DetailField label="Year">
                         <div className="flex items-center gap-2 mt-1">
                             <Calendar size={14} className="text-gray-400" />
@@ -73,6 +74,20 @@ export default function CatalogItemDetailsGrid({ catalogItem }: CatalogItemDetai
                     <DetailField label="ISBN-13" value={catalogItem.isbn13} />
                 </div>
             </div>
+
+            {/* Physical Description Card */}
+            {(catalogItem.extent || catalogItem.other_physical_details || catalogItem.dimensions) && (
+                <div className="rounded-xl bg-gray-50 p-6 dark:bg-[#2f2f2f]/50 border border-gray-100 dark:border-[#3a3a3a]">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+                        Physical Description
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-y-6 gap-x-8">
+                        <DetailField label="Extent" value={catalogItem.extent} />
+                        <DetailField label="Other Physical Details" value={catalogItem.other_physical_details} />
+                        <DetailField label="Dimensions" value={catalogItem.dimensions} />
+                    </div>
+                </div>
+            )}
 
             {/* Content & Description */}
             <div className="space-y-6">

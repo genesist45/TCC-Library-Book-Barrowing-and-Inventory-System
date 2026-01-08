@@ -1,8 +1,6 @@
-import { BookOpen, Calendar, User as UserIcon, Copy, ArrowRight, Heart, MapPin } from "lucide-react";
+import { BookOpen, Calendar, User as UserIcon, Copy, ArrowRight, MapPin } from "lucide-react";
 import { CatalogItem, User } from "@/types";
 import { router } from "@inertiajs/react";
-import { useState, useEffect } from "react";
-import axios from "axios";
 
 interface PopularBooksSectionProps {
     books: CatalogItem[];
@@ -11,63 +9,12 @@ interface PopularBooksSectionProps {
     showFooter?: boolean;
 }
 
-interface LikeState {
-    [bookId: number]: {
-        liked: boolean;
-        count: number;
-        loading: boolean;
-    };
-}
-
 export default function PopularBooksSection({
     books,
     user,
     onBookClick,
     showFooter = true,
 }: PopularBooksSectionProps) {
-    const [likeStates, setLikeStates] = useState<LikeState>({});
-
-    // Initialize like states from book data
-    useEffect(() => {
-        const initialStates: LikeState = {};
-        books.forEach(book => {
-            initialStates[book.id] = {
-                liked: false,
-                count: (book as any).likes_count || 0,
-                loading: false,
-            };
-        });
-        setLikeStates(initialStates);
-    }, [books]);
-
-    const handleLikeClick = async (e: React.MouseEvent, bookId: number) => {
-        e.stopPropagation(); // Prevent card click
-
-        // Set loading state
-        setLikeStates(prev => ({
-            ...prev,
-            [bookId]: { ...prev[bookId], loading: true }
-        }));
-
-        try {
-            const response = await axios.post(route('books.like.toggle', bookId));
-            setLikeStates(prev => ({
-                ...prev,
-                [bookId]: {
-                    liked: response.data.liked,
-                    count: response.data.likes_count,
-                    loading: false,
-                }
-            }));
-        } catch (error) {
-            console.error('Failed to toggle like:', error);
-            setLikeStates(prev => ({
-                ...prev,
-                [bookId]: { ...prev[bookId], loading: false }
-            }));
-        }
-    };
-
     if (books.length === 0) {
         return (
             <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
@@ -89,8 +36,6 @@ export default function PopularBooksSection({
             {/* Books Grid */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {books.map((book) => {
-                    const likeState = likeStates[book.id] || { liked: false, count: (book as any).likes_count || 0, loading: false };
-
                     return (
                         <div
                             key={book.id}
@@ -115,26 +60,9 @@ export default function PopularBooksSection({
 
                                 {/* Book Info */}
                                 <div className="min-w-0 flex-1">
-                                    <div className="flex items-start justify-between gap-2">
-                                        <h3 className="line-clamp-2 text-sm font-semibold text-gray-900 transition-colors group-hover:text-blue-600">
-                                            {book.title}
-                                        </h3>
-
-                                        {/* Like Button */}
-                                        <button
-                                            onClick={(e) => handleLikeClick(e, book.id)}
-                                            disabled={likeState.loading}
-                                            className={`flex flex-shrink-0 items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition-all ${likeState.liked
-                                                ? 'bg-rose-100 text-rose-600'
-                                                : 'bg-gray-100 text-gray-500 hover:bg-rose-50 hover:text-rose-500'
-                                                } ${likeState.loading ? 'opacity-50' : ''}`}
-                                        >
-                                            <Heart
-                                                className={`h-3.5 w-3.5 ${likeState.liked ? 'fill-rose-500' : ''}`}
-                                            />
-                                            <span>{likeState.count}</span>
-                                        </button>
-                                    </div>
+                                    <h3 className="line-clamp-2 text-sm font-semibold text-gray-900 transition-colors group-hover:text-blue-600">
+                                        {book.title}
+                                    </h3>
 
                                     {/* Author */}
                                     {book.authors && book.authors.length > 0 && (
@@ -182,7 +110,7 @@ export default function PopularBooksSection({
                                             ? "bg-green-50 text-green-700"
                                             : "bg-amber-50 text-amber-700"
                                             }`}>
-                                            {(book.available_copies_count ?? 0) > 0 ? "Available" : "Borrowed"}
+                                            {(book.available_copies_count ?? 0) > 0 ? "Available" : "Checked Out"}
                                         </span>
                                     </div>
                                 </div>

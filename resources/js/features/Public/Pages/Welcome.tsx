@@ -69,10 +69,10 @@ export default function Welcome({
             if (!hasAvailableCopy) return false;
         }
         if (availabilityFilter === "borrowed") {
-            const allCopiesBorrowed = book.copies?.length
+            const allCopiesCheckedOut = book.copies?.length
                 ? book.copies.every((copy) => copy.status !== "Available")
                 : false;
-            if (!allCopiesBorrowed) return false;
+            if (!allCopiesCheckedOut) return false;
         }
         return true;
     });

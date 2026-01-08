@@ -73,7 +73,7 @@ export default function FilterOptions({
                 >
                     <option value="">All Status</option>
                     <option value="available">Available</option>
-                    <option value="borrowed">Borrowed</option>
+                    <option value="borrowed">Checked Out</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                     <ChevronDown className="h-4 w-4 text-gray-400" />

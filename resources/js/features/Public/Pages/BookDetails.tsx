@@ -2,16 +2,16 @@ import { PageProps, CatalogItem, CatalogItemCopy } from "@/types";
 import { Head, router, usePage } from "@inertiajs/react";
 import PublicHeader from "@/components/common/PublicHeader";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Heart } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { toast } from "react-toastify";
 import Toast from "@/components/common/Toast";
-import axios from "axios";
 
 // Book detail components
 import BookDetailsTabs, { BookDetailTab } from "@/components/books/BookDetailsTabs";
 import ItemInfoTab from "@/components/books/ItemInfoTab";
 import AvailableCopiesTable from "@/components/books/AvailableCopiesTable";
 import BorrowRequestModal from "@/components/books/BorrowRequestModal";
+import SuccessModal from "@/components/modals/SuccessModal";
 
 interface Props extends PageProps {
     catalogItem: CatalogItem & {
@@ -22,45 +22,35 @@ interface Props extends PageProps {
     };
     hasAvailableCopies: boolean;
     hasCopies: boolean;
-    allCopiesBorrowed: boolean;
+    allCopiesCheckedOut: boolean;
     hasPendingOrActiveRequest: boolean;
 }
 
 export default function BookDetails({
     auth,
     catalogItem,
-    allCopiesBorrowed,
+    allCopiesCheckedOut,
     hasPendingOrActiveRequest,
 }: Props) {
     const { flash } = usePage().props as any;
     const [activeTab, setActiveTab] = useState<BookDetailTab>("item-info");
     const [showRequestModal, setShowRequestModal] = useState(false);
     const [selectedCopyId, setSelectedCopyId] = useState<number | null>(null);
-
-    // Like state
-    const [liked, setLiked] = useState(false);
-    const [likesCount, setLikesCount] = useState(catalogItem.likes_count || 0);
-    const [likeLoading, setLikeLoading] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     // Show flash messages
     useEffect(() => {
         if (flash?.success) {
-            toast.success(flash.success);
+            // Only show toast if it's not the borrow request success message
+            // which we now handle with a high-end modal
+            if (!flash.success.toLowerCase().includes('submitted successfully')) {
+                toast.success(flash.success);
+            }
         }
         if (flash?.error) {
             toast.error(flash.error);
         }
     }, [flash]);
-
-    // Check initial like status
-    useEffect(() => {
-        axios.get(route('books.like.status', catalogItem.id))
-            .then(response => {
-                setLiked(response.data.liked);
-                setLikesCount(response.data.likes_count);
-            })
-            .catch(console.error);
-    }, [catalogItem.id]);
 
     const handleGoBack = () => {
         if (window.history.length > 1) {
@@ -80,17 +70,8 @@ export default function BookDetails({
         setSelectedCopyId(null);
     };
 
-    const handleLikeClick = async () => {
-        setLikeLoading(true);
-        try {
-            const response = await axios.post(route('books.like.toggle', catalogItem.id));
-            setLiked(response.data.liked);
-            setLikesCount(response.data.likes_count);
-        } catch (error) {
-            console.error('Failed to toggle like:', error);
-        } finally {
-            setLikeLoading(false);
-        }
+    const handleRequestSuccess = () => {
+        setShowSuccessModal(true);
     };
 
     return (
@@ -118,21 +99,6 @@ export default function BookDetails({
                                     <h1 className="text-2xl font-bold text-white">
                                         {catalogItem.title}
                                     </h1>
-
-                                    {/* Like Button */}
-                                    <button
-                                        onClick={handleLikeClick}
-                                        disabled={likeLoading}
-                                        className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all ${liked
-                                            ? 'bg-white text-rose-600'
-                                            : 'bg-white/20 text-white hover:bg-white/30'
-                                            } ${likeLoading ? 'opacity-70' : ''}`}
-                                    >
-                                        <Heart
-                                            className={`h-5 w-5 ${liked ? 'fill-rose-500 text-rose-500' : ''}`}
-                                        />
-                                        <span>{likesCount} {likesCount === 1 ? 'Like' : 'Likes'}</span>
-                                    </button>
                                 </div>
                             </div>
 
@@ -140,6 +106,7 @@ export default function BookDetails({
                             <BookDetailsTabs
                                 activeTab={activeTab}
                                 onTabChange={setActiveTab}
+                                catalogItem={catalogItem}
                                 copiesCount={catalogItem.copies?.length}
                                 availableCopiesCount={catalogItem.available_copies_count ?? catalogItem.copies?.filter(c => c.status === 'Available').length}
                             />
@@ -154,7 +121,7 @@ export default function BookDetails({
                                     <AvailableCopiesTable
                                         copies={catalogItem.copies}
                                         callNo={catalogItem.call_no}
-                                        allCopiesBorrowed={allCopiesBorrowed}
+                                        allCopiesBorrowed={allCopiesCheckedOut}
                                         hasPendingOrActiveRequest={hasPendingOrActiveRequest}
                                         onRequestCopy={handleRequestCopy}
                                     />
@@ -171,6 +138,13 @@ export default function BookDetails({
                 onClose={handleCloseModal}
                 catalogItemId={catalogItem.id}
                 catalogItemCopyId={selectedCopyId}
+                onSuccess={handleRequestSuccess}
+            />
+
+            <SuccessModal
+                show={showSuccessModal}
+                onClose={() => setShowSuccessModal(false)}
+                message="Your borrow request has been submitted successfully!"
             />
 
             <Toast />

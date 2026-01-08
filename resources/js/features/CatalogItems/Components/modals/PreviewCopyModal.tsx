@@ -638,7 +638,7 @@ export default function PreviewCopyBookModal({
                     required
                 >
                     <option value="Available">Available</option>
-                    <option value="Borrowed">Borrowed</option>
+                    <option value="Borrowed">Checked Out</option>
                     <option value="Reserved">Reserved</option>
                     <option value="Lost">Lost</option>
                     <option value="Under Repair">Under Repair</option>
@@ -701,7 +701,7 @@ export default function PreviewCopyBookModal({
                     required
                 >
                     <option value="Available">Available</option>
-                    <option value="Borrowed">Borrowed</option>
+                    <option value="Borrowed">Checked Out</option>
                     <option value="Reserved">Reserved</option>
                     <option value="Lost">Lost</option>
                     <option value="Under Repair">Under Repair</option>

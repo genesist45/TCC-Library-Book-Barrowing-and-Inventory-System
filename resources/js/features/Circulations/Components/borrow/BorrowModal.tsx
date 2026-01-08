@@ -157,7 +157,6 @@ export default function BorrowModal({
         post(route("admin.book-requests.store-approved"), {
             preserveScroll: true,
             onSuccess: () => {
-                toast.success("Borrow record added and approved successfully!");
                 onClose();
                 onSuccess?.();
             },

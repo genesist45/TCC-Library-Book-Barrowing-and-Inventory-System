@@ -39,7 +39,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
             isLargeText: true,
         },
         {
-            title: 'Currently Borrowed',
+            title: 'Currently Checked Out',
             value: summary.borrowedBooks.toLocaleString(),
             icon: BookOpen,
             iconBgClass: 'bg-amber-100 dark:bg-amber-900/30',

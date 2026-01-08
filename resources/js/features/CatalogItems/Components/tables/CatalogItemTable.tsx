@@ -1,4 +1,4 @@
-import { Eye, Pencil, Trash2, Copy } from "lucide-react";
+import { Eye, Trash2, Copy } from "lucide-react";
 import { router } from "@inertiajs/react";
 import { CatalogItem } from "@/types";
 
@@ -83,7 +83,6 @@ interface CatalogItemTableProps {
     items: CatalogItemWithAvailability[];
     onView: (item: CatalogItem) => void;
     onCopy: (item: CatalogItem) => void;
-    onEdit: (item: CatalogItem) => void;
     onDelete: (item: CatalogItem) => void;
     isLoading?: boolean;
 }
@@ -116,7 +115,6 @@ export default function CatalogItemTable({
     items,
     onView,
     onCopy,
-    onEdit,
     onDelete,
     isLoading = false,
 }: CatalogItemTableProps) {
@@ -249,16 +247,6 @@ export default function CatalogItemTable({
                                                 title="Copy Book"
                                             >
                                                 <Copy
-                                                    size={16}
-                                                    className="sm:h-4 sm:w-4"
-                                                />
-                                            </button>
-                                            <button
-                                                onClick={() => onEdit(item)}
-                                                className="flex items-center justify-center rounded-lg bg-amber-100 p-1.5 text-amber-600 transition hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50"
-                                                title="Edit"
-                                            >
-                                                <Pencil
                                                     size={16}
                                                     className="sm:h-4 sm:w-4"
                                                 />

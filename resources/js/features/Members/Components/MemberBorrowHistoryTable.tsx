@@ -26,7 +26,7 @@ const DEFAULT_ITEMS_PER_PAGE = 10;
 
 export default function MemberBorrowHistoryTable({
     records,
-    title = "Borrow History",
+    title = "Checkout History",
 }: MemberBorrowHistoryTableProps) {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(DEFAULT_ITEMS_PER_PAGE);
@@ -96,7 +96,7 @@ export default function MemberBorrowHistoryTable({
         if (status === "Approved") {
             return (
                 <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                    Borrowed
+                    Checked Out
                 </span>
             );
         }
@@ -148,7 +148,7 @@ export default function MemberBorrowHistoryTable({
                 <div className="p-6 text-center">
                     <Calendar className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
                     <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        No borrow history found for this member.
+                        No checkout history found for this member.
                     </p>
                 </div>
             </div>
@@ -187,7 +187,7 @@ export default function MemberBorrowHistoryTable({
                                 Book/Item
                             </th>
                             <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                                Borrow Date
+                                Checkout Date
                             </th>
                             <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
                                 Due Date

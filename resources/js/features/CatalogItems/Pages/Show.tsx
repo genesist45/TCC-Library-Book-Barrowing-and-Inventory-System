@@ -114,9 +114,17 @@ export default function Show({
                                 Catalog Item Details
                             </h2>
                             <p className="mt-1 text-sm text-gray-600 transition-colors duration-300 dark:text-gray-400">
-                                View complete information about this catalog
-                                item
+                                View complete information about this catalog item
                             </p>
+                            <div className="mt-4">
+                                <SecondaryButton
+                                    onClick={handleEdit}
+                                    className="flex items-center gap-2"
+                                >
+                                    <Pencil className="h-4 w-4" />
+                                    Edit Item
+                                </SecondaryButton>
+                            </div>
                         </div>
 
                         <div className="p-4 sm:p-6">
@@ -186,13 +194,6 @@ export default function Show({
                                 <SecondaryButton onClick={handleBack}>
                                     Close
                                 </SecondaryButton>
-                                <PrimaryButton
-                                    onClick={handleEdit}
-                                    className="flex items-center gap-2"
-                                >
-                                    <Pencil className="h-4 w-4" />
-                                    Edit Item
-                                </PrimaryButton>
                             </div>
                         </div>
                     </div>

@@ -144,7 +144,7 @@ function EmptyState({ allCopiesBorrowed, hasPendingOrActiveRequest }: EmptyState
             {allCopiesBorrowed ? (
                 <>
                     <p className="mt-2 text-sm font-medium text-red-600">
-                        All copies are currently borrowed
+                        All copies are currently checked out
                     </p>
                     <p className="mt-1 text-xs text-gray-500">
                         This book is checked out and not available for borrowing at this time.
@@ -158,7 +158,7 @@ function EmptyState({ allCopiesBorrowed, hasPendingOrActiveRequest }: EmptyState
             ) : hasPendingOrActiveRequest ? (
                 <>
                     <p className="mt-2 text-sm font-medium text-red-600">
-                        This book is currently borrowed
+                        This book is currently checked out
                     </p>
                     <p className="mt-1 text-xs text-gray-500">
                         No copies available - book is checked out.

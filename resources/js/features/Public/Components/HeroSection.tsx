@@ -35,7 +35,7 @@ export default function HeroSection({ user }: HeroSectionProps) {
                         {/* Main Headline */}
                         <h1 className="mb-6 font-jakarta text-4xl font-black tracking-tight text-gray-900 sm:text-5xl md:text-6xl lg:text-7xl">
                             <span className="block">Discover.</span>
-                            <span className="block">Borrow.</span>
+                            <span className="block">Check Out.</span>
                             <span className="relative inline-block text-blue-600">
                                 Learn.
                                 <svg
@@ -57,7 +57,7 @@ export default function HeroSection({ user }: HeroSectionProps) {
                         {/* Description */}
                         <p className="mb-8 max-w-lg text-lg text-gray-600 sm:text-xl">
                             Access our extensive collection of books, journals, and resources —
-                            <span className="font-medium text-gray-700"> streamlined borrowing, powerful search, seamless experience.</span>
+                            <span className="font-medium text-gray-700"> streamlined checkouts, powerful search, seamless experience.</span>
                         </p>
 
                         {/* CTA Buttons */}
@@ -90,7 +90,7 @@ export default function HeroSection({ user }: HeroSectionProps) {
                             </div>
                             <div className="flex items-center gap-2">
                                 <CheckCircle className="h-5 w-5 text-green-500" />
-                                <span>Easy borrowing</span>
+                                <span>Easy check-out</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <CheckCircle className="h-5 w-5 text-green-500" />
@@ -137,7 +137,7 @@ export default function HeroSection({ user }: HeroSectionProps) {
                                     </div>
                                     <div className="flex-1">
                                         <p className="font-semibold text-gray-800">Philippine Literature</p>
-                                        <p className="text-xs text-gray-500">Literature • Borrowed</p>
+                                        <p className="text-xs text-gray-500">Literature • Checked Out</p>
                                     </div>
                                     <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700">Due: Dec 20</span>
                                 </div>
@@ -175,7 +175,7 @@ export default function HeroSection({ user }: HeroSectionProps) {
                                     <CheckCircle className="h-4 w-4 text-green-600" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-semibold text-gray-800">Book Borrowed Successfully!</p>
+                                    <p className="text-sm font-semibold text-gray-800">Book Checked Out Successfully!</p>
                                     <p className="text-xs text-gray-500">Return by December 25, 2024</p>
                                 </div>
                             </div>

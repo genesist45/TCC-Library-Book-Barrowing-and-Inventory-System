@@ -181,7 +181,7 @@ class CatalogItemCopyController extends Controller
             ],
             'branch' => 'nullable|string|max:255',
             'location' => 'nullable|string',
-            'status' => 'required|in:Available,Borrowed,Reserved,Lost,Under Repair,Paid,Pending',
+            'status' => 'required|in:Available,Checked Out,Reserved,Lost,Under Repair,Paid,Pending',
             'reserved_by_member_id' => 'nullable|exists:members,id',
         ];
 

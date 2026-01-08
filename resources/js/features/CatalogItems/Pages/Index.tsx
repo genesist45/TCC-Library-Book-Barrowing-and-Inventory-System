@@ -64,9 +64,6 @@ export default function Index({ catalogItems, authors, publishers, categories, f
         router.visit(route("admin.catalog-items.show", item.id));
     };
 
-    const handleEditItem = (item: CatalogItem) => {
-        router.visit(route("admin.catalog-items.edit", item.id));
-    };
 
     const handleCopyItem = (item: CatalogItem) => {
         setSelectedItem(item);
@@ -249,7 +246,6 @@ export default function Index({ catalogItems, authors, publishers, categories, f
                             items={paginatedItems}
                             onView={handleViewItem}
                             onCopy={handleCopyItem}
-                            onEdit={handleEditItem}
                             onDelete={handleDeleteItem}
                             isLoading={isRefreshing}
                         />
