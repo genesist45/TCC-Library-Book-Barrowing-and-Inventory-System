@@ -23,14 +23,30 @@ export default function HeroSection({ user }: HeroSectionProps) {
                 <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
                     {/* Left Content */}
                     <div className="max-w-xl">
-                        {/* Badge */}
-                        <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50/80 px-4 py-2 backdrop-blur-sm">
+                        {/* Badge with floating animation */}
+                        <div className="mb-8 inline-flex animate-float items-center gap-2 rounded-full border border-blue-200 bg-blue-50/80 px-4 py-2 backdrop-blur-sm">
                             <Library className="h-4 w-4 text-blue-600" />
                             <span className="text-sm font-medium text-blue-700">
                                 Tagoloan Community College Library
                             </span>
                             <BookOpen className="h-4 w-4 text-blue-600" />
                         </div>
+
+                        {/* Floating animation keyframes */}
+                        <style>{`
+                            @keyframes float {
+                                0%, 100% {
+                                    transform: translateY(0px);
+                                }
+                                50% {
+                                    transform: translateY(-8px);
+                                }
+                            }
+                            .animate-float {
+                                animation: float 2.5s ease-in-out infinite;
+                            }
+                        `}</style>
+
 
                         {/* Main Headline */}
                         <h1 className="mb-6 font-jakarta text-4xl font-black tracking-tight text-gray-900 sm:text-5xl md:text-6xl lg:text-7xl">
@@ -120,8 +136,8 @@ export default function HeroSection({ user }: HeroSectionProps) {
 
                             {/* Book cards mockup */}
                             <div className="space-y-3">
-                                <div className="flex items-center gap-4 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
-                                    <div className="flex h-14 w-10 items-center justify-center rounded bg-blue-500 text-white">
+                                <div className="flex cursor-pointer items-center gap-4 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 p-4 transition-all duration-300 ease-out hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-200/50">
+                                    <div className="flex h-14 w-10 items-center justify-center rounded bg-blue-500 text-white transition-transform duration-300 hover:scale-110">
                                         <BookOpen className="h-5 w-5" />
                                     </div>
                                     <div className="flex-1">
@@ -131,8 +147,8 @@ export default function HeroSection({ user }: HeroSectionProps) {
                                     <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">3 copies</span>
                                 </div>
 
-                                <div className="flex items-center gap-4 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 p-4">
-                                    <div className="flex h-14 w-10 items-center justify-center rounded bg-purple-500 text-white">
+                                <div className="flex cursor-pointer items-center gap-4 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 p-4 transition-all duration-300 ease-out hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-200/50">
+                                    <div className="flex h-14 w-10 items-center justify-center rounded bg-purple-500 text-white transition-transform duration-300 hover:scale-110">
                                         <BookOpen className="h-5 w-5" />
                                     </div>
                                     <div className="flex-1">
@@ -142,8 +158,8 @@ export default function HeroSection({ user }: HeroSectionProps) {
                                     <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700">Due: Dec 20</span>
                                 </div>
 
-                                <div className="flex items-center gap-4 rounded-lg bg-gradient-to-r from-emerald-50 to-teal-50 p-4">
-                                    <div className="flex h-14 w-10 items-center justify-center rounded bg-emerald-500 text-white">
+                                <div className="flex cursor-pointer items-center gap-4 rounded-lg bg-gradient-to-r from-emerald-50 to-teal-50 p-4 transition-all duration-300 ease-out hover:scale-[1.02] hover:shadow-lg hover:shadow-emerald-200/50">
+                                    <div className="flex h-14 w-10 items-center justify-center rounded bg-emerald-500 text-white transition-transform duration-300 hover:scale-110">
                                         <BookOpen className="h-5 w-5" />
                                     </div>
                                     <div className="flex-1">
@@ -156,7 +172,7 @@ export default function HeroSection({ user }: HeroSectionProps) {
                         </div>
 
                         {/* Floating stats card - top right */}
-                        <div className="absolute -right-4 top-0 z-20 rounded-xl border border-gray-100 bg-white p-4 shadow-xl">
+                        <div className="absolute -right-4 top-0 z-20 cursor-pointer rounded-xl border border-gray-100 bg-white p-4 shadow-xl transition-all duration-300 ease-out hover:scale-105 hover:shadow-2xl">
                             <div className="flex items-center gap-3">
                                 <div className="rounded-lg bg-blue-100 p-2">
                                     <Users className="h-5 w-5 text-blue-600" />
@@ -169,7 +185,7 @@ export default function HeroSection({ user }: HeroSectionProps) {
                         </div>
 
                         {/* Floating notification card - bottom right */}
-                        <div className="absolute -bottom-4 -right-8 z-20 w-64 rounded-xl border border-gray-100 bg-white p-4 shadow-xl">
+                        <div className="absolute -bottom-4 -right-8 z-20 w-64 cursor-pointer rounded-xl border border-gray-100 bg-white p-4 shadow-xl transition-all duration-300 ease-out hover:scale-105 hover:shadow-2xl">
                             <div className="flex items-start gap-3">
                                 <div className="rounded-full bg-green-100 p-1.5">
                                     <CheckCircle className="h-4 w-4 text-green-600" />
@@ -182,21 +198,21 @@ export default function HeroSection({ user }: HeroSectionProps) {
                         </div>
 
                         {/* Floating search result - left side */}
-                        <div className="absolute -left-12 top-1/3 z-20 w-56 rounded-xl border border-gray-100 bg-white p-4 shadow-xl">
+                        <div className="absolute -left-12 top-1/3 z-20 w-56 cursor-pointer rounded-xl border border-gray-100 bg-white p-4 shadow-xl transition-all duration-300 ease-out hover:scale-105 hover:shadow-2xl">
                             <div className="mb-2 flex items-center gap-2">
                                 <Search className="h-4 w-4 text-blue-500" />
                                 <span className="text-xs font-medium text-gray-600">Quick Search</span>
                             </div>
                             <div className="space-y-2">
-                                <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-2">
-                                    <div className="h-8 w-6 rounded bg-indigo-400" />
+                                <div className="flex cursor-pointer items-center gap-2 rounded-lg bg-gray-50 p-2 transition-all duration-300 hover:bg-indigo-50 hover:shadow-sm">
+                                    <div className="h-8 w-6 rounded bg-indigo-400 transition-transform duration-300 hover:scale-110" />
                                     <div className="flex-1">
                                         <p className="text-xs font-medium text-gray-700">Research Methods</p>
                                         <p className="text-[10px] text-gray-400">2 copies available</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-2">
-                                    <div className="h-8 w-6 rounded bg-rose-400" />
+                                <div className="flex cursor-pointer items-center gap-2 rounded-lg bg-gray-50 p-2 transition-all duration-300 hover:bg-rose-50 hover:shadow-sm">
+                                    <div className="h-8 w-6 rounded bg-rose-400 transition-transform duration-300 hover:scale-110" />
                                     <div className="flex-1">
                                         <p className="text-xs font-medium text-gray-700">Data Structures</p>
                                         <p className="text-[10px] text-gray-400">5 copies available</p>

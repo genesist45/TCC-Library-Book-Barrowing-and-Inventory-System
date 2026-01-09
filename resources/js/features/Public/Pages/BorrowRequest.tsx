@@ -66,7 +66,7 @@ export default function BorrowRequest({ auth, catalogItem }: Props) {
         <>
             <Head title={`Borrow Request - ${catalogItem.title}`} />
             <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 font-jakarta">
-                <PublicHeader user={auth.user} />
+                <PublicHeader />
 
                 <main className="container mx-auto px-4 py-24 sm:px-6 lg:px-12">
                     <div className="mx-auto max-w-7xl">

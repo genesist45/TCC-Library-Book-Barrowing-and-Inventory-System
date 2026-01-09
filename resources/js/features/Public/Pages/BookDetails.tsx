@@ -78,7 +78,7 @@ export default function BookDetails({
         <>
             <Head title={catalogItem.title} />
             <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 font-jakarta">
-                <PublicHeader user={auth.user} />
+                <PublicHeader />
 
                 <main className="container mx-auto px-4 py-24 sm:px-6 lg:px-12">
                     <div className="mx-auto max-w-6xl">
@@ -94,12 +94,10 @@ export default function BookDetails({
                         {/* Main Content Card */}
                         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
                             {/* Header */}
-                            <div className="border-b border-gray-200 bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
-                                <div className="flex items-center justify-between gap-4">
-                                    <h1 className="text-2xl font-bold text-white">
-                                        {catalogItem.title}
-                                    </h1>
-                                </div>
+                            <div className="border-b border-gray-200 bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 sm:px-6 sm:py-4">
+                                <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white leading-tight break-words">
+                                    {catalogItem.title}
+                                </h1>
                             </div>
 
                             {/* Tabs Navigation */}
@@ -112,7 +110,7 @@ export default function BookDetails({
                             />
 
                             {/* Tab Content */}
-                            <div className="p-6">
+                            <div className="p-4 sm:p-6">
                                 {activeTab === "item-info" && (
                                     <ItemInfoTab catalogItem={catalogItem} />
                                 )}

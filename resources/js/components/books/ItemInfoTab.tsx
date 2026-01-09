@@ -52,9 +52,9 @@ export default function ItemInfoTab({ catalogItem }: ItemInfoTabProps) {
                     <DetailRow label="Location" value={catalogItem.location} />
                     <DetailRow label="URL" value={catalogItem.url} />
                     <DetailRow label="Description" value={catalogItem.description} />
-                    <div className="grid grid-cols-3 gap-4 border-b border-gray-100 py-3">
-                        <dt className="text-sm font-medium text-gray-500">Available Copies</dt>
-                        <dd className="col-span-2 text-sm font-semibold text-gray-900">
+                    <div className="flex flex-col sm:grid sm:grid-cols-3 gap-1 sm:gap-4 border-b border-gray-100 py-3">
+                        <dt className="text-xs sm:text-sm font-medium text-gray-500">Available Copies</dt>
+                        <dd className="sm:col-span-2 text-sm font-semibold text-gray-900">
                             {catalogItem.available_copies_count ?? 0} / {copiesCount}
                         </dd>
                     </div>

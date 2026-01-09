@@ -275,9 +275,7 @@ export default function Header({
                                                                                             .member_name
                                                                                     }
                                                                                 </span>
-                                                                                {
-                                                                                    " - "
-                                                                                }
+                                                                                {" has not returned "}
                                                                                 <span className="italic">
                                                                                     {
                                                                                         notification
@@ -289,9 +287,8 @@ export default function Header({
                                                                                     .data
                                                                                     .days_overdue >
                                                                                     0 && (
-                                                                                        <span className="ml-1 text-red-500 dark:text-red-400">
-                                                                                            (
-                                                                                            {
+                                                                                        <span className="ml-1 text-red-500 dark:text-red-400 font-medium">
+                                                                                            - {
                                                                                                 notification
                                                                                                     .data
                                                                                                     .days_overdue
@@ -302,7 +299,7 @@ export default function Header({
                                                                                                 1
                                                                                                 ? "day"
                                                                                                 : "days"}{" "}
-                                                                                            overdue)
+                                                                                            overdue
                                                                                         </span>
                                                                                     )}
                                                                             </>

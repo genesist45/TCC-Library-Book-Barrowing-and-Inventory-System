@@ -16,16 +16,16 @@ function TabButton({ active, onClick, icon, label, badge }: TabButtonProps) {
         <button
             type="button"
             onClick={onClick}
-            className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium transition-colors ${active
+            className={`flex items-center gap-1.5 sm:gap-2 border-b-2 px-1 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-colors min-h-[48px] ${active
                 ? "border-indigo-500 text-indigo-600"
                 : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
                 }`}
         >
             {icon}
-            {label}
+            <span className="whitespace-nowrap">{label}</span>
             {badge !== undefined && (
                 <span
-                    className={`ml-1 rounded-full px-2 py-0.5 text-xs font-medium ${active
+                    className={`ml-0.5 sm:ml-1 rounded-full px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-medium ${active
                         ? "bg-indigo-100 text-indigo-600"
                         : "bg-gray-100 text-gray-600"
                         }`}
@@ -57,8 +57,8 @@ export default function BookDetailsTabs({
     const badge = `${availableCount}/${totalCount}`;
 
     return (
-        <div className="border-b border-gray-200 px-6">
-            <nav className="-mb-px flex space-x-6">
+        <div className="border-b border-gray-200 px-4 sm:px-6 overflow-x-auto">
+            <nav className="-mb-px flex space-x-4 sm:space-x-6">
                 <TabButton
                     active={activeTab === "item-info"}
                     onClick={() => onTabChange("item-info")}

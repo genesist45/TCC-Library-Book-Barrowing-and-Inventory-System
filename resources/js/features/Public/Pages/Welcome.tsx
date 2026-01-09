@@ -102,7 +102,7 @@ export default function Welcome({
         <>
             <Head title="Welcome" />
             <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 font-jakarta">
-                <PublicHeader user={auth.user} />
+                <PublicHeader />
 
                 <HeroSection user={auth.user} />
 

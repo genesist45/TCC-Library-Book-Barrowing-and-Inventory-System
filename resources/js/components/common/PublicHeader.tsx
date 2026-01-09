@@ -1,15 +1,13 @@
 import { Link, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import tccLogo from '@/assets/images/logos/tcc-logo-home.png';
-import { User } from '@/types';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 interface PublicHeaderProps {
-    user?: User;
     onCatalogsClick?: () => void;
 }
 
-export default function PublicHeader({ user, onCatalogsClick }: PublicHeaderProps) {
+export default function PublicHeader({ onCatalogsClick }: PublicHeaderProps) {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -64,8 +62,8 @@ export default function PublicHeader({ user, onCatalogsClick }: PublicHeaderProp
                     />
                 </Link>
 
-                {/* Desktop Navigation */}
-                <nav className="hidden items-center gap-1 md:flex">
+                {/* Desktop Navigation - Right aligned with padding */}
+                <nav className="hidden flex-1 items-center justify-end gap-1 pr-8 md:flex">
                     {navLinks.map((link) => (
                         link.onClick ? (
                             <button
@@ -93,24 +91,8 @@ export default function PublicHeader({ user, onCatalogsClick }: PublicHeaderProp
                     ))}
                 </nav>
 
-                {/* Right side - Login button and mobile menu */}
+                {/* Right side - Mobile menu button only */}
                 <div className="flex items-center gap-3">
-                    {user ? (
-                        <Link
-                            href={route('dashboard')}
-                            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                        >
-                            Dashboard
-                        </Link>
-                    ) : (
-                        <Link
-                            href={route('login')}
-                            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                        >
-                            Staff Portal
-                        </Link>
-                    )}
-
                     {/* Mobile menu button */}
                     <button
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
