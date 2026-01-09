@@ -46,6 +46,39 @@ class CategoryController extends Controller
     }
 
     /**
+     * Store multiple categories in storage.
+     */
+    public function storeBulk(): JsonResponse
+    {
+        $request = request();
+        $validated = $request->validate([
+            'count' => 'required|integer|min:1|max:50',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'is_published' => 'boolean',
+        ]);
+
+        $categories = [];
+        $count = $validated['count'];
+
+        for ($i = 1; $i <= $count; $i++) {
+            $name = $count > 1 ? "{$validated['name']} {$i}" : $validated['name'];
+            $categories[] = Category::create([
+                'name' => $name,
+                'slug' => \Illuminate\Support\Str::slug($name),
+                'description' => $validated['description'] ?? null,
+                'is_published' => $validated['is_published'] ?? true,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$count} category(ies) created successfully.",
+            'categories' => $categories
+        ]);
+    }
+
+    /**
      * Display the specified resource.
      */
     public function show(Category $category): JsonResponse

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { CatalogItemTable } from "../Components/tables";
 import { CatalogItemPageHeader } from "../Components/page";
 import { CatalogItemDeleteModal, CopyBookModal, CopySuccessModal } from "../Components/modals";
+import EntityManagementModal from "../Components/modals/EntityManagementModal";
 import { toast } from "react-toastify";
 import { PageProps, CatalogItem, Author, Publisher, Category } from "@/types";
 import Pagination from "@/components/common/Pagination";
@@ -15,9 +16,9 @@ interface CatalogItemWithAvailability extends CatalogItem {
 
 interface Props extends PageProps {
     catalogItems: CatalogItemWithAvailability[];
-    authors: { id: number; name: string }[];
-    publishers: { id: number; name: string }[];
-    categories: { id: number; name: string }[];
+    authors: { id: number; name: string; country?: string; bio?: string; is_published: boolean; catalog_items_count?: number }[];
+    publishers: { id: number; name: string; country?: string; description?: string; is_published: boolean; catalog_items_count?: number }[];
+    categories: { id: number; name: string; description?: string; is_published: boolean; catalog_items_count?: number }[];
     flash?: {
         success?: string;
         error?: string;
@@ -41,6 +42,11 @@ export default function Index({ catalogItems, authors, publishers, categories, f
     const [selectedAuthorId, setSelectedAuthorId] = useState<number | null>(null);
     const [selectedPublisherId, setSelectedPublisherId] = useState<number | null>(null);
     const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+
+    // Entity management modal states
+    const [showAuthorsModal, setShowAuthorsModal] = useState(false);
+    const [showCategoriesModal, setShowCategoriesModal] = useState(false);
+    const [showPublishersModal, setShowPublishersModal] = useState(false);
 
     useEffect(() => {
         if (flash?.success) {
@@ -125,6 +131,11 @@ export default function Index({ catalogItems, authors, publishers, categories, f
     const closeModal = () => {
         setShowDeleteModal(false);
         setSelectedItem(null);
+    };
+
+    // Entity management success handler
+    const handleEntitySuccess = () => {
+        handleRefresh();
     };
 
     // Filter items based on search term and selected filters
@@ -239,6 +250,9 @@ export default function Index({ catalogItems, authors, publishers, categories, f
                         onAuthorChange={setSelectedAuthorId}
                         onPublisherChange={setSelectedPublisherId}
                         onCategoryChange={setSelectedCategoryId}
+                        onManageAuthors={() => setShowAuthorsModal(true)}
+                        onManageCategories={() => setShowCategoriesModal(true)}
+                        onManagePublishers={() => setShowPublishersModal(true)}
                     />
 
                     <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-colors duration-300 dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">
@@ -391,6 +405,31 @@ export default function Index({ catalogItems, authors, publishers, categories, f
                 processing={processing}
                 onConfirm={confirmDelete}
                 onCancel={closeModal}
+            />
+
+            {/* Entity Management Modals */}
+            <EntityManagementModal
+                show={showAuthorsModal}
+                entityType="authors"
+                entities={authors}
+                onClose={() => setShowAuthorsModal(false)}
+                onSuccess={handleEntitySuccess}
+            />
+
+            <EntityManagementModal
+                show={showCategoriesModal}
+                entityType="categories"
+                entities={categories}
+                onClose={() => setShowCategoriesModal(false)}
+                onSuccess={handleEntitySuccess}
+            />
+
+            <EntityManagementModal
+                show={showPublishersModal}
+                entityType="publishers"
+                entities={publishers}
+                onClose={() => setShowPublishersModal(false)}
+                onSuccess={handleEntitySuccess}
             />
         </AuthenticatedLayout>
     );

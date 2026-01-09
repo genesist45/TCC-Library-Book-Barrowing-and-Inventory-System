@@ -5,39 +5,13 @@ import { CatalogItem } from "@/types";
 const shimmerClass =
     "animate-shimmer bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 bg-[length:200%_100%] dark:from-[#3a3a3a] dark:via-[#4a4a4a] dark:to-[#3a3a3a]";
 
-const MAX_TEXT_LENGTH = 23;
-
-/**
- * Truncates text to specified length and shows full text on hover
- */
-function TruncatedText({ text, maxLength = MAX_TEXT_LENGTH, className = "" }: {
-    text: string | null | undefined;
-    maxLength?: number;
-    className?: string;
-}) {
-    const displayText = text || "-";
-    const isTruncated = displayText.length > maxLength;
-    const truncatedText = isTruncated
-        ? displayText.substring(0, maxLength) + "..."
-        : displayText;
-
-    return (
-        <span
-            className={`${className} ${isTruncated ? "cursor-help" : ""}`}
-            title={isTruncated ? displayText : undefined}
-        >
-            {truncatedText}
-        </span>
-    );
-}
-
 function CatalogItemTableRowSkeleton() {
     return (
         <tr className="border-b border-gray-200 transition-colors duration-300 dark:border-[#3a3a3a]">
             <td className="whitespace-nowrap px-3 py-2 sm:px-4">
                 <div className={`${shimmerClass} h-4 w-12 rounded`} />
             </td>
-            <td className="whitespace-nowrap px-3 py-2 sm:px-4">
+            <td className="px-3 py-2 sm:px-4 min-w-[200px] max-w-[300px]">
                 <div className="text-sm space-y-1.5">
                     <div className={`${shimmerClass} h-4 w-48 rounded`} />
                     <div
@@ -48,11 +22,11 @@ function CatalogItemTableRowSkeleton() {
             <td className="hidden whitespace-nowrap px-3 py-2 sm:table-cell sm:px-4">
                 <div className={`${shimmerClass} h-4 w-24 rounded`} />
             </td>
-            <td className="hidden whitespace-nowrap px-3 py-2 md:table-cell sm:px-4">
+            <td className="hidden px-3 py-2 md:table-cell sm:px-4 min-w-[120px] max-w-[180px]">
                 <div className={`${shimmerClass} h-4 w-28 rounded`} />
             </td>
-            <td className="hidden whitespace-nowrap px-3 py-2 lg:table-cell sm:px-4">
-                <div className={`${shimmerClass} h-4 w-16 rounded`} />
+            <td className="hidden px-3 py-2 lg:table-cell sm:px-4 min-w-[140px] max-w-[200px]">
+                <div className={`${shimmerClass} h-4 w-32 rounded`} />
             </td>
             <td className="hidden whitespace-nowrap px-3 py-2 lg:table-cell sm:px-4">
                 <div className={`${shimmerClass} h-4 w-16 rounded`} />
@@ -171,10 +145,10 @@ export default function CatalogItemTable({
                                     <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:px-4">
                                         {item.id}
                                     </td>
-                                    <td className="whitespace-nowrap px-3 py-2 sm:px-4">
+                                    <td className="px-3 py-2 sm:px-4 min-w-[200px] max-w-[300px]">
                                         <div className="text-sm">
-                                            <div className="font-medium text-gray-900 transition-colors duration-300 dark:text-gray-100">
-                                                <TruncatedText text={item.title} />
+                                            <div className="font-medium text-gray-900 transition-colors duration-300 dark:text-gray-100 whitespace-normal break-words leading-snug">
+                                                {item.title || "-"}
                                             </div>
                                             <div className="text-xs text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:hidden">
                                                 {item.type}
@@ -184,11 +158,15 @@ export default function CatalogItemTable({
                                     <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 sm:table-cell sm:px-4">
                                         {item.type}
                                     </td>
-                                    <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 md:table-cell sm:px-4">
-                                        <TruncatedText text={item.category?.name} />
+                                    <td className="hidden px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 md:table-cell sm:px-4 min-w-[120px] max-w-[180px]">
+                                        <span className="whitespace-normal break-words leading-snug">
+                                            {item.category?.name || "-"}
+                                        </span>
                                     </td>
-                                    <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 lg:table-cell sm:px-4">
-                                        <TruncatedText text={item.publisher?.name} />
+                                    <td className="hidden px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 lg:table-cell sm:px-4 min-w-[140px] max-w-[200px]">
+                                        <span className="whitespace-normal break-words leading-snug">
+                                            {item.publisher?.name || "-"}
+                                        </span>
                                     </td>
                                     <td className="hidden whitespace-nowrap px-3 py-2 text-sm text-gray-500 transition-colors duration-300 dark:text-gray-400 lg:table-cell sm:px-4">
                                         {item.year || "-"}

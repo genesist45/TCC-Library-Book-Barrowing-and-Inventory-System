@@ -37,16 +37,16 @@ class CatalogItemController extends Controller
                 ])
                 ->orderBy("created_at", "desc")
                 ->get(),
-            // Filter options for the header
-            "authors" => Author::where("is_published", true)
+            // Filter options for the header and management modals
+            "authors" => Author::withCount('catalogItems')
                 ->orderBy("name")
-                ->get(["id", "name"]),
-            "publishers" => Publisher::where("is_published", true)
+                ->get(["id", "name", "country", "bio", "is_published"]),
+            "publishers" => Publisher::withCount('catalogItems')
                 ->orderBy("name")
-                ->get(["id", "name"]),
-            "categories" => Category::where("is_published", true)
+                ->get(["id", "name", "country", "description", "is_published"]),
+            "categories" => Category::withCount('catalogItems')
                 ->orderBy("name")
-                ->get(["id", "name"]),
+                ->get(["id", "name", "description", "is_published"]),
         ]);
     }
 
