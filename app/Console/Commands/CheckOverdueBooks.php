@@ -46,11 +46,11 @@ class CheckOverdueBooks extends Command
 
         $this->info("Found {$overdueRequests->count()} overdue book(s).");
 
-        // Get all admin users
-        $admins = User::where('role', 'admin')->get();
+        // Get all admin and staff users to notify
+        $usersToNotify = User::whereIn('role', ['admin', 'staff'])->get();
 
-        if ($admins->isEmpty()) {
-            $this->warn('No admin users found to notify.');
+        if ($usersToNotify->isEmpty()) {
+            $this->warn('No admin or staff users found to notify.');
             return Command::SUCCESS;
         }
 
@@ -59,24 +59,24 @@ class CheckOverdueBooks extends Command
 
         foreach ($overdueRequests as $request) {
             // Check if notification was already sent for this request (to avoid duplicates)
-            if (!$force && $this->notificationAlreadySent($request, $admins)) {
+            if (!$force && $this->notificationAlreadySent($request, $usersToNotify)) {
                 $this->line("  - Skipping: Notification already sent for request #{$request->id}");
                 continue;
             }
 
-            // Send notification to all admins
-            Notification::send($admins, new OverdueBookNotification($request));
+            // Send notification to all admin and staff users
+            Notification::send($usersToNotify, new OverdueBookNotification($request));
 
             $memberName = $request->member?->name ?? $request->full_name ?? 'Unknown';
             $bookTitle = $request->catalogItem?->title ?? 'Unknown';
-            $daysOverdue = Carbon::today()->diffInDays($request->return_date);
+            $daysOverdue = abs(Carbon::today()->diffInDays($request->return_date, false));
 
             $this->info("  - Notified: {$memberName} - \"{$bookTitle}\" ({$daysOverdue} days overdue)");
             $notificationsSent++;
         }
 
         $this->newLine();
-        $this->info("Sent {$notificationsSent} notification(s) to {$admins->count()} admin(s).");
+        $this->info("Sent {$notificationsSent} notification(s) to {$usersToNotify->count()} user(s).");
 
         return Command::SUCCESS;
     }
@@ -84,16 +84,16 @@ class CheckOverdueBooks extends Command
     /**
      * Check if a notification was already sent for this request today.
      */
-    private function notificationAlreadySent(BookRequest $request, $admins): bool
+    private function notificationAlreadySent(BookRequest $request, $users): bool
     {
-        // Check if any admin already has a notification for this request today
-        $firstAdmin = $admins->first();
+        // Check if any user already has a notification for this request today
+        $firstUser = $users->first();
 
-        if (!$firstAdmin) {
+        if (!$firstUser) {
             return false;
         }
 
-        return $firstAdmin->notifications()
+        return $firstUser->notifications()
             ->where('type', OverdueBookNotification::class)
             ->whereDate('created_at', Carbon::today())
             ->whereJsonContains('data->request_id', $request->id)
