@@ -1,4 +1,4 @@
-import { Search, Plus, RefreshCw, Printer, ChevronDown, X } from 'lucide-react';
+import { Search, Plus, RefreshCw, Printer, ChevronDown, X, Users, Tag, Building } from 'lucide-react';
 import PrimaryButton from '@/components/buttons/PrimaryButton';
 import { useState, useRef, useEffect } from 'react';
 
@@ -23,6 +23,10 @@ interface CatalogItemPageHeaderProps {
     onAuthorChange?: (id: number | null) => void;
     onPublisherChange?: (id: number | null) => void;
     onCategoryChange?: (id: number | null) => void;
+    // Management modal callbacks
+    onManageAuthors?: () => void;
+    onManageCategories?: () => void;
+    onManagePublishers?: () => void;
 }
 
 interface FilterDropdownProps {
@@ -152,6 +156,9 @@ export default function CatalogItemPageHeader({
     onAuthorChange,
     onPublisherChange,
     onCategoryChange,
+    onManageAuthors,
+    onManageCategories,
+    onManagePublishers,
 }: CatalogItemPageHeaderProps) {
     const handlePrint = () => {
         window.print();
@@ -258,6 +265,31 @@ export default function CatalogItemPageHeader({
                             title="Refresh items"
                         >
                             <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                        </button>
+
+                        {/* Management Buttons */}
+                        <button
+                            onClick={onManageAuthors}
+                            className="flex-shrink-0 rounded-lg border border-gray-300 bg-white p-2.5 text-gray-700 transition-all hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-600 dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-gray-300 dark:hover:bg-indigo-900/20 dark:hover:text-indigo-400"
+                            title="Manage Authors"
+                        >
+                            <Users className="h-5 w-5" />
+                        </button>
+
+                        <button
+                            onClick={onManageCategories}
+                            className="flex-shrink-0 rounded-lg border border-gray-300 bg-white p-2.5 text-gray-700 transition-all hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600 dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-gray-300 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-400"
+                            title="Manage Categories"
+                        >
+                            <Tag className="h-5 w-5" />
+                        </button>
+
+                        <button
+                            onClick={onManagePublishers}
+                            className="flex-shrink-0 rounded-lg border border-gray-300 bg-white p-2.5 text-gray-700 transition-all hover:bg-amber-50 hover:border-amber-300 hover:text-amber-600 dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-gray-300 dark:hover:bg-amber-900/20 dark:hover:text-amber-400"
+                            title="Manage Publishers"
+                        >
+                            <Building className="h-5 w-5" />
                         </button>
 
                         <button

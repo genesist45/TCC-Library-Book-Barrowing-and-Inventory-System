@@ -69,10 +69,10 @@ export default function Welcome({
             if (!hasAvailableCopy) return false;
         }
         if (availabilityFilter === "borrowed") {
-            const allCopiesBorrowed = book.copies?.length
+            const allCopiesCheckedOut = book.copies?.length
                 ? book.copies.every((copy) => copy.status !== "Available")
                 : false;
-            if (!allCopiesBorrowed) return false;
+            if (!allCopiesCheckedOut) return false;
         }
         return true;
     });
@@ -102,7 +102,7 @@ export default function Welcome({
         <>
             <Head title="Welcome" />
             <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 font-jakarta">
-                <PublicHeader user={auth.user} />
+                <PublicHeader />
 
                 <HeroSection user={auth.user} />
 

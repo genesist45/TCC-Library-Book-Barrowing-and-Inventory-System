@@ -101,7 +101,7 @@ export default function BorrowHistoryTable({
         if (status === "Approved") {
             return (
                 <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                    Borrowed
+                    Checked Out
                 </span>
             );
         }
@@ -187,13 +187,13 @@ export default function BorrowHistoryTable({
                                 Member
                             </th>
                             <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                                Borrowed
+                                Checked Out
                             </th>
                             <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
                                 Due Date
                             </th>
                             <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                                Returned
+                                Record
                             </th>
                             <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-300">
                                 Status

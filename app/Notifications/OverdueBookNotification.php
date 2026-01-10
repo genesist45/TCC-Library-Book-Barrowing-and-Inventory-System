@@ -40,12 +40,20 @@ class OverdueBookNotification extends Notification
     {
         $member = $this->bookRequest->member;
         $catalogItem = $this->bookRequest->catalogItem;
-        $dueDate = $this->bookRequest->return_date?->format('M d, Y') ?? 'N/A';
+        $dueDate = $this->bookRequest->return_date;
+        $dueDateFormatted = $dueDate?->format('M d, Y') ?? 'N/A';
+        
+        // Calculate days overdue
+        $daysOverdue = 0;
+        if ($dueDate) {
+            $daysOverdue = now()->startOfDay()->diffInDays($dueDate->startOfDay(), false);
+            $daysOverdue = abs($daysOverdue); // Ensure positive number
+        }
 
         return [
             'type' => 'overdue_book',
-            'message' => 'Overdue book alert',
-            'description' => "Book is overdue since {$dueDate}",
+            'message' => 'Overdue book not returned',
+            'description' => "Book is overdue since {$dueDateFormatted}",
             'member_id' => $member?->id,
             'member_name' => $member?->name ?? $this->bookRequest->full_name ?? 'Unknown Member',
             'member_no' => $member?->member_no ?? 'N/A',
@@ -53,10 +61,8 @@ class OverdueBookNotification extends Notification
             'book_id' => $catalogItem?->id,
             'accession_no' => $this->bookRequest->catalogItemCopy?->accession_no ?? 'N/A',
             'request_id' => $this->bookRequest->id,
-            'due_date' => $dueDate,
-            'days_overdue' => $this->bookRequest->return_date
-                ? now()->diffInDays($this->bookRequest->return_date)
-                : 0,
+            'due_date' => $dueDateFormatted,
+            'days_overdue' => $daysOverdue,
             'action_url' => $member
                 ? route('admin.members.show', ['member' => $member->id, 'tab' => 'borrow-history'])
                 : route('admin.book-requests.index'),

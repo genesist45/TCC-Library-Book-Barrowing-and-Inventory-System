@@ -9,6 +9,7 @@ interface BorrowRequestModalProps {
     onClose: () => void;
     catalogItemId: number;
     catalogItemCopyId: number | null;
+    onSuccess?: () => void;
 }
 
 interface MemberValidation {
@@ -22,6 +23,7 @@ export default function BorrowRequestModal({
     onClose,
     catalogItemId,
     catalogItemCopyId,
+    onSuccess,
 }: BorrowRequestModalProps) {
     const [memberValidation, setMemberValidation] = useState<MemberValidation>({
         isValid: null,
@@ -181,8 +183,8 @@ export default function BorrowRequestModal({
         post(route("books.borrow-request.store"), {
             preserveScroll: true,
             onSuccess: () => {
-                reset();
                 handleClose();
+                onSuccess?.();
             },
         });
     };
@@ -218,7 +220,7 @@ export default function BorrowRequestModal({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center overflow-y-auto p-0 sm:p-4">
             {/* Backdrop */}
             <div
                 className="fixed inset-0 bg-black/50 transition-opacity"
@@ -226,19 +228,19 @@ export default function BorrowRequestModal({
             />
 
             {/* Modal */}
-            <div className="relative z-50 w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
+            <div className="relative z-50 w-full sm:max-w-lg rounded-t-2xl sm:rounded-xl bg-white p-4 sm:p-6 shadow-xl max-h-[90vh] overflow-y-auto">
                 {/* Close Button */}
                 <button
                     onClick={handleClose}
-                    className="absolute right-4 top-4 rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                    className="absolute right-3 top-3 sm:right-4 sm:top-4 rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 min-h-[44px] min-w-[44px] flex items-center justify-center"
                 >
                     <X className="h-5 w-5" />
                 </button>
 
                 {/* Modal Header */}
-                <div className="mb-6">
-                    <h2 className="text-xl font-bold text-gray-900">Borrow Request</h2>
-                    <p className="mt-1 text-sm text-gray-600">
+                <div className="mb-4 sm:mb-6 pr-8">
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-900">Borrow Request</h2>
+                    <p className="mt-1 text-xs sm:text-sm text-gray-600">
                         Fill out the form to request borrowing this book
                     </p>
                 </div>
@@ -274,7 +276,7 @@ export default function BorrowRequestModal({
                         <label className="mb-2 block text-sm font-medium text-gray-700">
                             Return Schedule
                         </label>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label className="mb-1 block text-xs text-gray-500">
                                     Return Date <span className="text-red-500">*</span>
@@ -342,18 +344,18 @@ export default function BorrowRequestModal({
                     </div>
 
                     {/* Actions */}
-                    <div className="flex justify-end gap-3 pt-4">
+                    <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4">
                         <button
                             type="button"
                             onClick={handleClose}
-                            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
+                            className="w-full sm:w-auto rounded-lg border border-gray-300 bg-white px-4 py-3 sm:py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 min-h-[48px]"
                         >
                             Back
                         </button>
                         <button
                             type="submit"
                             disabled={processing || memberValidation.isValid !== true}
-                            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="w-full sm:w-auto rounded-lg bg-indigo-600 px-4 py-3 sm:py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 min-h-[48px]"
                         >
                             {processing ? "Submitting..." : "Submit Request"}
                         </button>

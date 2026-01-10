@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->integer('copy_no');
             $table->string('branch')->nullable();
             $table->string('location')->nullable();
-            $table->enum('status', ['Available', 'Borrowed', 'Reserved', 'Lost', 'Under Repair', 'Paid', 'Pending'])->default('Available');
+            $table->enum('status', ['Available', 'Checked Out', 'Reserved', 'Lost', 'Under Repair', 'Paid', 'Pending'])->default('Available');
             $table->foreignId('reserved_by_member_id')->nullable()->constrained('members')->onDelete('set null');
             $table->timestamp('reserved_at')->nullable();
             $table->timestamps();

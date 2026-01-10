@@ -87,7 +87,7 @@ export default function BorrowRecordDetailModal({
         }
         if (status === "Approved") {
             return {
-                label: "Borrowed",
+                label: "Checked Out",
                 color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
                 icon: BookOpen,
                 iconColor: "text-blue-500",
@@ -276,7 +276,7 @@ export default function BorrowRecordDetailModal({
                         <div className="grid grid-cols-3 gap-2 text-sm">
                             <div>
                                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                                    Borrowed
+                                    Checked Out
                                 </span>
                                 <p className="font-medium text-gray-900 dark:text-gray-100">
                                     {formatDate(record.date_borrowed)}
@@ -292,7 +292,7 @@ export default function BorrowRecordDetailModal({
                             </div>
                             <div>
                                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                                    Returned
+                                    Record
                                 </span>
                                 <p className="font-medium text-gray-900 dark:text-gray-100">
                                     {formatDate(record.date_returned)}

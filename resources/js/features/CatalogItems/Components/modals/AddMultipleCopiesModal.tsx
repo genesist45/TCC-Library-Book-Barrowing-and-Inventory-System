@@ -623,7 +623,7 @@ export default function AddMultipleCopiesModal({
                                                 Available
                                             </option>
                                             <option value="Borrowed">
-                                                Borrowed
+                                                Checked Out
                                             </option>
                                             <option value="Reserved">
                                                 Reserved

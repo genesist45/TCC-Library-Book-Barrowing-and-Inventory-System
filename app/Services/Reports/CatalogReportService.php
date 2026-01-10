@@ -59,7 +59,7 @@ class CatalogReportService
             ->where('status', 'Available')
             ->count();
         
-        // Currently Borrowed
+        // Currently Checked Out
         $borrowedBooks = BookRequest::where('status', 'Approved')
             ->whereDoesntHave('bookReturn')
             ->when($dateFrom && $dateTo, function ($query) use ($filteredCatalogItemIds) {

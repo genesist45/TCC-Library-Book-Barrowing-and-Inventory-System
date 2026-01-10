@@ -39,6 +39,37 @@ class AuthorController extends Controller
             ->with('success', 'Author created successfully.');
     }
 
+    public function storeBulk(): JsonResponse
+    {
+        $request = request();
+        $validated = $request->validate([
+            'count' => 'required|integer|min:1|max:50',
+            'name' => 'required|string|max:255',
+            'country' => 'required|string|max:255',
+            'bio' => 'nullable|string',
+            'is_published' => 'boolean',
+        ]);
+
+        $authors = [];
+        $count = $validated['count'];
+
+        for ($i = 1; $i <= $count; $i++) {
+            $name = $count > 1 ? "{$validated['name']} {$i}" : $validated['name'];
+            $authors[] = Author::create([
+                'name' => $name,
+                'country' => $validated['country'],
+                'bio' => $validated['bio'] ?? null,
+                'is_published' => $validated['is_published'] ?? true,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$count} author(s) created successfully.",
+            'authors' => $authors
+        ]);
+    }
+
     public function show(Author $author): JsonResponse
     {
         return response()->json([

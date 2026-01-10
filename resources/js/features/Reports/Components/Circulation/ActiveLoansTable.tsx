@@ -49,10 +49,10 @@ export function ActiveLoansTable({ data }: ActiveLoansTableProps) {
                 <BookOpen className="h-5 w-5 text-emerald-500" />
                 <div>
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                        Active Loans
+                        Active Checkouts
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Currently borrowed books that have not been returned
+                        Currently checked out books that have not been returned
                     </p>
                 </div>
             </div>
@@ -132,7 +132,7 @@ export function ActiveLoansTable({ data }: ActiveLoansTableProps) {
                     <div className="text-center">
                         <BookOpen className="mx-auto h-8 w-8 text-emerald-500" />
                         <p className="mt-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                            No books are currently borrowed
+                            No books are currently checked out
                         </p>
                     </div>
                 </div>

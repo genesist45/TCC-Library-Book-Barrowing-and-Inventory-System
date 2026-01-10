@@ -175,9 +175,6 @@ export default function Edit({
         e.preventDefault();
         post(route("admin.catalog-items.update", catalogItem.id), {
             forceFormData: true,
-            onSuccess: () => {
-                toast.success("Catalog item updated successfully!");
-            },
         });
     };
 

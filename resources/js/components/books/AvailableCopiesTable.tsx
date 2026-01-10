@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen } from "lucide-react";
+import { BookOpen, MapPin, Hash, Building, Copy, ChevronRight } from "lucide-react";
 import { CatalogItemCopy } from "@/types";
 import Pagination from "@/components/common/Pagination";
 
@@ -44,7 +44,8 @@ export default function AvailableCopiesTable({
 
     return (
         <div className="overflow-hidden rounded-lg border border-gray-200">
-            <div className="overflow-x-auto">
+            {/* Desktop Table View - Hidden on mobile */}
+            <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                     <thead>
                         <tr className="border-b border-gray-200 bg-gray-50">
@@ -117,16 +118,102 @@ export default function AvailableCopiesTable({
                 </table>
             </div>
 
-            {/* Pagination */}
-            <Pagination
-                currentPage={currentPage}
-                totalItems={totalItems}
-                itemsPerPage={itemsPerPage}
-                onPageChange={handlePageChange}
-                onItemsPerPageChange={handleItemsPerPageChange}
-                itemsPerPageOptions={[10, 25, 50]}
-                showRowsPerPage={true}
-            />
+            {/* Mobile Card View - Hidden on desktop */}
+            <div className="md:hidden divide-y divide-gray-200">
+                {paginatedCopies.map((copy) => (
+                    <div key={copy.id} className="bg-white p-4">
+                        {/* Header - Branch and Availability Status */}
+                        <div className="flex items-start justify-between gap-3 mb-3">
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                                <div className="flex-shrink-0 p-1.5 rounded-lg bg-indigo-50">
+                                    <Building className="h-4 w-4 text-indigo-600" />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Branch</p>
+                                    <p className="text-sm font-medium text-gray-900 truncate">
+                                        {copy.branch || "Main Library"}
+                                    </p>
+                                </div>
+                            </div>
+                            <span
+                                className={`flex-shrink-0 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${copy.status === "Available"
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-red-100 text-red-800"
+                                    }`}
+                            >
+                                {copy.status === "Available" ? "Available" : "Unavailable"}
+                            </span>
+                        </div>
+
+                        {/* Info Grid */}
+                        <div className="grid grid-cols-2 gap-3 mb-4">
+                            {/* Accession No */}
+                            <div className="flex items-center gap-2">
+                                <Hash className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
+                                <div className="min-w-0">
+                                    <p className="text-[10px] text-gray-400 uppercase">Accession</p>
+                                    <p className="text-xs font-medium text-gray-900 truncate">{copy.accession_no}</p>
+                                </div>
+                            </div>
+
+                            {/* Call No */}
+                            <div className="flex items-center gap-2">
+                                <BookOpen className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
+                                <div className="min-w-0">
+                                    <p className="text-[10px] text-gray-400 uppercase">Call No</p>
+                                    <p className="text-xs font-medium text-gray-900 truncate">{callNo || "—"}</p>
+                                </div>
+                            </div>
+
+                            {/* Copy No */}
+                            <div className="flex items-center gap-2">
+                                <Copy className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
+                                <div className="min-w-0">
+                                    <p className="text-[10px] text-gray-400 uppercase">Copy</p>
+                                    <p className="text-xs font-medium text-gray-900">#{copy.copy_no}</p>
+                                </div>
+                            </div>
+
+                            {/* Location */}
+                            <div className="flex items-center gap-2">
+                                <MapPin className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
+                                <div className="min-w-0">
+                                    <p className="text-[10px] text-gray-400 uppercase">Location</p>
+                                    <p className="text-xs font-medium text-gray-900 truncate">{copy.location || "—"}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Action Button */}
+                        {copy.status === "Available" ? (
+                            <button
+                                onClick={() => onRequestCopy(copy)}
+                                className="w-full flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all active:scale-[0.98] hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            >
+                                Request This Copy
+                                <ChevronRight className="h-4 w-4" />
+                            </button>
+                        ) : (
+                            <div className="w-full flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-3 text-sm font-medium text-gray-400">
+                                Currently Unavailable
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+
+            {/* Pagination - Responsive */}
+            <div className="border-t border-gray-200">
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={totalItems}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={handlePageChange}
+                    onItemsPerPageChange={handleItemsPerPageChange}
+                    itemsPerPageOptions={[10, 25, 50]}
+                    showRowsPerPage={true}
+                />
+            </div>
         </div>
     );
 }
@@ -138,15 +225,15 @@ interface EmptyStateProps {
 
 function EmptyState({ allCopiesBorrowed, hasPendingOrActiveRequest }: EmptyStateProps) {
     return (
-        <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-            <BookOpen className="mx-auto h-12 w-12 text-gray-400" />
+        <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-6 sm:p-8 text-center">
+            <BookOpen className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
 
             {allCopiesBorrowed ? (
                 <>
                     <p className="mt-2 text-sm font-medium text-red-600">
-                        All copies are currently borrowed
+                        All copies are currently checked out
                     </p>
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-1 text-xs text-gray-500 px-4">
                         This book is checked out and not available for borrowing at this time.
                     </p>
                     {hasPendingOrActiveRequest && (
@@ -158,9 +245,9 @@ function EmptyState({ allCopiesBorrowed, hasPendingOrActiveRequest }: EmptyState
             ) : hasPendingOrActiveRequest ? (
                 <>
                     <p className="mt-2 text-sm font-medium text-red-600">
-                        This book is currently borrowed
+                        This book is currently checked out
                     </p>
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-1 text-xs text-gray-500 px-4">
                         No copies available - book is checked out.
                     </p>
                 </>
@@ -169,7 +256,7 @@ function EmptyState({ allCopiesBorrowed, hasPendingOrActiveRequest }: EmptyState
                     <p className="mt-2 text-sm font-medium text-gray-600">
                         No copies available for this catalog item
                     </p>
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-1 text-xs text-gray-500 px-4">
                         This title currently has no physical copies in the library inventory.
                         Please check back later or contact the library staff.
                     </p>

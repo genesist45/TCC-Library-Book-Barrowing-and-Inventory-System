@@ -39,6 +39,37 @@ class PublisherController extends Controller
             ->with('success', 'Publisher created successfully.');
     }
 
+    public function storeBulk(): JsonResponse
+    {
+        $request = request();
+        $validated = $request->validate([
+            'count' => 'required|integer|min:1|max:50',
+            'name' => 'required|string|max:255',
+            'country' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'is_published' => 'boolean',
+        ]);
+
+        $publishers = [];
+        $count = $validated['count'];
+
+        for ($i = 1; $i <= $count; $i++) {
+            $name = $count > 1 ? "{$validated['name']} {$i}" : $validated['name'];
+            $publishers[] = Publisher::create([
+                'name' => $name,
+                'country' => $validated['country'],
+                'description' => $validated['description'] ?? null,
+                'is_published' => $validated['is_published'] ?? true,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$count} publisher(s) created successfully.",
+            'publishers' => $publishers
+        ]);
+    }
+
     public function show(Publisher $publisher): JsonResponse
     {
         return response()->json([

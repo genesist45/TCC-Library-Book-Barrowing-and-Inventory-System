@@ -17,17 +17,17 @@ export default function FilterOptions({
     onYearChange,
     onAvailabilityChange,
 }: FilterOptionsProps) {
-    const selectClasses = "w-full appearance-none rounded-lg border border-pink-200 bg-white px-3 py-2.5 pr-8 text-sm text-gray-700 transition-all hover:border-pink-300 focus:border-rose-400 focus:outline-none focus:ring-2 focus:ring-pink-100";
+    // Mobile-friendly select with proper touch target (min 44px height)
+    const selectClasses = "w-full appearance-none rounded-lg border border-pink-200 bg-white px-3 py-3 sm:py-2.5 pr-8 text-sm text-gray-700 transition-all hover:border-pink-300 focus:border-rose-400 focus:outline-none focus:ring-2 focus:ring-pink-100 min-h-[44px]";
 
     return (
-        <div className="flex flex-wrap gap-2 sm:gap-3">
+        <div className="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
             {/* Type Filter */}
-            <div className="relative">
+            <div className="relative flex-1 sm:flex-initial min-w-[100px]">
                 <select
                     value={typeFilter}
                     onChange={(e) => onTypeChange(e.target.value)}
                     className={selectClasses}
-                    style={{ minWidth: '110px' }}
                 >
                     <option value="">All Types</option>
                     <option value="Book">Book</option>
@@ -42,12 +42,11 @@ export default function FilterOptions({
             </div>
 
             {/* Year Filter */}
-            <div className="relative">
+            <div className="relative flex-1 sm:flex-initial min-w-[100px]">
                 <select
                     value={yearFilter}
                     onChange={(e) => onYearChange(e.target.value)}
                     className={selectClasses}
-                    style={{ minWidth: '110px' }}
                 >
                     <option value="">All Years</option>
                     <option value="2025">2025</option>
@@ -64,16 +63,15 @@ export default function FilterOptions({
             </div>
 
             {/* Availability Filter */}
-            <div className="relative">
+            <div className="relative flex-1 sm:flex-initial min-w-[100px]">
                 <select
                     value={availabilityFilter}
                     onChange={(e) => onAvailabilityChange(e.target.value)}
                     className={selectClasses}
-                    style={{ minWidth: '110px' }}
                 >
                     <option value="">All Status</option>
                     <option value="available">Available</option>
-                    <option value="borrowed">Borrowed</option>
+                    <option value="borrowed">Checked Out</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                     <ChevronDown className="h-4 w-4 text-gray-400" />

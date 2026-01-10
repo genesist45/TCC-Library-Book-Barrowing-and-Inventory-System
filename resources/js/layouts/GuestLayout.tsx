@@ -24,7 +24,7 @@ export default function Guest({ children }: PropsWithChildren) {
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             {/* Public Header */}
-            <PublicHeader user={auth.user} />
+            <PublicHeader />
 
             {/* Main Content */}
             <div className="flex min-h-screen flex-col items-center px-4 pt-40 sm:px-6">

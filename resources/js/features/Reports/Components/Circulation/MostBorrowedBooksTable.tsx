@@ -31,7 +31,7 @@ export function MostBorrowedBooksTable({ data }: MostBorrowedBooksTableProps) {
                 <Trophy className="h-5 w-5 text-amber-500" />
                 <div>
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                        Most Borrowed Books
+                        Most Checked Out Books
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                         Books with the highest circulation activity
@@ -54,10 +54,10 @@ export function MostBorrowedBooksTable({ data }: MostBorrowedBooksTableProps) {
                                     Category
                                 </th>
                                 <th className="py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                    Total Borrows
+                                    Total Checkouts
                                 </th>
                                 <th className="py-3 px-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                    Last Borrowed
+                                    Last Checked Out
                                 </th>
                             </tr>
                         </thead>

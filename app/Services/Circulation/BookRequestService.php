@@ -125,7 +125,7 @@ class BookRequestService
         ])->findOrFail($id);
 
         // Validate copy availability
-        if ($bookRequest->catalogItemCopy && $bookRequest->catalogItemCopy->status === 'Borrowed') {
+        if ($bookRequest->catalogItemCopy && $bookRequest->catalogItemCopy->status === 'Checked Out') {
             throw new \Exception('This copy is already borrowed and cannot be approved.');
         }
 
@@ -146,7 +146,7 @@ class BookRequestService
 
         // Mark copy as borrowed
         if ($bookRequest->catalogItemCopy) {
-            $bookRequest->catalogItemCopy->update(['status' => 'Borrowed']);
+            $bookRequest->catalogItemCopy->update(['status' => 'Checked Out']);
         }
 
         // Send email and schedule reminder
@@ -172,7 +172,7 @@ class BookRequestService
         // Validate
         if ($bookRequest->status === 'Pending' && 
             $bookRequest->catalogItemCopy && 
-            $bookRequest->catalogItemCopy->status === 'Borrowed') {
+            $bookRequest->catalogItemCopy->status === 'Checked Out') {
             throw new \Exception('This copy is already borrowed and cannot be declined.');
         }
 
@@ -223,7 +223,7 @@ class BookRequestService
         ]);
 
         // Mark copy as borrowed
-        $copy->update(['status' => 'Borrowed']);
+        $copy->update(['status' => 'Checked Out']);
 
         // Load relationships for email
         $bookRequest->load([
@@ -295,7 +295,7 @@ class BookRequestService
         if ($oldStatus === 'Pending' && 
             in_array($newStatus, ['Approved', 'Disapproved']) &&
             $bookRequest->catalogItemCopy && 
-            $bookRequest->catalogItemCopy->status === 'Borrowed') {
+            $bookRequest->catalogItemCopy->status === 'Checked Out') {
             throw new \Exception('This copy is already borrowed and cannot be approved or declined.');
         }
     }
@@ -321,7 +321,7 @@ class BookRequestService
 
         // Mark copy as borrowed
         if ($bookRequest->catalogItemCopy) {
-            $bookRequest->catalogItemCopy->update(['status' => 'Borrowed']);
+            $bookRequest->catalogItemCopy->update(['status' => 'Checked Out']);
         }
 
         // Send email and schedule reminder

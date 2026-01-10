@@ -100,8 +100,11 @@ Route::middleware(['auth', 'verified', 'role:admin|staff'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         // Catalog Management
         Route::resource('categories', CategoryController::class)->except(['create', 'edit']);
+        Route::post('categories/bulk', [CategoryController::class, 'storeBulk'])->name('categories.store-bulk');
         Route::resource('authors', AuthorController::class)->except(['create', 'edit']);
+        Route::post('authors/bulk', [AuthorController::class, 'storeBulk'])->name('authors.store-bulk');
         Route::resource('publishers', PublisherController::class)->except(['create', 'edit']);
+        Route::post('publishers/bulk', [PublisherController::class, 'storeBulk'])->name('publishers.store-bulk');
         Route::get('locations/list', [LocationController::class, 'list'])->name('locations.list');
         Route::resource('locations', LocationController::class)->except(['create', 'edit']);
         Route::resource('branches', BranchController::class)->except(['create', 'edit']);

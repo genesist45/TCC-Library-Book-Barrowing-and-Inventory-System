@@ -61,6 +61,8 @@ export default function EditCopyModal({
     const [status, setStatus] = useState("Available");
     const [reservedByMemberId, setReservedByMemberId] = useState<number | null>(null);
     const [processing, setProcessing] = useState(false);
+    const [loadingBranches, setLoadingBranches] = useState(false);
+    const [loadingLocations, setLoadingLocations] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     // Local branches and locations state (for quick add)
@@ -89,14 +91,51 @@ export default function EditCopyModal({
     const [isSearching, setIsSearching] = useState(false);
     const [showMemberDropdown, setShowMemberDropdown] = useState(false);
 
-    // Update local state when props change
+    // List fetching logic
+    const fetchBranches = async () => {
+        setLoadingBranches(true);
+        try {
+            const response = await axios.get(route("admin.branches.index"));
+            setLocalBranches(response.data.branches || []);
+        } catch (error) {
+            console.error("Failed to fetch branches:", error);
+        } finally {
+            setLoadingBranches(false);
+        }
+    };
+
+    const fetchLocations = async () => {
+        setLoadingLocations(true);
+        try {
+            const response = await axios.get(route("admin.locations.list"));
+            setLocalLocations(response.data.locations || response.data || []);
+        } catch (error) {
+            console.error("Failed to fetch locations:", error);
+        } finally {
+            setLoadingLocations(false);
+        }
+    };
+
+    // Update local state when props change or fetch if empty
     useEffect(() => {
-        setLocalBranches(branches);
-    }, [branches]);
+        if (show) {
+            if (branches.length > 0) {
+                setLocalBranches(branches);
+            } else {
+                fetchBranches();
+            }
+        }
+    }, [branches, show]);
 
     useEffect(() => {
-        setLocalLocations(locations);
-    }, [locations]);
+        if (show) {
+            if (locations.length > 0) {
+                setLocalLocations(locations);
+            } else {
+                fetchLocations();
+            }
+        }
+    }, [locations, show]);
 
     useEffect(() => {
         if (show && copy) {
@@ -349,8 +388,6 @@ export default function EditCopyModal({
         onClose();
     };
 
-    const selectedBranch = localBranches.find((b) => b.name === branch);
-    const selectedLocation = localLocations.find((l) => l.name === location);
 
     return (
         <>
@@ -413,15 +450,15 @@ export default function EditCopyModal({
                             <div className="relative mt-1" ref={branchDropdownRef}>
                                 <div
                                     className={`flex items-center justify-between w-full rounded-md border shadow-sm transition-colors duration-200 cursor-pointer text-sm ${branchDropdownOpen
-                                            ? "border-indigo-500 ring-1 ring-indigo-500"
-                                            : "border-gray-300 dark:border-gray-700"
+                                        ? "border-indigo-500 ring-1 ring-indigo-500"
+                                        : "border-gray-300 dark:border-gray-700"
                                         } bg-white dark:bg-gray-900`}
                                     onClick={() => setBranchDropdownOpen(!branchDropdownOpen)}
                                 >
                                     <div className="flex-1 px-3 py-1.5">
-                                        {selectedBranch ? (
+                                        {branch ? (
                                             <span className="text-gray-900 dark:text-gray-100">
-                                                {selectedBranch.name}
+                                                {branch}
                                             </span>
                                         ) : (
                                             <span className="text-gray-400 dark:text-gray-500">
@@ -470,14 +507,18 @@ export default function EditCopyModal({
 
                                         {/* Options */}
                                         <div className="max-h-36 overflow-y-auto">
-                                            {branchPaginatedItems.length > 0 ? (
+                                            {loadingBranches ? (
+                                                <div className="px-3 py-3 text-center text-xs text-gray-500 dark:text-gray-400">
+                                                    Loading...
+                                                </div>
+                                            ) : branchPaginatedItems.length > 0 ? (
                                                 branchPaginatedItems.map((b) => (
                                                     <div
                                                         key={b.id}
                                                         onClick={() => handleBranchSelect(b.name)}
                                                         className={`px-3 py-1.5 cursor-pointer text-xs transition-colors ${branch === b.name
-                                                                ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
-                                                                : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                                                            ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                                                            : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
                                                             }`}
                                                     >
                                                         {b.name}
@@ -536,15 +577,15 @@ export default function EditCopyModal({
                             <div className="relative mt-1" ref={locationDropdownRef}>
                                 <div
                                     className={`flex items-center justify-between w-full rounded-md border shadow-sm transition-colors duration-200 cursor-pointer text-sm ${locationDropdownOpen
-                                            ? "border-indigo-500 ring-1 ring-indigo-500"
-                                            : "border-gray-300 dark:border-gray-700"
+                                        ? "border-indigo-500 ring-1 ring-indigo-500"
+                                        : "border-gray-300 dark:border-gray-700"
                                         } bg-white dark:bg-gray-900`}
                                     onClick={() => setLocationDropdownOpen(!locationDropdownOpen)}
                                 >
                                     <div className="flex-1 px-3 py-1.5">
-                                        {selectedLocation ? (
+                                        {location ? (
                                             <span className="text-gray-900 dark:text-gray-100">
-                                                {selectedLocation.name}
+                                                {location}
                                             </span>
                                         ) : (
                                             <span className="text-gray-400 dark:text-gray-500">
@@ -593,14 +634,18 @@ export default function EditCopyModal({
 
                                         {/* Options */}
                                         <div className="max-h-36 overflow-y-auto">
-                                            {locationPaginatedItems.length > 0 ? (
+                                            {loadingLocations ? (
+                                                <div className="px-3 py-3 text-center text-xs text-gray-500 dark:text-gray-400">
+                                                    Loading...
+                                                </div>
+                                            ) : locationPaginatedItems.length > 0 ? (
                                                 locationPaginatedItems.map((l) => (
                                                     <div
                                                         key={l.id}
                                                         onClick={() => handleLocationSelect(l.name)}
                                                         className={`px-3 py-1.5 cursor-pointer text-xs transition-colors ${location === l.name
-                                                                ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
-                                                                : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                                                            ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                                                            : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
                                                             }`}
                                                     >
                                                         {l.name}
@@ -678,7 +723,7 @@ export default function EditCopyModal({
                                 disabled={copy?.status === 'Paid'}
                             >
                                 <option value="Available">Available</option>
-                                <option value="Borrowed">Borrowed</option>
+                                <option value="Borrowed">Checked Out</option>
                                 <option value="Reserved">Reserved</option>
                                 <option value="Lost">Lost</option>
                                 <option value="Under Repair">Under Repair</option>

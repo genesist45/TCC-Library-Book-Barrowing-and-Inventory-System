@@ -11,14 +11,14 @@ interface CirculationSummaryCardsProps {
 export function CirculationSummaryCards({ summary }: CirculationSummaryCardsProps) {
     const cards = [
         {
-            title: 'Total Borrowing Transactions',
+            title: 'Total Checkout Transactions',
             value: summary.totalTransactions.toLocaleString(),
             icon: ArrowRightLeft,
             iconBgClass: 'bg-blue-100 dark:bg-blue-900/30',
             iconClass: 'text-blue-600 dark:text-blue-400',
         },
         {
-            title: 'Active Loans',
+            title: 'Active Checkouts',
             value: summary.activeLoans.toLocaleString(),
             icon: BookOpen,
             iconBgClass: 'bg-emerald-100 dark:bg-emerald-900/30',

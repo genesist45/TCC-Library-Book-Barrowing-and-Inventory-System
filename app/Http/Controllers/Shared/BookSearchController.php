@@ -58,13 +58,13 @@ class BookSearchController extends Controller
         // Calculate availability status
         $hasAvailableCopies = $catalogItem->available_copies_count > 0;
         $hasCopies = $catalogItem->copies_count > 0;
-        $allCopiesBorrowed = $hasCopies && !$hasAvailableCopies;
+        $allCopiesCheckedOut = $hasCopies && !$hasAvailableCopies;
 
         return inertia("features/Public/Pages/BookDetails", [
             "catalogItem" => $catalogItem,
             "hasAvailableCopies" => $hasAvailableCopies,
             "hasCopies" => $hasCopies,
-            "allCopiesBorrowed" => $allCopiesBorrowed,
+            "allCopiesCheckedOut" => $allCopiesCheckedOut,
             "hasPendingOrActiveRequest" => $hasPendingOrActiveRequest,
         ]);
     }
